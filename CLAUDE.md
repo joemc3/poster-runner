@@ -31,6 +31,9 @@ flutter test
 # Analyze code
 flutter analyze
 
+# Generate Hive type adapters (required after model changes)
+flutter pub run build_runner build
+
 # Build for iOS
 flutter build ios
 
@@ -52,10 +55,18 @@ flutter build apk
 - All UX specifications from design documents implemented
 - Zero linting issues, all tests passing
 
-**Data Models**
+**Data Models (100% Complete)**
 - `PosterRequest` class (`lib/models/poster_request.dart`)
+  - All fields implemented including `isSynced` for BLE sync tracking
+  - JSON serialization (toJson/fromJson) for BLE transmission
+  - Hive type adapters for local persistence
+  - Specialized serialization methods for BLE characteristics
 - `RequestStatus` enum (sent, pending, fulfilled)
-- Extension methods for display labels and icons
+  - Extension methods for display labels and icons
+  - Hive type adapter for persistence
+- Mock data generator (`lib/models/mock_data.dart`)
+  - Realistic sample data for development/testing
+  - Pre-sorted views for each screen type
 
 ### What's NOT Implemented ⚠️
 
@@ -72,17 +83,26 @@ flutter build apk
 
 ### Core Data Model
 
-The entire application revolves around a single data structure: `PosterRequest` (currently implemented in `lib/models/poster_request.dart`)
+The entire application revolves around a single data structure: `PosterRequest` (implemented in `lib/models/poster_request.dart`)
 
-**Implemented Fields:**
-- `uniqueId` (String): Unique identifier (currently uses simple string IDs)
+**All Fields (Fully Implemented):**
+- `uniqueId` (String): Unique identifier (UUID format for BLE transmission)
 - `posterNumber` (String): Poster number (e.g., "A457")
 - `status` (RequestStatus enum): sent, pending, or fulfilled
 - `timestampSent` (DateTime): When request was submitted
 - `timestampPulled` (DateTime?): When marked as fulfilled
+- `isSynced` (bool): Whether current state has been transmitted via BLE
 
-**Fields to Add for BLE Integration:**
-- `isSynced` (Boolean): Whether current state has been transmitted via BLE
+**Serialization Capabilities:**
+- `toJson()` / `fromJson()`: Full object serialization for storage and transmission
+- `toRequestCharacteristicJson()`: Optimized for BLE Request Characteristic (A)
+- `toQueueStatusJson()`: Optimized for BLE Queue Status Characteristic (B)
+- `fromJsonSynced()`: Factory constructor with explicit sync state control
+
+**Hive Integration:**
+- Type adapters defined with annotations (typeId: 0 for PosterRequest, typeId: 1 for RequestStatus)
+- Run `flutter pub run build_runner build` to generate adapter code
+- Box key uses `uniqueId` field for fast lookups
 
 ### Two-Role Architecture
 
@@ -142,6 +162,32 @@ The entire application revolves around a single data structure: `PosterRequest` 
 2. Back Office pushes all unsynced status updates
 3. Front Desk reads full queue state for reconciliation
 
+### Data Architecture Decisions
+
+**Field Naming Convention:**
+The PosterRequest model uses field names that align with the Data Structure Specification rather than typical Dart conventions (e.g., `uniqueId` instead of `id`, `timestampPulled` instead of `timestampFulfilled`). This decision prioritizes:
+- Consistency with BLE protocol specification
+- Cross-platform data interchange clarity
+- Alignment with product requirements documentation
+
+**JSON Serialization Approach:**
+- Manual serialization (no json_serializable or freezed) for maximum control over BLE payload format
+- DateTime objects serialized to ISO 8601 strings for standard compliance
+- `isSynced` field intentionally excluded from JSON (local-only field)
+- Specialized methods (`toRequestCharacteristicJson`, `toQueueStatusJson`) for BLE characteristics
+
+**Hive Type Adapter Strategy:**
+- Annotations-based approach using hive_generator for compile-time safety
+- Type IDs: 0 (PosterRequest), 1 (RequestStatus)
+- Generate adapters with: `flutter pub run build_runner build`
+- Required before first app run after cloning repository
+
+**Mock Data Design:**
+- Static mock data in `lib/models/mock_data.dart` for UI development
+- Provides pre-sorted views matching screen requirements (liveQueue, deliveredAudit, fulfilledLog)
+- Includes offline scenario data for testing sync logic
+- Can generate batches for stress testing
+
 ## Project Standards Location
 
 Critical design specifications are in `project_standards/`:
@@ -189,7 +235,8 @@ All UI components MUST reference `project_standards/project-theme.md` for:
 app/lib/
 ├── main.dart                          # App entry point
 ├── models/
-│   └── poster_request.dart            # PosterRequest data model (✅ Complete)
+│   ├── poster_request.dart            # PosterRequest data model (✅ Complete)
+│   └── mock_data.dart                 # Mock data generator (✅ Complete)
 ├── theme/
 │   └── app_theme.dart                 # Theme configuration (✅ Complete)
 ├── widgets/

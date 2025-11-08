@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/poster_request.dart';
+import '../../models/mock_data.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
 
@@ -52,40 +53,13 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
     super.dispose();
   }
 
-  /// Initialize with placeholder data
+  /// Initialize with placeholder data from MockPosterRequests
   /// TODO: Remove when connected to actual data source
   void _initializePlaceholderData() {
-    _allRequests = widget.fulfilledRequests ??
-        [
-          PosterRequest(
-            id: '1',
-            posterNumber: 'A102',
-            timestampSent: DateTime.now().subtract(const Duration(hours: 3)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(hours: 2, minutes: 45)),
-            status: RequestStatus.fulfilled,
-          ),
-          PosterRequest(
-            id: '2',
-            posterNumber: 'A105',
-            timestampSent: DateTime.now().subtract(const Duration(hours: 3, minutes: 20)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(hours: 3, minutes: 18)),
-            status: RequestStatus.fulfilled,
-          ),
-          PosterRequest(
-            id: '3',
-            posterNumber: 'B211',
-            timestampSent: DateTime.now().subtract(const Duration(hours: 1, minutes: 15)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(minutes: 30)),
-            status: RequestStatus.fulfilled,
-          ),
-          PosterRequest(
-            id: '4',
-            posterNumber: 'C001',
-            timestampSent: DateTime.now().subtract(const Duration(minutes: 50)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(minutes: 1)),
-            status: RequestStatus.fulfilled,
-          ),
-        ];
+    // Use centralized mock data
+    // Note: MockPosterRequests.fulfilledLog is sorted by timestampPulled,
+    // but _filterRequests() will re-sort by posterNumber for display
+    _allRequests = widget.fulfilledRequests ?? MockPosterRequests.fulfilledLog;
   }
 
   /// Filter requests based on search query
@@ -172,8 +146,8 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
   Widget _buildListItem(PosterRequest request, TextTheme textTheme, ColorScheme colorScheme) {
     final timeFormat = DateFormat('h:mm a');
     final sentTime = timeFormat.format(request.timestampSent);
-    final pulledTime = request.timestampFulfilled != null
-        ? timeFormat.format(request.timestampFulfilled!)
+    final pulledTime = request.timestampPulled != null
+        ? timeFormat.format(request.timestampPulled!)
         : 'N/A';
 
     return Container(

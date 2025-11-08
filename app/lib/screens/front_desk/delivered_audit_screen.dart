@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/poster_request.dart';
+import '../../models/mock_data.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
 
@@ -52,47 +53,11 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
     super.dispose();
   }
 
-  /// Initialize with placeholder data
+  /// Initialize with placeholder data from MockPosterRequests
   /// TODO: Remove when connected to actual data source
   void _initializePlaceholderData() {
-    _allRequests = widget.fulfilledRequests ??
-        [
-          PosterRequest(
-            id: '1',
-            posterNumber: 'A102',
-            timestampSent: DateTime.now().subtract(const Duration(hours: 2)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(hours: 1, minutes: 45)),
-            status: RequestStatus.fulfilled,
-          ),
-          PosterRequest(
-            id: '2',
-            posterNumber: 'A105',
-            timestampSent: DateTime.now().subtract(const Duration(hours: 3)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(hours: 2, minutes: 18)),
-            status: RequestStatus.fulfilled,
-          ),
-          PosterRequest(
-            id: '3',
-            posterNumber: 'B211',
-            timestampSent: DateTime.now().subtract(const Duration(minutes: 45)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(minutes: 30)),
-            status: RequestStatus.fulfilled,
-          ),
-          PosterRequest(
-            id: '4',
-            posterNumber: 'C001',
-            timestampSent: DateTime.now().subtract(const Duration(minutes: 10)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(minutes: 1)),
-            status: RequestStatus.fulfilled,
-          ),
-          PosterRequest(
-            id: '5',
-            posterNumber: 'C055',
-            timestampSent: DateTime.now().subtract(const Duration(hours: 1)),
-            timestampFulfilled: DateTime.now().subtract(const Duration(minutes: 10)),
-            status: RequestStatus.fulfilled,
-          ),
-        ];
+    // Use centralized mock data (already sorted by posterNumber A-Z)
+    _allRequests = widget.fulfilledRequests ?? MockPosterRequests.deliveredAudit;
   }
 
   /// Filter requests based on search query
@@ -178,8 +143,8 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
   /// Build individual list item
   Widget _buildListItem(PosterRequest request, TextTheme textTheme, ColorScheme colorScheme) {
     final timeFormat = DateFormat('h:mm a');
-    final pulledTime = request.timestampFulfilled != null
-        ? timeFormat.format(request.timestampFulfilled!)
+    final pulledTime = request.timestampPulled != null
+        ? timeFormat.format(request.timestampPulled!)
         : 'N/A';
 
     return Container(
