@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/poster_request.dart';
+import '../../models/mock_data.dart';
 import '../../theme/app_theme.dart';
 
 /// Back Office - Live Request Queue Screen (Tab 1)
@@ -45,39 +46,11 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
     _initializePlaceholderData();
   }
 
-  /// Initialize with placeholder data
+  /// Initialize with placeholder data from MockPosterRequests
   /// TODO: Remove when connected to actual data source
   void _initializePlaceholderData() {
-    _activeQueue = widget.pendingRequests ??
-        [
-          PosterRequest(
-            id: '1',
-            posterNumber: 'C055',
-            timestampSent: DateTime.now().subtract(const Duration(hours: 1)),
-            status: RequestStatus.pending,
-          ),
-          PosterRequest(
-            id: '2',
-            posterNumber: 'B211',
-            timestampSent: DateTime.now().subtract(const Duration(minutes: 30)),
-            status: RequestStatus.pending,
-          ),
-          PosterRequest(
-            id: '3',
-            posterNumber: 'C001',
-            timestampSent: DateTime.now().subtract(const Duration(minutes: 1)),
-            status: RequestStatus.pending,
-          ),
-          PosterRequest(
-            id: '4',
-            posterNumber: 'A457',
-            timestampSent: DateTime.now(),
-            status: RequestStatus.pending,
-          ),
-        ];
-
-    // Sort by timestamp (oldest first)
-    _activeQueue.sort((a, b) => a.timestampSent.compareTo(b.timestampSent));
+    // Use centralized mock data (already sorted by timestampSent, oldest first)
+    _activeQueue = widget.pendingRequests ?? MockPosterRequests.liveQueue;
   }
 
   /// Handle pull button press
@@ -89,7 +62,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
 
     // Remove from active queue
     setState(() {
-      _activeQueue.removeWhere((r) => r.id == request.id);
+      _activeQueue.removeWhere((r) => r.uniqueId == request.uniqueId);
     });
 
     // Show confirmation
