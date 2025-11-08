@@ -6,6 +6,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Poster Runner** is a cross-platform Flutter application designed for offline communication between Front Desk and Back Office staff at temporary event locations. The app uses Bluetooth Low Energy (BLE) to sync poster pull requests in environments with unreliable or no internet connectivity.
 
+### Quick Start for New Developers
+
+**Current State (TL;DR):**
+- ✅ **UI is 100% complete** - All 7 screens working with mock data
+- ✅ **Data models are 100% complete** - PosterRequest with full serialization
+- ⚠️ **Hive adapters need generation** - Run `flutter pub run build_runner build`
+- ❌ **No BLE integration** - Package not installed, services layer doesn't exist
+- ❌ **No persistence** - Data resets on app restart
+- ❌ **No state management** - Each screen manages its own state locally
+
+**What You Can Do Right Now:**
+```bash
+cd app
+flutter pub get
+flutter run  # See the complete UI with mock data
+```
+
+**What Needs Implementation:**
+1. Generate Hive type adapters
+2. Add BLE package (flutter_reactive_ble recommended)
+3. Add state management (Provider recommended)
+4. Build services layer (BLE, persistence, sync)
+5. Connect UI to real data sources
+
 ## Essential Commands
 
 ### Development
@@ -43,6 +67,13 @@ flutter build apk
 
 ## Current Implementation Status
 
+### Codebase Statistics
+- **Total Dart Files:** 14 files (~1,452 lines of code)
+- **Screens:** 7 complete screens
+- **Reusable Widgets:** 3 components
+- **Data Models:** 1 core model + 1 enum + mock data generator
+- **Test Coverage:** Minimal (1 smoke test)
+
 ### What's Complete ✅
 
 **UI Layer (100% Complete)**
@@ -53,31 +84,104 @@ flutter build apk
 - Complete theme system (light/dark mode)
 - Reusable widgets (StatusBadge, RequestListItem, SearchBarWidget)
 - All UX specifications from design documents implemented
-- Zero linting issues, all tests passing
+- Zero linting issues
 
 **Data Models (100% Complete)**
 - `PosterRequest` class (`lib/models/poster_request.dart`)
-  - All fields implemented including `isSynced` for BLE sync tracking
-  - JSON serialization (toJson/fromJson) for BLE transmission
-  - Hive type adapters for local persistence
+  - All 6 fields implemented including `isSynced` for BLE sync tracking
+  - Full JSON serialization (toJson/fromJson) for BLE transmission
+  - Hive type adapter annotations (typeId: 0)
   - Specialized serialization methods for BLE characteristics
+  - Utility methods: copyWith, equality operators, status getters
 - `RequestStatus` enum (sent, pending, fulfilled)
   - Extension methods for display labels and icons
-  - Hive type adapter for persistence
+  - Hive type adapter annotations (typeId: 1)
+  - JSON serialization methods
 - Mock data generator (`lib/models/mock_data.dart`)
-  - Realistic sample data for development/testing
-  - Pre-sorted views for each screen type
+  - 15 realistic sample requests (3 sent, 5 pending, 7 fulfilled)
+  - Pre-sorted views for each screen type (liveQueue, deliveredAudit, fulfilledLog)
+  - Filter methods and batch generation utilities
+  - Offline scenario data for testing sync logic
 
 ### What's NOT Implemented ⚠️
 
-- BLE communication layer
-- Hive persistence
-- State management (Provider/Riverpod/BLoC)
-- Actual data synchronization
+**Critical Gaps:**
+- **Hive type adapter code generation** - Annotations exist but need: `flutter pub run build_runner build`
+- **BLE package not installed** - Need to add flutter_reactive_ble or similar to pubspec.yaml
+- **No services layer** - `/lib/services/` directory doesn't exist
+- **No state management** - No Provider/Riverpod/BLoC package installed
+
+**Missing Functionality:**
+- BLE communication layer (connection, characteristics, scanning)
+- Hive persistence implementation (box initialization, reads/writes)
+- State management for BLE events and data synchronization
+- Actual data synchronization between devices
+- Connection status UI (Bluetooth icons are non-functional)
 - Error handling and retry logic
 - Role persistence (role selection resets on app restart)
+- Comprehensive test coverage
 
 **Current Behavior:** The app uses hardcoded placeholder data to demonstrate UI/UX. All interactions are local-only and don't persist between app restarts.
+
+### Installed Dependencies
+
+**Runtime Packages:**
+```yaml
+flutter: sdk: flutter
+cupertino_icons: ^1.0.8        # iOS-style icons
+google_fonts: ^6.2.1           # Inter font family for typography
+intl: ^0.19.0                  # Date/time formatting and internationalization
+hive: ^2.2.3                   # Local NoSQL database (not yet initialized)
+hive_flutter: ^1.1.0           # Flutter-specific Hive initialization
+```
+
+**Dev Dependencies:**
+```yaml
+flutter_test: sdk: flutter
+flutter_lints: ^5.0.0          # Dart linting rules
+hive_generator: ^2.0.1         # Code generation for Hive type adapters
+build_runner: ^2.4.13          # Code generation framework
+```
+
+**Critical Missing Packages:**
+- **BLE Communication:** No flutter_reactive_ble, flutter_blue_plus, or similar BLE package
+- **State Management:** No provider, riverpod, bloc, or state management package
+- **Testing:** Only basic flutter_test, no mockito or integration test packages
+
+### Next Development Steps
+
+To continue implementation, the recommended order is:
+
+1. **Generate Hive Type Adapters**
+   ```bash
+   cd app
+   flutter pub run build_runner build
+   ```
+
+2. **Add BLE Package**
+   - Research: flutter_reactive_ble (recommended) vs. flutter_blue_plus
+   - Add to pubspec.yaml
+   - Configure platform permissions (iOS: Info.plist, Android: AndroidManifest.xml)
+
+3. **Add State Management**
+   - Recommended: Provider (simple, officially supported)
+   - Alternative: Riverpod (more powerful, modern)
+
+4. **Implement Services Layer**
+   - Create `/lib/services/` directory
+   - Build BLE service (connection, characteristics)
+   - Build persistence service (Hive box management)
+   - Build sync orchestration service
+
+5. **Integrate UI with Services**
+   - Replace mock data with state-managed data
+   - Wire up BLE events to UI updates
+   - Add connection status indicators
+
+6. **Add Comprehensive Testing**
+   - Unit tests for data models
+   - Widget tests for screens
+   - Integration tests for BLE sync scenarios
 
 ## Architecture Overview
 
@@ -334,18 +438,20 @@ This project has specialized agents configured in `.claude/agents/` to help with
 
 ### Separation of Concerns
 
-**UI Layer (Widgets):** ✅ IMPLEMENTED
+**UI Layer (Widgets):** ✅ FULLY IMPLEMENTED
 - Only presentation and local UI state (e.g., animations, focus)
 - Accept data via parameters, actions via callbacks
 - NO business logic, NO API calls, NO persistence
 - All screens have TODO comments indicating integration points
 - **Use `flutter-ui-builder` agent for UI work**
 
-**Data Layer (Models & Serialization):** ✅ PARTIALLY IMPLEMENTED
-- `PosterRequest` model exists but needs serialization
-- Need to add `isSynced` field for BLE integration
-- Need JSON serialization for BLE transmission
-- Need Hive type adapters for persistence
+**Data Layer (Models & Serialization):** ✅ FULLY IMPLEMENTED
+- `PosterRequest` model complete with all 6 fields including `isSynced`
+- Full JSON serialization (toJson/fromJson) implemented
+- Specialized BLE serialization methods (toRequestCharacteristicJson, toQueueStatusJson)
+- Hive type adapter annotations in place (requires code generation)
+- RequestStatus enum with extensions
+- Comprehensive mock data generator
 - **Use `flutter-data-architect` agent for data model work**
 
 **Business Logic Layer:** ⚠️ NOT IMPLEMENTED
@@ -369,13 +475,35 @@ This project has specialized agents configured in `.claude/agents/` to help with
 
 ## Testing Considerations
 
-### Critical Test Scenarios
+### Current Test Coverage
 
-1. **Offline Request Creation:** Front Desk creates requests while disconnected
-2. **Reconnection Sync:** Three-step handshake completes successfully
-3. **Status Update During Disconnect:** Back Office marks fulfilled while Front Desk offline
-4. **Duplicate Request Handling:** Reject requests with duplicate `uniqueId`
-5. **BLE Timeout/Retry:** Handle Write/Indicate timeouts with 3-attempt retry logic
+**Implemented Tests:**
+- `test/widget_test.dart` - Single smoke test verifying app launches with role selection
+
+**Test Coverage:** Minimal (~5%) - Only basic app initialization is tested
+
+### Critical Test Scenarios (To Be Implemented)
+
+**Unit Tests Needed:**
+1. **PosterRequest Serialization:** Test toJson/fromJson round-trip accuracy
+2. **BLE Characteristic Serialization:** Test toRequestCharacteristicJson and toQueueStatusJson
+3. **RequestStatus Extensions:** Test label and icon getters
+4. **Mock Data Integrity:** Test filtering and sorting functions
+
+**Widget Tests Needed:**
+5. **StatusBadge:** Test color coding for each status type
+6. **RequestListItem:** Test data display and fulfilled styling
+7. **Screen Rendering:** Test each of the 7 screens renders correctly with mock data
+8. **Search Functionality:** Test filtering in audit/log screens
+
+**Integration Tests Needed:**
+9. **Offline Request Creation:** Front Desk creates requests while disconnected
+10. **Reconnection Sync:** Three-step handshake completes successfully
+11. **Status Update During Disconnect:** Back Office marks fulfilled while Front Desk offline
+12. **Duplicate Request Handling:** Reject requests with duplicate `uniqueId`
+13. **BLE Timeout/Retry:** Handle Write/Indicate timeouts with 3-attempt retry logic
+14. **Hive Persistence:** Test data survives app restart
+15. **Concurrent Updates:** Test race conditions during sync
 
 ## Platform Notes
 
