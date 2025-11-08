@@ -38,18 +38,50 @@ flutter build ios
 flutter build apk
 ```
 
+## Current Implementation Status
+
+### What's Complete ✅
+
+**UI Layer (100% Complete)**
+- All screens implemented with placeholder data
+- Role selection screen
+- Front Desk: Request Entry + Delivered Audit tabs
+- Back Office: Live Queue + Fulfilled Log tabs
+- Complete theme system (light/dark mode)
+- Reusable widgets (StatusBadge, RequestListItem, SearchBarWidget)
+- All UX specifications from design documents implemented
+- Zero linting issues, all tests passing
+
+**Data Models**
+- `PosterRequest` class (`lib/models/poster_request.dart`)
+- `RequestStatus` enum (sent, pending, fulfilled)
+- Extension methods for display labels and icons
+
+### What's NOT Implemented ⚠️
+
+- BLE communication layer
+- Hive persistence
+- State management (Provider/Riverpod/BLoC)
+- Actual data synchronization
+- Error handling and retry logic
+- Role persistence (role selection resets on app restart)
+
+**Current Behavior:** The app uses hardcoded placeholder data to demonstrate UI/UX. All interactions are local-only and don't persist between app restarts.
+
 ## Architecture Overview
 
 ### Core Data Model
 
-The entire application revolves around a single data structure: `PosterRequest`
+The entire application revolves around a single data structure: `PosterRequest` (currently implemented in `lib/models/poster_request.dart`)
 
-**Key Fields:**
-- `uniqueId` (String/UUID): Globally unique identifier
-- `posterNumber` (String): Client-requested poster number (e.g., "A457")
-- `status` (Enum): Current lifecycle state - `SENT`, `PULLED`/`FULFILLED`, or `FAILED`
-- `timestampSent` (DateTime): When request was submitted (used for Queue sorting)
-- `timestampPulled` (DateTime): When marked as fulfilled (used for Audit sorting)
+**Implemented Fields:**
+- `uniqueId` (String): Unique identifier (currently uses simple string IDs)
+- `posterNumber` (String): Poster number (e.g., "A457")
+- `status` (RequestStatus enum): sent, pending, or fulfilled
+- `timestampSent` (DateTime): When request was submitted
+- `timestampPulled` (DateTime?): When marked as fulfilled
+
+**Fields to Add for BLE Integration:**
 - `isSynced` (Boolean): Whether current state has been transmitted via BLE
 
 ### Two-Role Architecture
@@ -151,22 +183,52 @@ All UI components MUST reference `project_standards/project-theme.md` for:
 - **Queue Screen:** Sort by `timestampSent` (chronological, oldest first)
 - **Delivered Audit Screen:** Sort by `posterNumber` (alphanumeric ascending)
 
+## Current Project Structure
+
+```
+app/lib/
+├── main.dart                          # App entry point
+├── models/
+│   └── poster_request.dart            # PosterRequest data model (✅ Complete)
+├── theme/
+│   └── app_theme.dart                 # Theme configuration (✅ Complete)
+├── widgets/
+│   ├── status_badge.dart              # Status indicator widget (✅ Complete)
+│   ├── request_list_item.dart         # List item widget (✅ Complete)
+│   └── search_bar_widget.dart         # Search input widget (✅ Complete)
+├── screens/
+│   ├── role_selection_screen.dart     # Role selection (✅ Complete)
+│   ├── front_desk/
+│   │   ├── front_desk_home.dart       # Navigation wrapper (✅ Complete)
+│   │   ├── request_entry_screen.dart  # Request entry (✅ Complete)
+│   │   └── delivered_audit_screen.dart # Audit log (✅ Complete)
+│   └── back_office/
+│       ├── back_office_home.dart      # Navigation wrapper (✅ Complete)
+│       ├── live_queue_screen.dart     # Live queue (✅ Complete)
+│       └── fulfilled_log_screen.dart  # Fulfilled log (✅ Complete)
+└── services/                          # ⚠️ NOT YET IMPLEMENTED
+    ├── ble_service.dart               # BLE communication
+    ├── persistence_service.dart       # Hive storage
+    └── sync_service.dart              # Sync orchestration
+```
+
 ## Code Organization Principles
 
 ### Separation of Concerns
 
-**UI Layer (Widgets):**
+**UI Layer (Widgets):** ✅ IMPLEMENTED
 - Only presentation and local UI state (e.g., animations, focus)
 - Accept data via parameters, actions via callbacks
 - NO business logic, NO API calls, NO persistence
+- All screens have TODO comments indicating integration points
 
-**Business Logic Layer:**
+**Business Logic Layer:** ⚠️ NOT IMPLEMENTED
 - BLE communication
 - Data validation
 - Sync orchestration
 - Error handling
 
-**Data Layer:**
+**Data Layer:** ⚠️ NOT IMPLEMENTED
 - Hive persistence
 - Data serialization
 - State management

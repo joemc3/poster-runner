@@ -109,11 +109,210 @@ poster-runner/
 └── CLAUDE.md                     # Developer guidance for Claude Code
 ```
 
-## Status
+## Getting Started
 
-**Current Stage**: Initial development
+### Prerequisites
 
-The application architecture and specifications are complete. Implementation is in progress.
+- **Flutter SDK**: Version 3.35+ ([Install Flutter](https://docs.flutter.dev/get-started/install))
+- **Dart SDK**: Version 3.9+ (included with Flutter)
+- **IDE**: VS Code, Android Studio, or IntelliJ IDEA with Flutter plugin
+- **Device/Emulator**: iOS Simulator, Android Emulator, or physical device
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd poster-runner
+   ```
+
+2. **Navigate to the app directory**
+   ```bash
+   cd app
+   ```
+
+3. **Install dependencies**
+   ```bash
+   flutter pub get
+   ```
+
+4. **Verify Flutter installation**
+   ```bash
+   flutter doctor
+   ```
+
+### Running the App
+
+#### Option 1: Run on Any Available Device
+```bash
+# List available devices
+flutter devices
+
+# Run on default device
+flutter run
+```
+
+#### Option 2: Run on Specific Platform
+
+**iOS Simulator (macOS only):**
+```bash
+# Open iOS Simulator first
+open -a Simulator
+
+# Then run the app
+flutter run -d ios
+```
+
+**Android Emulator:**
+```bash
+# List available emulators
+flutter emulators
+
+# Launch an emulator
+flutter emulators --launch <emulator-id>
+
+# Run the app
+flutter run -d android
+```
+
+**Chrome (for quick UI testing):**
+```bash
+flutter run -d chrome
+```
+
+#### Option 3: Physical Device
+
+**iOS Device:**
+1. Connect your iPhone/iPad via USB
+2. Trust the computer on your device
+3. Run `flutter run`
+
+**Android Device:**
+1. Enable Developer Mode and USB Debugging on your device
+2. Connect via USB
+3. Run `flutter run`
+
+### Hot Reload (During Development)
+
+While the app is running:
+- Press **`r`** for hot reload (preserves app state)
+- Press **`R`** for hot restart (resets app state)
+- Press **`q`** to quit
+
+### Building for Release
+
+**Android APK:**
+```bash
+flutter build apk --release
+# Output: build/app/outputs/flutter-apk/app-release.apk
+```
+
+**iOS App:**
+```bash
+flutter build ios --release
+# Then open in Xcode to archive and distribute
+```
+
+## Current Implementation Status
+
+### ✅ Completed
+- **UI Layer**: All screens and components fully implemented
+- **Theme System**: Complete light/dark mode support
+- **Role Selection**: Choose between Front Desk and Back Office roles
+- **Front Desk Screens**: Request Entry + Delivered Audit tabs
+- **Back Office Screens**: Live Queue + Fulfilled Log tabs
+- **Reusable Components**: Status badges, list items, search widgets
+- **Data Model**: `PosterRequest` class with status enum
+
+### ⚠️ Not Yet Implemented (Using Placeholder Data)
+- BLE communication layer
+- Hive local persistence
+- State management (Provider/Riverpod/BLoC)
+- Actual data synchronization between devices
+- Error handling and retry logic
+- Role persistence (role selection resets on app restart)
+
+### How to Test the Current Build
+
+The app currently runs with **hardcoded placeholder data** to demonstrate the UI/UX:
+
+1. **Launch the app** using `flutter run`
+2. **Select a role** (Front Desk or Back Office)
+3. **Explore the UI**:
+   - Front Desk: Enter poster numbers, view delivered audit
+   - Back Office: See pending requests, mark as fulfilled
+4. **Test light/dark mode** via device settings
+5. **Try search/filter** on audit screens
+
+**Note:** All interactions are local-only and do not persist between app restarts. Data does not sync between devices.
+
+## Project Structure
+
+```
+app/lib/
+├── main.dart                          # App entry point
+├── models/
+│   └── poster_request.dart            # PosterRequest data model
+├── theme/
+│   └── app_theme.dart                 # Theme configuration (light/dark)
+├── widgets/
+│   ├── status_badge.dart              # Reusable status indicator
+│   ├── request_list_item.dart         # Reusable list item
+│   └── search_bar_widget.dart         # Search input field
+├── screens/
+│   ├── role_selection_screen.dart     # Role selection
+│   ├── front_desk/
+│   │   ├── front_desk_home.dart       # Front Desk navigation
+│   │   ├── request_entry_screen.dart  # Request entry screen
+│   │   └── delivered_audit_screen.dart # Audit log screen
+│   └── back_office/
+│       ├── back_office_home.dart      # Back Office navigation
+│       ├── live_queue_screen.dart     # Live queue screen
+│       └── fulfilled_log_screen.dart  # Fulfilled log screen
+```
+
+## Development
+
+### Running Tests
+```bash
+flutter test
+```
+
+### Code Analysis
+```bash
+flutter analyze
+```
+
+### Code Formatting
+```bash
+flutter format .
+```
+
+## Next Steps
+
+To complete the application, the following components need to be implemented:
+
+1. **BLE Service Layer** (`lib/services/ble_service.dart`)
+   - GATT server/client setup
+   - Characteristic definitions
+   - Request/status transmission
+
+2. **Persistence Layer** (`lib/services/persistence_service.dart`)
+   - Hive database initialization
+   - PosterRequest storage
+   - Sync flag management
+
+3. **State Management** (Provider, Riverpod, or BLoC)
+   - Global app state
+   - Real-time data updates
+   - Role persistence
+
+4. **Synchronization Service** (`lib/services/sync_service.dart`)
+   - Three-step reconnection handshake
+   - Conflict resolution
+   - Error handling
+
+See `CLAUDE.md` for detailed architecture and implementation guidance.
 
 ## License
 

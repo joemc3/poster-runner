@@ -16,6 +16,11 @@ migrate_working_dir/
 *.iws
 .idea/
 
+# Flutter/Dart generated files
+.metadata
+.flutter-plugins
+.flutter-plugins-dependencies
+
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
@@ -25,12 +30,16 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
 **/build/
+pubspec.lock
+
+# Dependency lock files (should not be committed for applications)
+**/Podfile.lock
+**/Pods/Manifest.lock
+**/.gradle/
 
 # Symbolication related
 app.*.symbols
@@ -72,6 +81,7 @@ app.*.map.json
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Podfile.lock
 
 # Web
 **/web/.last_build_id
@@ -80,6 +90,9 @@ app.*.map.json
 **/macos/Flutter/GeneratedPluginRegistrant.swift
 **/macos/Flutter/ephemeral
 **/macos/Flutter/.last_build_id
+**/macos/Pods/
+**/macos/Podfile.lock
+**/macos/.symlinks/
 
 # Windows
 **/windows/flutter/generated_plugin_registrant.cc
@@ -93,6 +106,24 @@ app.*.map.json
 
 # Coverage
 coverage/
+
+# Android
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/**/*.iml
+**/.cxx/
+**/android/gradle.properties.lock
+
+# Build artifacts
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Temporary files
+UI_IMPLEMENTATION.md
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
