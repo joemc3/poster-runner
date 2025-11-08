@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../../models/poster_request.dart';
-import '../../models/mock_data.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
+import '../../main.dart';
 
 /// Back Office - Fulfilled Log Screen (Tab 2)
 ///
@@ -14,19 +15,12 @@ import '../../theme/app_theme.dart';
 /// - Sorted alphabetically/numerically by poster number
 /// - Shows poster number, sent time, and pulled time
 /// - Read-only view (no action buttons)
+/// - Real-time updates from Hive database
 ///
 /// TODO: Connect to BLE service for synced fulfillment data
-/// TODO: Implement data persistence and filtering
 
 class FulfilledLogScreen extends StatefulWidget {
-  /// List of fulfilled requests
-  /// TODO: Replace with actual data from BLE sync/local storage
-  final List<PosterRequest>? fulfilledRequests;
-
-  const FulfilledLogScreen({
-    this.fulfilledRequests,
-    super.key,
-  });
+  const FulfilledLogScreen({super.key});
 
   @override
   State<FulfilledLogScreen> createState() => _FulfilledLogScreenState();
@@ -35,16 +29,12 @@ class FulfilledLogScreen extends StatefulWidget {
 class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-
-  // TODO: Replace with actual data from state management/BLE service
-  late List<PosterRequest> _allRequests;
-  late List<PosterRequest> _filteredRequests;
+  List<PosterRequest> _filteredRequests = [];
 
   @override
   void initState() {
     super.initState();
-    _initializePlaceholderData();
-    _filterRequests();
+    _loadAndFilterRequests();
   }
 
   @override
@@ -53,22 +43,17 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
     super.dispose();
   }
 
-  /// Initialize with placeholder data from MockPosterRequests
-  /// TODO: Remove when connected to actual data source
-  void _initializePlaceholderData() {
-    // Use centralized mock data
-    // Note: MockPosterRequests.fulfilledLog is sorted by timestampPulled,
-    // but _filterRequests() will re-sort by posterNumber for display
-    _allRequests = widget.fulfilledRequests ?? MockPosterRequests.fulfilledLog;
-  }
+  /// Load all fulfilled requests from persistent storage and apply filter
+  void _loadAndFilterRequests() {
+    // Load all fulfilled requests from Hive
+    final allRequests = persistenceService.getAllFulfilledRequests();
 
-  /// Filter requests based on search query
-  void _filterRequests() {
+    // Apply search filter
     setState(() {
       if (_searchQuery.isEmpty) {
-        _filteredRequests = List.from(_allRequests);
+        _filteredRequests = List.from(allRequests);
       } else {
-        _filteredRequests = _allRequests
+        _filteredRequests = allRequests
             .where((request) =>
                 request.posterNumber.toUpperCase().contains(_searchQuery.toUpperCase()))
             .toList();
@@ -80,10 +65,8 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
   }
 
   void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-    });
-    _filterRequests();
+    _searchQuery = query;
+    _loadAndFilterRequests();
   }
 
   @override
@@ -91,6 +74,21 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
+    // Use ValueListenableBuilder to automatically rebuild when Hive data changes
+    return ValueListenableBuilder(
+      valueListenable: Hive.box<PosterRequest>('fulfilled_requests').listenable(),
+      builder: (context, Box<PosterRequest> box, _) {
+        // Reload data whenever box changes
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _loadAndFilterRequests();
+        });
+
+        return _buildScaffold(colorScheme, textTheme);
+      },
+    );
+  }
+
+  Widget _buildScaffold(ColorScheme colorScheme, TextTheme textTheme) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5), // Light gray background
       body: SafeArea(

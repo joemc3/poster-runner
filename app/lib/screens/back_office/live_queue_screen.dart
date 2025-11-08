@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../models/poster_request.dart';
 import '../../models/mock_data.dart';
 import '../../theme/app_theme.dart';
+import '../../main.dart';
 
 /// Back Office - Live Request Queue Screen (Tab 1)
 ///
@@ -54,26 +55,59 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
   }
 
   /// Handle pull button press
-  /// TODO: Integrate with actual BLE service
+  ///
+  /// This method:
+  /// 1. Creates a fulfilled version of the request with timestampPulled
+  /// 2. Saves it to persistent storage (Hive)
+  /// 3. Removes it from the active queue
+  /// 4. Shows a confirmation message
+  ///
+  /// TODO: Integrate with actual BLE service to sync with Front Desk
   Future<void> _handlePull(PosterRequest request) async {
-    // TODO: Replace with actual BLE transmission
-    // Call callback if provided
-    widget.onFulfillRequest?.call(request);
-
-    // Remove from active queue
-    setState(() {
-      _activeQueue.removeWhere((r) => r.uniqueId == request.uniqueId);
-    });
-
-    // Show confirmation
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${request.posterNumber} marked as pulled'),
-          backgroundColor: Theme.of(context).colorScheme.success,
-          duration: const Duration(seconds: 2),
-        ),
+    try {
+      // Create fulfilled version of the request
+      final fulfilledRequest = request.copyWith(
+        status: RequestStatus.fulfilled,
+        timestampPulled: DateTime.now(),
+        isSynced: false, // Not yet synced via BLE
       );
+
+      // Save to persistent storage (write-immediately pattern)
+      await persistenceService.saveFulfilledRequest(fulfilledRequest);
+
+      // TODO: Transmit to Front Desk via BLE Queue Status Characteristic (B)
+      // final bleMessage = fulfilledRequest.toQueueStatusJson();
+      // await bleService.sendQueueStatusUpdate(bleMessage);
+
+      // Call callback if provided (for future use with state management)
+      widget.onFulfillRequest?.call(fulfilledRequest);
+
+      // Remove from active queue
+      setState(() {
+        _activeQueue.removeWhere((r) => r.uniqueId == request.uniqueId);
+      });
+
+      // Show confirmation
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${request.posterNumber} marked as pulled'),
+            backgroundColor: Theme.of(context).colorScheme.success,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Show error message if save fails
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving request: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
