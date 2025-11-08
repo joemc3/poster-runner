@@ -1,8 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'theme/app_theme.dart';
 import 'screens/role_selection_screen.dart';
+import 'services/persistence_service.dart';
 
-void main() {
+/// Global instance of the persistence service
+///
+/// This is accessible throughout the app for storing and retrieving
+/// fulfilled poster requests.
+late PersistenceService persistenceService;
+
+void main() async {
+  // Ensure Flutter is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive
+  await Hive.initFlutter();
+
+  // Initialize persistence service
+  persistenceService = PersistenceService();
+  await persistenceService.initialize();
+
   runApp(const PosterRunnerApp());
 }
 
