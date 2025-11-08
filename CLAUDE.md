@@ -11,9 +11,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Current State (TL;DR):**
 - ✅ **UI is 100% complete** - All 7 screens working with mock data
 - ✅ **Data models are 100% complete** - PosterRequest with full serialization
-- ⚠️ **Hive adapters need generation** - Run `flutter pub run build_runner build`
-- ❌ **No BLE integration** - Package not installed, services layer doesn't exist
-- ❌ **No persistence** - Data resets on app restart
+- ✅ **Hive adapters generated** - Type adapters ready in poster_request.g.dart
+- ✅ **Back office persistence working** - Fulfilled requests persist across app restarts
+- ❌ **No BLE integration** - Package not installed, BLE service doesn't exist
+- ❌ **No front desk persistence** - Front desk still uses mock data
 - ❌ **No state management** - Each screen manages its own state locally
 
 **What You Can Do Right Now:**
@@ -21,14 +22,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 cd app
 flutter pub get
 flutter run  # See the complete UI with mock data
+# Back Office: Pull a poster and it will persist to Hive database!
 ```
 
 **What Needs Implementation:**
-1. Generate Hive type adapters
-2. Add BLE package (flutter_reactive_ble recommended)
-3. Add state management (Provider recommended)
-4. Build services layer (BLE, persistence, sync)
-5. Connect UI to real data sources
+1. Add BLE package (flutter_reactive_ble recommended)
+2. Add state management (Provider recommended)
+3. Build BLE service and sync orchestration
+4. Add front desk persistence service
+5. Connect front desk UI to real data sources
 
 ## Essential Commands
 
@@ -68,10 +70,11 @@ flutter build apk
 ## Current Implementation Status
 
 ### Codebase Statistics
-- **Total Dart Files:** 14 files (~1,452 lines of code)
+- **Total Dart Files:** 16 files (~1,700 lines of code)
 - **Screens:** 7 complete screens
 - **Reusable Widgets:** 3 components
-- **Data Models:** 1 core model + 1 enum + mock data generator
+- **Data Models:** 1 core model + 1 enum + generated Hive adapters + mock data generator
+- **Services:** 1 persistence service (back office fulfilled requests)
 - **Test Coverage:** Minimal (1 smoke test)
 
 ### What's Complete ✅
@@ -97,31 +100,56 @@ flutter build apk
   - Extension methods for display labels and icons
   - Hive type adapter annotations (typeId: 1)
   - JSON serialization methods
+- Hive type adapters (`lib/models/poster_request.g.dart`)
+  - Generated PosterRequestAdapter (typeId: 0)
+  - Generated RequestStatusAdapter (typeId: 1)
+  - Binary serialization for efficient storage
 - Mock data generator (`lib/models/mock_data.dart`)
   - 15 realistic sample requests (3 sent, 5 pending, 7 fulfilled)
   - Pre-sorted views for each screen type (liveQueue, deliveredAudit, fulfilledLog)
   - Filter methods and batch generation utilities
   - Offline scenario data for testing sync logic
 
+**Persistence Layer (Back Office - Partially Complete)**
+- `PersistenceService` class (`lib/services/persistence_service.dart`)
+  - Manages Hive box for fulfilled requests
+  - Write-immediately pattern for data safety
+  - Methods: save, retrieve, delete, query fulfilled requests
+  - Real-time data change listeners via Hive streams
+  - Initialized in main.dart on app startup
+- Back Office Live Queue screen
+  - "PULL" button saves to Hive with timestampPulled
+  - Error handling for save failures
+  - Confirmation messages on success
+- Back Office Fulfilled Log screen
+  - Reads directly from Hive database
+  - ValueListenableBuilder for real-time UI updates
+  - Automatically refreshes when new requests are pulled
+  - Data persists across app restarts
+
 ### What's NOT Implemented ⚠️
 
 **Critical Gaps:**
-- **Hive type adapter code generation** - Annotations exist but need: `flutter pub run build_runner build`
 - **BLE package not installed** - Need to add flutter_reactive_ble or similar to pubspec.yaml
-- **No services layer** - `/lib/services/` directory doesn't exist
+- **No BLE service implementation** - BLE communication layer doesn't exist
 - **No state management** - No Provider/Riverpod/BLoC package installed
+- **No front desk persistence** - Front desk still uses mock data only
 
 **Missing Functionality:**
 - BLE communication layer (connection, characteristics, scanning)
-- Hive persistence implementation (box initialization, reads/writes)
+- BLE service implementation (ble_service.dart)
+- Sync orchestration service (sync_service.dart)
 - State management for BLE events and data synchronization
-- Actual data synchronization between devices
+- Actual data synchronization between devices via BLE
 - Connection status UI (Bluetooth icons are non-functional)
-- Error handling and retry logic
+- Front desk persistence service (submitted requests, delivered audit)
+- Retry logic for BLE failures
 - Role persistence (role selection resets on app restart)
 - Comprehensive test coverage
 
-**Current Behavior:** The app uses hardcoded placeholder data to demonstrate UI/UX. All interactions are local-only and don't persist between app restarts.
+**Current Behavior:**
+- **Back Office:** Pull functionality is fully working with Hive persistence. Fulfilled requests persist across app restarts.
+- **Front Desk:** Still uses hardcoded placeholder data. Submitted requests don't persist and won't sync to Back Office until BLE is implemented.
 
 ### Installed Dependencies
 
@@ -152,11 +180,11 @@ build_runner: ^2.4.13          # Code generation framework
 
 To continue implementation, the recommended order is:
 
-1. **Generate Hive Type Adapters**
-   ```bash
-   cd app
-   flutter pub run build_runner build
-   ```
+1. **Add Front Desk Persistence** ✨ RECOMMENDED NEXT
+   - Create front desk boxes in PersistenceService
+   - Add methods for submitted requests and delivered audit
+   - Wire up Front Desk Request Entry screen to save to Hive
+   - Wire up Front Desk Delivered Audit screen to read from Hive
 
 2. **Add BLE Package**
    - Research: flutter_reactive_ble (recommended) vs. flutter_blue_plus
@@ -167,19 +195,20 @@ To continue implementation, the recommended order is:
    - Recommended: Provider (simple, officially supported)
    - Alternative: Riverpod (more powerful, modern)
 
-4. **Implement Services Layer**
-   - Create `/lib/services/` directory
-   - Build BLE service (connection, characteristics)
-   - Build persistence service (Hive box management)
+4. **Implement BLE Service Layer**
+   - Build BLE service (connection, characteristics, GATT server/client)
    - Build sync orchestration service
+   - Connect Back Office as GATT server
+   - Connect Front Desk as GATT client
 
-5. **Integrate UI with Services**
-   - Replace mock data with state-managed data
+5. **Integrate UI with BLE Services**
+   - Replace remaining mock data with state-managed data
    - Wire up BLE events to UI updates
    - Add connection status indicators
+   - Implement reconnection handshake
 
 6. **Add Comprehensive Testing**
-   - Unit tests for data models
+   - Unit tests for persistence service
    - Widget tests for screens
    - Integration tests for BLE sync scenarios
 
@@ -246,9 +275,26 @@ The entire application revolves around a single data structure: `PosterRequest` 
 
 **Technology:** Hive (local NoSQL database)
 
-**Box Name:** `poster_requests_box`
+**Current Implementation:**
+
+**Box Name (Back Office):** `fulfilled_requests`
+- Stores all fulfilled poster requests
+- Key: PosterRequest.uniqueId (String)
+- Value: PosterRequest object
+- Managed by global `persistenceService` instance
+
+**Planned Boxes (Front Desk):**
+- `submitted_requests` - Stores requests created by front desk
+- `delivered_audit` - Stores fulfilled requests synced from back office
 
 **Key Principle:** Write-immediately pattern - all state changes are persisted to Hive BEFORE confirming to user, ensuring no data loss during disconnections.
+
+**Implementation Details:**
+- Hive initialized in main.dart with `Hive.initFlutter()`
+- Type adapters registered on startup
+- Global `persistenceService` instance accessible throughout app
+- Back Office uses `ValueListenableBuilder` for real-time UI updates
+- All fulfilled requests persist across app restarts
 
 **Sync Flag (`isSynced`):**
 - Set to `false` when state changes occur offline
@@ -337,9 +383,10 @@ All UI components MUST reference `project_standards/project-theme.md` for:
 
 ```
 app/lib/
-├── main.dart                          # App entry point
+├── main.dart                          # App entry point (✅ Hive initialization)
 ├── models/
 │   ├── poster_request.dart            # PosterRequest data model (✅ Complete)
+│   ├── poster_request.g.dart          # Generated Hive adapters (✅ Complete)
 │   └── mock_data.dart                 # Mock data generator (✅ Complete)
 ├── theme/
 │   └── app_theme.dart                 # Theme configuration (✅ Complete)
@@ -351,16 +398,16 @@ app/lib/
 │   ├── role_selection_screen.dart     # Role selection (✅ Complete)
 │   ├── front_desk/
 │   │   ├── front_desk_home.dart       # Navigation wrapper (✅ Complete)
-│   │   ├── request_entry_screen.dart  # Request entry (✅ Complete)
-│   │   └── delivered_audit_screen.dart # Audit log (✅ Complete)
+│   │   ├── request_entry_screen.dart  # Request entry (⚠️ Mock data only)
+│   │   └── delivered_audit_screen.dart # Audit log (⚠️ Mock data only)
 │   └── back_office/
 │       ├── back_office_home.dart      # Navigation wrapper (✅ Complete)
-│       ├── live_queue_screen.dart     # Live queue (✅ Complete)
-│       └── fulfilled_log_screen.dart  # Fulfilled log (✅ Complete)
-└── services/                          # ⚠️ NOT YET IMPLEMENTED
-    ├── ble_service.dart               # BLE communication
-    ├── persistence_service.dart       # Hive storage
-    └── sync_service.dart              # Sync orchestration
+│       ├── live_queue_screen.dart     # Live queue (✅ Pull to Hive working)
+│       └── fulfilled_log_screen.dart  # Fulfilled log (✅ Reads from Hive)
+└── services/
+    ├── persistence_service.dart       # Hive storage (✅ Back office complete)
+    ├── ble_service.dart               # BLE communication (❌ Not implemented)
+    └── sync_service.dart              # Sync orchestration (❌ Not implemented)
 ```
 
 ## Available Claude Code Agents
@@ -460,10 +507,13 @@ This project has specialized agents configured in `.claude/agents/` to help with
 - Sync orchestration
 - Error handling
 
-**Persistence Layer:** ⚠️ NOT IMPLEMENTED
-- Hive database setup
-- Box management
-- State management (Provider/Riverpod/BLoC)
+**Persistence Layer:** ⚠️ PARTIALLY IMPLEMENTED
+- ✅ Hive database initialized in main.dart
+- ✅ PersistenceService class created and working for back office
+- ✅ Back office fulfilled requests persist to Hive
+- ✅ Real-time UI updates via ValueListenableBuilder
+- ❌ Front desk persistence not yet implemented
+- ❌ State management (Provider/Riverpod/BLoC) not yet added
 
 ### When Building UI Components
 
