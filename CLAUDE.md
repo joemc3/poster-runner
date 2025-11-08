@@ -212,6 +212,77 @@ app/lib/
     └── sync_service.dart              # Sync orchestration
 ```
 
+## Available Claude Code Agents
+
+This project has specialized agents configured in `.claude/agents/` to help with specific development tasks:
+
+### flutter-ui-builder
+**Purpose:** Create, modify, or refactor Flutter widgets and UI components based on UX specifications.
+
+**When to use:**
+- Implementing screens from UX Design Documents
+- Creating custom widgets, layouts, animations
+- Updating UI to match design mockups
+- Building theme-compliant components
+
+**What it does:**
+- Reads UX specs and project-theme.md
+- Creates widgets with proper theming
+- Uses placeholder data when business logic doesn't exist
+- Maintains separation between UI and business logic
+- Adds TODO comments for integration points
+
+**What it does NOT do:**
+- Business logic or state management
+- API integrations or BLE communication
+- Database operations or persistence
+- Application architecture decisions
+
+**Example usage:**
+```
+"Use flutter-ui-builder to implement the settings screen from the UX spec"
+"Update the request list item widget to match the new design"
+```
+
+### flutter-data-architect
+**Purpose:** Create, modify, or refactor data models, DTOs, serialization logic, and data transformation utilities.
+
+**When to use:**
+- Creating data classes and models
+- Building JSON serialization/deserialization
+- Designing data transformation pipelines
+- Creating extension methods for data manipulation
+- Setting up freezed or json_serializable configurations
+
+**What it does:**
+- Creates data models from API specifications
+- Implements serialization methods
+- Builds data validators and parsers
+- Defines enums and type definitions
+- Creates mapper functions between data formats
+
+**What it does NOT do:**
+- Business logic or state management
+- UI components or widgets
+- Database/local storage implementation (use persistence layer instead)
+- API client or networking code
+- Navigation or routing logic
+
+**Example usage:**
+```
+"Use flutter-data-architect to create models for the BLE message payloads"
+"Create serialization methods for PosterRequest to/from JSON"
+```
+
+### theme-architect
+**Purpose:** Create comprehensive theme templates (internal use only).
+
+**When to use:**
+- Only invoked via `/createThemeTemplate` slash command
+- Do NOT invoke directly
+
+**Note:** The theme has already been created in `project_standards/project-theme.md` and implemented in `app/lib/theme/app_theme.dart`.
+
 ## Code Organization Principles
 
 ### Separation of Concerns
@@ -221,6 +292,14 @@ app/lib/
 - Accept data via parameters, actions via callbacks
 - NO business logic, NO API calls, NO persistence
 - All screens have TODO comments indicating integration points
+- **Use `flutter-ui-builder` agent for UI work**
+
+**Data Layer (Models & Serialization):** ✅ PARTIALLY IMPLEMENTED
+- `PosterRequest` model exists but needs serialization
+- Need to add `isSynced` field for BLE integration
+- Need JSON serialization for BLE transmission
+- Need Hive type adapters for persistence
+- **Use `flutter-data-architect` agent for data model work**
 
 **Business Logic Layer:** ⚠️ NOT IMPLEMENTED
 - BLE communication
@@ -228,10 +307,10 @@ app/lib/
 - Sync orchestration
 - Error handling
 
-**Data Layer:** ⚠️ NOT IMPLEMENTED
-- Hive persistence
-- Data serialization
-- State management
+**Persistence Layer:** ⚠️ NOT IMPLEMENTED
+- Hive database setup
+- Box management
+- State management (Provider/Riverpod/BLoC)
 
 ### When Building UI Components
 
