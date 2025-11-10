@@ -434,6 +434,18 @@ extension PosterRunnerColors on ColorScheme {
   Color get neutralDark => const Color(0xFFE0E0E0); // Light Gray - 13.1:1 contrast
   Color get dividerDark => const Color(0xFF424242); // Medium Dark Gray
 
+  // Light theme "on" colors for status badges (text on status background)
+  // CRITICAL: Light theme badges use WHITE text on DARK backgrounds for proper contrast
+  Color get onSuccessLight => const Color(0xFFFFFFFF); // White text on dark green - 8.2:1
+  Color get onWarningLight => const Color(0xFFFFFFFF); // White text on dark orange - 7.1:1
+  Color get onInfoLight => const Color(0xFFFFFFFF); // White text on dark blue - 8.7:1
+
+  // Dark theme "on" colors for status badges (text on status background)
+  // CRITICAL: Dark theme badges use BLACK text on BRIGHT backgrounds for proper contrast
+  Color get onSuccessDark => const Color(0xFF000000); // Black text on bright green - 11.2:1
+  Color get onWarningDark => const Color(0xFF000000); // Black text on bright orange - 7.8:1
+  Color get onInfoDark => const Color(0xFF000000); // Black text on bright cyan - 9.4:1
+
   // Fulfilled background tints
   Color get fulfilledTintLight => const Color(0xFFE8F5E9); // Light green tint for light mode
   Color get fulfilledTintDark => const Color(0xFF1B3A1E); // Dark green tint for dark mode
@@ -445,4 +457,10 @@ extension PosterRunnerColors on ColorScheme {
   Color get neutral => brightness == Brightness.light ? neutralLight : neutralDark;
   Color get divider => brightness == Brightness.light ? dividerLight : dividerDark;
   Color get fulfilledTint => brightness == Brightness.light ? fulfilledTintLight : fulfilledTintDark;
+
+  // Adaptive "on" color getters for status badges
+  // These ensure proper text contrast on status badge backgrounds across light/dark themes
+  Color get onSuccess => brightness == Brightness.light ? onSuccessLight : onSuccessDark;
+  Color get onWarning => brightness == Brightness.light ? onWarningLight : onWarningDark;
+  Color get onInfo => brightness == Brightness.light ? onInfoLight : onInfoDark;
 }

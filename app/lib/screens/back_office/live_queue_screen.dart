@@ -144,7 +144,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                     child: Text(
                       '${_activeQueue.length} Pending',
                       style: textTheme.labelMedium?.copyWith(
-                        color: Colors.white,
+                        color: colorScheme.onWarning, // Use theme color for proper contrast
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -237,7 +237,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                               child: Text(
                                 '$rank',
                                 style: textTheme.titleSmall?.copyWith(
-                                  color: Colors.white,
+                                  color: isNext ? colorScheme.onPrimary : colorScheme.onSurface,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -274,7 +274,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                   onPressed: () => _handlePull(request),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorScheme.success,
-                    foregroundColor: Colors.white,
+                    foregroundColor: colorScheme.onSuccess, // Use theme color for proper contrast
                     minimumSize: const Size(100, 56),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),

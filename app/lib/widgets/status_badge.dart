@@ -73,15 +73,18 @@ class StatusBadge extends StatelessWidget {
     }
   }
 
-  /// Get text color based on status
-  /// For all status colors, white text provides best contrast
+  /// Get text color based on status and theme brightness
+  /// CRITICAL: Uses theme-defined "on" colors for proper contrast
+  /// - Light theme: WHITE text on DARK status backgrounds
+  /// - Dark theme: BLACK text on BRIGHT status backgrounds
   Color _getTextColor(ColorScheme colorScheme) {
-    // Light theme uses white text on all status colors
-    // Dark theme uses black text on lighter status colors
-    if (colorScheme.brightness == Brightness.light) {
-      return Colors.white;
-    } else {
-      return Colors.black;
+    switch (status) {
+      case RequestStatus.sent:
+        return colorScheme.onInfo; // White on dark blue (light) / Black on bright cyan (dark)
+      case RequestStatus.pending:
+        return colorScheme.onWarning; // White on dark orange (light) / Black on bright orange (dark)
+      case RequestStatus.fulfilled:
+        return colorScheme.onSuccess; // White on dark green (light) / Black on bright green (dark)
     }
   }
 }
