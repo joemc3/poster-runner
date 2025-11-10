@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../../models/poster_request.dart';
-import '../../models/mock_data.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
 
@@ -15,12 +15,14 @@ import '../../theme/app_theme.dart';
 /// - Shows poster number and fulfillment time
 /// - Read-only view (no action buttons)
 ///
-/// TODO: Connect to BLE service for synced fulfillment data
-/// TODO: Implement data persistence and filtering
+/// Status:
+/// - Persistence: IMPLEMENTED - Reads from Hive database with real-time updates
+/// - BLE sync: TODO - Will populate from BLE status updates from Back Office
+/// - Search & filtering: IMPLEMENTED - Live filtering by poster number
 
 class DeliveredAuditScreen extends StatefulWidget {
-  /// List of fulfilled requests
-  /// TODO: Replace with actual data from BLE sync/local storage
+  /// Optional initial list for testing only
+  /// In production, data is read from Hive database
   final List<PosterRequest>? fulfilledRequests;
 
   const DeliveredAuditScreen({
@@ -36,52 +38,34 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // TODO: Replace with actual data from state management/BLE service
-  late List<PosterRequest> _allRequests;
-  late List<PosterRequest> _filteredRequests;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializePlaceholderData();
-    _filterRequests();
-  }
-
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
-  /// Initialize with placeholder data from MockPosterRequests
-  /// TODO: Remove when connected to actual data source
-  void _initializePlaceholderData() {
-    // Use centralized mock data (already sorted by posterNumber A-Z)
-    _allRequests = widget.fulfilledRequests ?? MockPosterRequests.deliveredAudit;
-  }
+  /// Filter and sort requests based on search query
+  List<PosterRequest> _filterAndSortRequests(List<PosterRequest> allRequests) {
+    List<PosterRequest> filtered;
 
-  /// Filter requests based on search query
-  void _filterRequests() {
-    setState(() {
-      if (_searchQuery.isEmpty) {
-        _filteredRequests = List.from(_allRequests);
-      } else {
-        _filteredRequests = _allRequests
-            .where((request) =>
-                request.posterNumber.toUpperCase().contains(_searchQuery.toUpperCase()))
-            .toList();
-      }
+    if (_searchQuery.isEmpty) {
+      filtered = List.from(allRequests);
+    } else {
+      filtered = allRequests
+          .where((request) =>
+              request.posterNumber.toUpperCase().contains(_searchQuery.toUpperCase()))
+          .toList();
+    }
 
-      // Sort alphabetically/numerically by poster number
-      _filteredRequests.sort((a, b) => a.posterNumber.compareTo(b.posterNumber));
-    });
+    // Sort alphabetically/numerically by poster number (A-Z)
+    filtered.sort((a, b) => a.posterNumber.compareTo(b.posterNumber));
+    return filtered;
   }
 
   void _onSearchChanged(String query) {
     setState(() {
       _searchQuery = query;
     });
-    _filterRequests();
   }
 
   @override
@@ -123,16 +107,27 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
               ),
             ),
 
-            // List of fulfilled requests
+            // List of fulfilled requests - real-time updates from Hive
             Expanded(
-              child: _filteredRequests.isEmpty
-                  ? _buildEmptyState(textTheme, colorScheme)
-                  : ListView.builder(
-                      itemCount: _filteredRequests.length,
-                      itemBuilder: (context, index) {
-                        return _buildListItem(_filteredRequests[index], textTheme, colorScheme);
-                      },
-                    ),
+              child: ValueListenableBuilder(
+                valueListenable: Hive.box<PosterRequest>('delivered_audit').listenable(),
+                builder: (context, Box<PosterRequest> box, _) {
+                  // Get all delivered audit entries from Hive
+                  final allRequests = box.values.toList();
+
+                  // Filter and sort based on search query
+                  final filteredRequests = _filterAndSortRequests(allRequests);
+
+                  return filteredRequests.isEmpty
+                      ? _buildEmptyState(textTheme, colorScheme)
+                      : ListView.builder(
+                          itemCount: filteredRequests.length,
+                          itemBuilder: (context, index) {
+                            return _buildListItem(filteredRequests[index], textTheme, colorScheme);
+                          },
+                        );
+                },
+              ),
             ),
           ],
         ),

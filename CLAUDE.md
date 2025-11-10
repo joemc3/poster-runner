@@ -9,19 +9,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Quick Start for New Developers
 
 **Current State (TL;DR):**
-- ✅ **UI is 100% complete** - All 7 screens working with mock data
+- ✅ **UI is 100% complete** - All 7 screens working
 - ✅ **Data models are 100% complete** - PosterRequest with full serialization
 - ✅ **Hive adapters generated** - Type adapters ready in poster_request.g.dart
 - ✅ **Back office persistence working** - Fulfilled requests persist across app restarts
+- ✅ **Front desk persistence working** - Submitted requests and delivered audit persist to Hive
 - ❌ **No BLE integration** - Package not installed, BLE service doesn't exist
-- ❌ **No front desk persistence** - Front desk still uses mock data
 - ❌ **No state management** - Each screen manages its own state locally
 
 **What You Can Do Right Now:**
 ```bash
 cd app
 flutter pub get
-flutter run  # See the complete UI with mock data
+flutter run  # See the complete UI with real persistence!
+# Front Desk: Submit poster requests - they save to Hive database!
+# Front Desk: Delivered Audit shows fulfilled requests from Hive
 # Back Office: Pull a poster and it will persist to Hive database!
 # Back Office: Use the settings menu (gear icon) to clear all fulfilled requests
 ```
@@ -30,8 +32,7 @@ flutter run  # See the complete UI with mock data
 1. Add BLE package (flutter_reactive_ble recommended)
 2. Add state management (Provider recommended)
 3. Build BLE service and sync orchestration
-4. Add front desk persistence service
-5. Connect front desk UI to real data sources
+4. Connect Front Desk and Back Office via BLE for real-time sync
 
 ## Essential Commands
 
@@ -71,20 +72,20 @@ flutter build apk
 ## Current Implementation Status
 
 ### Codebase Statistics
-- **Total Dart Files:** 16 files (~3,100 lines of code)
+- **Total Dart Files:** 16 files (~3,600 lines of code)
 - **Screens:** 7 complete screens
 - **Reusable Widgets:** 3 components
 - **Data Models:** 1 core model + 1 enum + generated Hive adapters + mock data generator
-- **Services:** 1 persistence service (back office fulfilled requests)
+- **Services:** 1 persistence service (both Front Desk and Back Office - COMPLETE)
 - **Test Coverage:** Minimal (1 smoke test)
 
 ### What's Complete ✅
 
 **UI Layer (100% Complete)**
-- All screens implemented with placeholder data
+- All screens implemented with real persistence
 - Role selection screen
-- Front Desk: Request Entry + Delivered Audit tabs
-- Back Office: Live Queue + Fulfilled Log tabs
+- Front Desk: Request Entry (saves to Hive) + Delivered Audit (reads from Hive)
+- Back Office: Live Queue + Fulfilled Log (both read/write to Hive)
 - Complete high-contrast theme system (light/dark mode)
   - Pure white backgrounds (#FFFFFF) for maximum contrast
   - True black text (#000000) with 21:1 contrast ratio
@@ -116,11 +117,13 @@ flutter build apk
   - Filter methods and batch generation utilities
   - Offline scenario data for testing sync logic
 
-**Persistence Layer (Back Office - Partially Complete)**
+**Persistence Layer (100% Complete)**
 - `PersistenceService` class (`lib/services/persistence_service.dart`)
-  - Manages Hive box for fulfilled requests
+  - Manages 3 Hive boxes: fulfilled_requests, submitted_requests, delivered_audit
   - Write-immediately pattern for data safety
-  - Methods: save, retrieve, delete, query fulfilled requests
+  - Back Office methods: save/retrieve/delete fulfilled requests
+  - Front Desk methods: save/retrieve/delete submitted requests and delivered audit
+  - Special method: getUnsyncedSubmittedRequests() for BLE sync
   - Real-time data change listeners via Hive streams
   - Initialized in main.dart on app startup
 - Back Office Live Queue screen
@@ -128,21 +131,33 @@ flutter build apk
   - Error handling for save failures
   - Confirmation messages on success
 - Back Office Fulfilled Log screen
-  - Reads directly from Hive database
+  - Reads directly from Hive database (fulfilled_requests box)
   - ValueListenableBuilder for real-time UI updates
   - Automatically refreshes when new requests are pulled
   - Data persists across app restarts
   - Settings menu (gear icon) with "Clear All Fulfilled" option
   - Confirmation dialog before clearing all data
   - Clears both screen and persistent storage
+- Front Desk Request Entry screen
+  - Generates UUID for each new request
+  - Saves to Hive database (submitted_requests box) with isSynced: false
+  - Error handling for persistence failures
+  - Success confirmation messages
+  - Data persists across app restarts
+- Front Desk Delivered Audit screen
+  - Reads directly from Hive database (delivered_audit box)
+  - ValueListenableBuilder for real-time UI updates
+  - Automatically refreshes when BLE sync adds fulfilled requests
+  - Live search/filter by poster number
+  - Sorted alphabetically (A-Z) by poster number
+  - Data persists across app restarts
 
 ### What's NOT Implemented ⚠️
 
 **Critical Gaps:**
-- **BLE package not installed** - Need to add flutter_reactive_ble or similar to pubspec.yaml
+- **BLE package not installed** - Need to add flutter_reactive_ble to pubspec.yaml
 - **No BLE service implementation** - BLE communication layer doesn't exist
-- **No state management** - No Provider/Riverpod/BLoC package installed
-- **No front desk persistence** - Front desk still uses mock data only
+- **No state management** - No Provider package installed
 
 **Missing Functionality:**
 - BLE communication layer (connection, characteristics, scanning)
@@ -151,14 +166,14 @@ flutter build apk
 - State management for BLE events and data synchronization
 - Actual data synchronization between devices via BLE
 - Connection status UI (Bluetooth icons are non-functional)
-- Front desk persistence service (submitted requests, delivered audit)
 - Retry logic for BLE failures
 - Role persistence (role selection resets on app restart)
 - Comprehensive test coverage
 
 **Current Behavior:**
-- **Back Office:** Pull functionality is fully working with Hive persistence. Fulfilled requests persist across app restarts.
-- **Front Desk:** Still uses hardcoded placeholder data. Submitted requests don't persist and won't sync to Back Office until BLE is implemented.
+- **Back Office:** Full offline functionality with Hive persistence. Fulfilled requests persist across app restarts.
+- **Front Desk:** Full offline functionality with Hive persistence. Submitted requests persist across app restarts.
+- **Missing:** BLE sync between Front Desk and Back Office devices.
 
 ### Installed Dependencies
 
@@ -170,6 +185,7 @@ google_fonts: ^6.2.1           # Inter font family for typography
 intl: ^0.19.0                  # Date/time formatting and internationalization
 hive: ^2.2.3                   # Local NoSQL database (initialized in main.dart)
 hive_flutter: ^1.1.0           # Flutter-specific Hive initialization
+uuid: ^4.5.1                   # UUID generation for unique request IDs
 ```
 
 **Dev Dependencies:**
@@ -189,16 +205,18 @@ build_runner: ^2.4.13          # Code generation framework
 
 To continue implementation, the recommended order is:
 
-1. **Add Front Desk Persistence** ✨ RECOMMENDED NEXT
-   - Create front desk boxes in PersistenceService
-   - Add methods for submitted requests and delivered audit
-   - Wire up Front Desk Request Entry screen to save to Hive
-   - Wire up Front Desk Delivered Audit screen to read from Hive
+1. **Add Front Desk Persistence** ✅ COMPLETED (Phase 1)
+   - ✅ Created front desk boxes in PersistenceService (submitted_requests, delivered_audit)
+   - ✅ Added methods for submitted requests and delivered audit
+   - ✅ Wired up Front Desk Request Entry screen to save to Hive
+   - ✅ Wired up Front Desk Delivered Audit screen to read from Hive with real-time updates
 
-2. **Add BLE Package**
+2. **Add BLE Package** 📋 NEXT (Phase 2)
    - Research: flutter_reactive_ble (recommended) vs. flutter_blue_plus
-   - Add to pubspec.yaml
-   - Configure platform permissions (iOS: Info.plist, Android: AndroidManifest.xml)
+   - Add flutter_reactive_ble and provider to pubspec.yaml
+   - Configure Android permissions (AndroidManifest.xml)
+   - Configure macOS permissions (Info.plist and entitlements)
+   - Test app builds on both Android and macOS
 
 3. **Add State Management**
    - Recommended: Provider (simple, officially supported)

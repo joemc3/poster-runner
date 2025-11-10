@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import '../../models/poster_request.dart';
 import '../../theme/app_theme.dart';
+import '../../main.dart'; // For global persistenceService
 
 /// Front Desk - Request Entry Screen (Tab 1)
 ///
@@ -13,8 +15,10 @@ import '../../theme/app_theme.dart';
 /// - Status feedback area showing last submission result
 /// - Auto-clear input on successful submission
 ///
-/// TODO: Connect to BLE service for actual request submission
-/// TODO: Implement actual status tracking and error handling
+/// Status:
+/// - Persistence: IMPLEMENTED - Requests are saved to Hive database
+/// - BLE sync: TODO - Connect to BLE service for transmission to Back Office
+/// - Error handling: TODO - Add comprehensive error handling for persistence failures
 
 class RequestEntryScreen extends StatefulWidget {
   /// Callback when a new request is submitted
@@ -32,8 +36,9 @@ class RequestEntryScreen extends StatefulWidget {
 
 class _RequestEntryScreenState extends State<RequestEntryScreen> {
   final TextEditingController _posterNumberController = TextEditingController();
+  final _uuid = const Uuid();
 
-  // TODO: Replace with actual state management
+  // Status tracking for last submission
   String? _lastSubmittedPoster;
   RequestStatus? _lastStatus;
   DateTime? _lastSubmissionTime;
@@ -46,7 +51,9 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
   }
 
   /// Handle submit button press
-  /// TODO: Integrate with actual BLE service
+  ///
+  /// Creates a new PosterRequest and saves it to Hive database.
+  /// The request is marked as 'sent' with isSynced: false (pending BLE transmission).
   Future<void> _handleSubmit() async {
     final posterNumber = _posterNumberController.text.trim().toUpperCase();
 
@@ -59,22 +66,53 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
       _isSubmitting = true;
     });
 
-    // TODO: Replace with actual BLE transmission
-    // Simulate submission delay
-    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      // Create new request with unique ID
+      final newRequest = PosterRequest(
+        uniqueId: _uuid.v4(),
+        posterNumber: posterNumber,
+        status: RequestStatus.sent,
+        timestampSent: DateTime.now(),
+        timestampPulled: null,
+        isSynced: false, // Will be set to true after BLE transmission
+      );
 
-    // TODO: Replace with actual status from BLE service
-    // For now, simulate success
-    setState(() {
-      _lastSubmittedPoster = posterNumber;
-      _lastStatus = RequestStatus.sent;
-      _lastSubmissionTime = DateTime.now();
-      _isSubmitting = false;
-      _posterNumberController.clear();
-    });
+      // Save to Hive database (write-immediately pattern)
+      await persistenceService.saveSubmittedRequest(newRequest);
 
-    // Call callback if provided
-    widget.onSubmitRequest?.call(posterNumber);
+      // TODO: Transmit via BLE to Back Office
+      // For now, request is saved locally and will sync when BLE is implemented
+
+      setState(() {
+        _lastSubmittedPoster = posterNumber;
+        _lastStatus = RequestStatus.sent;
+        _lastSubmissionTime = newRequest.timestampSent;
+        _isSubmitting = false;
+        _posterNumberController.clear();
+      });
+
+      // Call callback if provided
+      widget.onSubmitRequest?.call(posterNumber);
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Request saved: $posterNumber'),
+            backgroundColor: Theme.of(context).colorScheme.success,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle persistence errors
+      setState(() {
+        _lastStatus = null;
+        _isSubmitting = false;
+      });
+
+      _showError('Failed to save request: $e');
+    }
   }
 
   void _showError(String message) {
