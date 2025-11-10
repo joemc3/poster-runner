@@ -28,5 +28,7 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Poster Runner uses Bluetooth to sync poster requests between Front Desk and Back Office devices in offline environments.</string>
 </dict>
 </plist>
