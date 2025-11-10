@@ -145,12 +145,14 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _handleSubmit,
                 child: _isSubmitting
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 24,
                         width: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            colorScheme.onPrimary, // Use theme color (white in light, black in dark)
+                          ),
                         ),
                       )
                     : Text(

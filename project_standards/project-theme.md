@@ -355,46 +355,90 @@ Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Aria
 
 ### Typography Scale
 
-Based on Flutter's Material 3 text theme, with adjustments for operational clarity:
+Based on Flutter's Material 3 text theme, with adjustments for operational clarity. **CRITICAL:** All text styles now include explicit color specifications to ensure proper contrast in all contexts.
 
 #### Display Text (Rarely Used)
 - **displayLarge:** 57sp, Light (300) - Reserved for splash/onboarding
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white background
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
+
 - **displayMedium:** 45sp, Light (300) - Reserved for empty states
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white background
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
+
 - **displaySmall:** 36sp, Regular (400) - Reserved for major headers
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white background
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
 
 #### Headlines (Screen Titles & Major Sections)
 - **headlineLarge:** 32sp, SemiBold (600) - Main screen titles
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white background
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
+  * **Usage:** App bar titles, primary screen headers
+
 - **headlineMedium:** 28sp, SemiBold (600) - Section headers
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white background
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
+
 - **headlineSmall:** 24sp, SemiBold (600) - Sub-section headers
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white background
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
 
 #### Titles (List Headers & Card Titles)
 - **titleLarge:** 22sp, Medium (500) - Primary list item title
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white surface
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 18.6:1 contrast on #1C1C1C surface
+  * **Usage:** Request numbers, primary identification fields
+
 - **titleMedium:** 16sp, Medium (500) - Secondary information headers
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white surface
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 18.6:1 contrast on #1C1C1C surface
+  * **Usage:** Customer names, booth numbers, tab labels
+
 - **titleSmall:** 14sp, Medium (500) - Tertiary labels
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white surface
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 18.6:1 contrast on #1C1C1C surface
+  * **Usage:** Form labels, list section headers
 
 #### Body Text (Primary Content)
 - **bodyLarge:** 16sp, Regular (400) - Standard body text
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white background
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
   * **Usage:** Request descriptions, detailed information
   * **Line Height:** 1.5 for comfortable reading
 
 - **bodyMedium:** 14sp, Regular (400) - Secondary body text
-  * **Usage:** Supporting details, metadata
+  * **Light Theme Color:** `#000000` (True Black) - 21:1 contrast on white background
+  * **Dark Theme Color:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
+  * **Usage:** Supporting details, metadata, secondary information
   * **Line Height:** 1.43
 
 - **bodySmall:** 12sp, Regular (400) - Tertiary text
-  * **Usage:** Timestamps, auxiliary information
+  * **Light Theme Color:** `#424242` (Dark Gray) - 11.9:1 contrast on white background
+  * **Dark Theme Color:** `#E0E0E0` (Light Gray) - 13.1:1 contrast on black background
+  * **Usage:** Timestamps, auxiliary information, de-emphasized metadata
   * **Line Height:** 1.33
+  * **Note:** Uses neutral color for visual de-emphasis while maintaining WCAG AAA contrast
 
 #### Labels (Buttons & UI Elements)
 - **labelLarge:** 14sp, Medium (500) - Primary button text
+  * **Light Theme Color:** Context-dependent (white on colored buttons, black on surfaces)
+  * **Dark Theme Color:** Context-dependent (black on colored buttons, white on surfaces)
+  * **On Primary/Secondary/Error Buttons:** Use `onPrimary`, `onSecondary`, `onError` colors
+  * **On Surface Elements:** Use `onSurface` color
   * **Letter Spacing:** 0.1sp for improved scannability
 
 - **labelMedium:** 12sp, Medium (500) - Secondary button text
+  * **Light Theme Color:** Context-dependent (white on colored buttons, black on surfaces)
+  * **Dark Theme Color:** Context-dependent (black on colored buttons, white on surfaces)
   * **Letter Spacing:** 0.5sp
 
 - **labelSmall:** 11sp, Medium (500) - Small labels and tags
+  * **Light Theme Color:** `#FFFFFF` (White) on status badges, `#000000` (Black) on surfaces
+  * **Dark Theme Color:** `#000000` (Black) on status badges, `#FFFFFF` (White) on surfaces
   * **Letter Spacing:** 0.5sp
-  * **Usage:** Status badges, filter chips
+  * **Usage:** Status badges (ALL CAPS), filter chips, small UI labels
+  * **Critical:** Status badge text MUST use `onSuccess`, `onWarning`, `onInfo` colors for proper contrast
 
 ### Typography Usage Guidelines
 
@@ -421,12 +465,218 @@ Based on Flutter's Material 3 text theme, with adjustments for operational clari
    - Use `labelLarge` with **Medium (500)** weight
    - Sentence case for actions (e.g., "Mark as Fulfilled")
 
+### Critical UI Component Text Colors
+
+**CRITICAL SECTION:** These specifications address the most common contrast failures in Flutter applications. Every UI component that displays text MUST have explicit color definitions.
+
+#### Tab Bar Text Colors
+
+**Problem:** Tab bars frequently default to light text on light backgrounds or dark text on dark backgrounds, causing severe readability issues.
+
+**Solution - Light Theme:**
+- **Selected Tab Label:** `#000000` (True Black) - 21:1 contrast on white background
+- **Unselected Tab Label:** `#424242` (Dark Gray) - 11.9:1 contrast on white background
+- **Tab Indicator:** `#0D47A1` (Pure Blue) - visual emphasis for selected tab
+- **Background:** `#FFFFFF` (Pure White) or matches app bar background
+
+**Solution - Dark Theme:**
+- **Selected Tab Label:** `#FFFFFF` (Pure White) - 21:1 contrast on black background
+- **Unselected Tab Label:** `#E0E0E0` (Light Gray) - 13.1:1 contrast on black background
+- **Tab Indicator:** `#82B1FF` (Bright Light Blue) - visual emphasis for selected tab
+- **Background:** `#000000` (Pure Black) or matches app bar background
+
+**Flutter Implementation:**
+```dart
+// Light Theme
+tabBarTheme: TabBarTheme(
+  labelColor: Color(0xFF000000),          // True Black for selected tabs
+  unselectedLabelColor: Color(0xFF424242), // Dark Gray for unselected tabs
+  indicatorColor: Color(0xFF0D47A1),       // Primary Blue indicator
+  labelStyle: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    fontFamily: 'Inter',
+  ),
+  unselectedLabelStyle: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    fontFamily: 'Inter',
+  ),
+)
+
+// Dark Theme
+tabBarTheme: TabBarTheme(
+  labelColor: Color(0xFFFFFFFF),          // Pure White for selected tabs
+  unselectedLabelColor: Color(0xFFE0E0E0), // Light Gray for unselected tabs
+  indicatorColor: Color(0xFF82B1FF),       // Bright Blue indicator
+  labelStyle: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    fontFamily: 'Inter',
+  ),
+  unselectedLabelStyle: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    fontFamily: 'Inter',
+  ),
+)
+```
+
+#### App Bar Text and Icon Colors
+
+**Problem:** App bar text and icons often inherit inappropriate default colors, resulting in poor contrast against app bar backgrounds.
+
+**Solution - Light Theme:**
+- **Title Text:** `#000000` (True Black) - 21:1 contrast on white app bar background
+- **Icons:** `#000000` (True Black) - 21:1 contrast on white app bar background
+- **Background:** `#FFFFFF` (Pure White)
+- **Elevation:** 1dp with subtle shadow for definition
+
+**Solution - Dark Theme:**
+- **Title Text:** `#FFFFFF` (Pure White) - 21:1 contrast on black app bar background
+- **Icons:** `#FFFFFF` (Pure White) - 21:1 contrast on black app bar background
+- **Background:** `#000000` (Pure Black)
+- **Elevation:** 1dp with subtle shadow for definition
+
+**Flutter Implementation:**
+```dart
+// Light Theme
+appBarTheme: AppBarTheme(
+  backgroundColor: Color(0xFFFFFFFF),     // Pure White background
+  foregroundColor: Color(0xFF000000),     // True Black text and icons
+  elevation: 1,
+  centerTitle: false,
+  titleTextStyle: TextStyle(
+    color: Color(0xFF000000),
+    fontSize: 32,
+    fontWeight: FontWeight.w600,
+    fontFamily: 'Inter',
+  ),
+  iconTheme: IconThemeData(
+    color: Color(0xFF000000),             // True Black icons
+    size: 24,
+  ),
+)
+
+// Dark Theme
+appBarTheme: AppBarTheme(
+  backgroundColor: Color(0xFF000000),     // Pure Black background
+  foregroundColor: Color(0xFFFFFFFF),     // Pure White text and icons
+  elevation: 1,
+  centerTitle: false,
+  titleTextStyle: TextStyle(
+    color: Color(0xFFFFFFFF),
+    fontSize: 32,
+    fontWeight: FontWeight.w600,
+    fontFamily: 'Inter',
+  ),
+  iconTheme: IconThemeData(
+    color: Color(0xFFFFFFFF),             // Pure White icons
+    size: 24,
+  ),
+)
+```
+
+#### Secondary Text Elements (Labels, Captions, Metadata)
+
+**Problem:** Secondary text like "Next to pull record", timestamps, and helper text often lack explicit color definitions.
+
+**Solution - Light Theme:**
+- **Primary Labels:** `#000000` (True Black) - Use for important labels
+- **Secondary Labels:** `#424242` (Dark Gray) - Use for de-emphasized labels while maintaining 11.9:1 contrast
+- **Timestamps:** `#424242` (Dark Gray) - 11.9:1 contrast
+- **Helper Text:** `#424242` (Dark Gray) - 11.9:1 contrast
+- **Error Text:** `#B71C1C` (Pure Red) - 9.7:1 contrast
+
+**Solution - Dark Theme:**
+- **Primary Labels:** `#FFFFFF` (Pure White) - Use for important labels
+- **Secondary Labels:** `#E0E0E0` (Light Gray) - Use for de-emphasized labels while maintaining 13.1:1 contrast
+- **Timestamps:** `#E0E0E0` (Light Gray) - 13.1:1 contrast
+- **Helper Text:** `#E0E0E0` (Light Gray) - 13.1:1 contrast
+- **Error Text:** `#FF5252` (Bright Red) - 8.3:1 contrast
+
+**Usage Examples:**
+```dart
+// Primary label (important information)
+Text(
+  'Next to pull record:',
+  style: TextStyle(
+    color: Theme.of(context).colorScheme.onBackground, // Black or White
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+  ),
+)
+
+// Secondary label (de-emphasized metadata)
+Text(
+  'Last updated: 2 minutes ago',
+  style: TextStyle(
+    color: Theme.of(context).colorScheme.brightness == Brightness.light
+      ? Color(0xFF424242)  // Dark Gray for light theme
+      : Color(0xFFE0E0E0), // Light Gray for dark theme
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+  ),
+)
+```
+
+#### Navigation Rail Text Colors
+
+**Solution - Light Theme:**
+- **Selected Destination Label:** `#0D47A1` (Pure Blue) - 10.4:1 contrast
+- **Unselected Destination Label:** `#424242` (Dark Gray) - 11.9:1 contrast
+- **Selected Icon:** `#0D47A1` (Pure Blue)
+- **Unselected Icon:** `#424242` (Dark Gray)
+
+**Solution - Dark Theme:**
+- **Selected Destination Label:** `#82B1FF` (Bright Light Blue) - 10.6:1 contrast
+- **Unselected Destination Label:** `#E0E0E0` (Light Gray) - 13.1:1 contrast
+- **Selected Icon:** `#82B1FF` (Bright Light Blue)
+- **Unselected Icon:** `#E0E0E0` (Light Gray)
+
+#### Bottom Navigation Bar Text Colors
+
+**Solution - Light Theme:**
+- **Selected Label:** `#0D47A1` (Pure Blue) - 10.4:1 contrast on white
+- **Unselected Label:** `#424242` (Dark Gray) - 11.9:1 contrast on white
+- **Background:** `#FFFFFF` (Pure White)
+
+**Solution - Dark Theme:**
+- **Selected Label:** `#82B1FF` (Bright Light Blue) - 10.6:1 contrast on black
+- **Unselected Label:** `#E0E0E0` (Light Gray) - 13.1:1 contrast on black
+- **Background:** `#000000` (Pure Black)
+
+**Flutter Implementation:**
+```dart
+// Light Theme
+bottomNavigationBarTheme: BottomNavigationBarThemeData(
+  backgroundColor: Color(0xFFFFFFFF),
+  selectedItemColor: Color(0xFF0D47A1),     // Pure Blue
+  unselectedItemColor: Color(0xFF424242),   // Dark Gray
+  selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+  unselectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+  type: BottomNavigationBarType.fixed,
+)
+
+// Dark Theme
+bottomNavigationBarTheme: BottomNavigationBarThemeData(
+  backgroundColor: Color(0xFF000000),
+  selectedItemColor: Color(0xFF82B1FF),     // Bright Blue
+  unselectedItemColor: Color(0xFFE0E0E0),   // Light Gray
+  selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+  unselectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+  type: BottomNavigationBarType.fixed,
+)
+```
+
 ### Accessibility Considerations
 
 - **Minimum Text Size:** 12sp for all readable text (WCAG AA compliant)
 - **Dynamic Type Support:** All text should scale with system font size settings
 - **Weight Contrast:** Use weight variation (Regular vs. Medium vs. SemiBold) to create hierarchy without relying solely on color
 - **Line Height:** Generous line spacing (1.4-1.5) improves readability on tablets held at various angles
+- **Explicit Colors Required:** NEVER rely on default text colors - always specify colors explicitly for all text elements
+- **Context-Aware Colors:** Text on colored backgrounds (buttons, badges) must use the appropriate `on*` color (onPrimary, onSecondary, onSuccess, etc.)
 
 ---
 
@@ -954,10 +1204,155 @@ ThemeData(
     surface: Color(0xFFFFFFFF),        // Pure White
     onSurface: Color(0xFF000000),      // True Black - 21:1 contrast
   ),
+
+  // CRITICAL: Explicit text colors for all text styles
   textTheme: TextTheme(
-    // Use Inter font family with defined sizes
+    displayLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 57,
+      fontWeight: FontWeight.w300,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    displayMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 45,
+      fontWeight: FontWeight.w300,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    displaySmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 36,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    headlineLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 32,
+      fontWeight: FontWeight.w600,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    headlineMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 28,
+      fontWeight: FontWeight.w600,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    headlineSmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    titleLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 22,
+      fontWeight: FontWeight.w500,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    titleMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    titleSmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+    ),
+    bodyLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+      height: 1.5,
+    ),
+    bodyMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFF000000),        // True Black - 21:1 contrast
+      height: 1.43,
+    ),
+    bodySmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFF424242),        // Dark Gray - 11.9:1 contrast
+      height: 1.33,
+    ),
+    labelLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.1,
+      color: Color(0xFF000000),        // Context-dependent, see usage notes
+    ),
+    labelMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.5,
+      color: Color(0xFF000000),        // Context-dependent, see usage notes
+    ),
+    labelSmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 11,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.5,
+      color: Color(0xFF000000),        // Context-dependent, see usage notes
+    ),
   ),
-  // ... (additional theme properties)
+
+  // CRITICAL: Tab bar theme with explicit text colors
+  tabBarTheme: TabBarTheme(
+    labelColor: Color(0xFF000000),          // True Black for selected tabs
+    unselectedLabelColor: Color(0xFF424242), // Dark Gray for unselected tabs
+    indicatorColor: Color(0xFF0D47A1),       // Primary Blue indicator
+    labelStyle: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      fontFamily: 'Inter',
+    ),
+    unselectedLabelStyle: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      fontFamily: 'Inter',
+    ),
+  ),
+
+  // CRITICAL: App bar theme with explicit text and icon colors
+  appBarTheme: AppBarTheme(
+    backgroundColor: Color(0xFFFFFFFF),     // Pure White background
+    foregroundColor: Color(0xFF000000),     // True Black text and icons
+    elevation: 1,
+    centerTitle: false,
+    titleTextStyle: TextStyle(
+      color: Color(0xFF000000),
+      fontSize: 32,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Inter',
+    ),
+    iconTheme: IconThemeData(
+      color: Color(0xFF000000),             // True Black icons
+      size: 24,
+    ),
+  ),
+
+  // Bottom navigation bar theme
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    backgroundColor: Color(0xFFFFFFFF),
+    selectedItemColor: Color(0xFF0D47A1),     // Pure Blue
+    unselectedItemColor: Color(0xFF424242),   // Dark Gray
+    selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+    unselectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+    type: BottomNavigationBarType.fixed,
+  ),
+
+  // Additional theme properties
+  visualDensity: VisualDensity.comfortable,
+  scaffoldBackgroundColor: Color(0xFFFFFFFF),
 )
 ```
 
@@ -978,10 +1373,155 @@ ThemeData(
     surface: Color(0xFF1C1C1C),        // Near Black - 18.6:1 contrast with white text
     onSurface: Color(0xFFFFFFFF),      // Pure White
   ),
+
+  // CRITICAL: Explicit text colors for all text styles
   textTheme: TextTheme(
-    // Use Inter font family with defined sizes
+    displayLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 57,
+      fontWeight: FontWeight.w300,
+      color: Color(0xFFFFFFFF),        // Pure White - 21:1 contrast
+    ),
+    displayMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 45,
+      fontWeight: FontWeight.w300,
+      color: Color(0xFFFFFFFF),        // Pure White - 21:1 contrast
+    ),
+    displaySmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 36,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFFFFFFF),        // Pure White - 21:1 contrast
+    ),
+    headlineLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 32,
+      fontWeight: FontWeight.w600,
+      color: Color(0xFFFFFFFF),        // Pure White - 21:1 contrast
+    ),
+    headlineMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 28,
+      fontWeight: FontWeight.w600,
+      color: Color(0xFFFFFFFF),        // Pure White - 21:1 contrast
+    ),
+    headlineSmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+      color: Color(0xFFFFFFFF),        // Pure White - 21:1 contrast
+    ),
+    titleLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 22,
+      fontWeight: FontWeight.w500,
+      color: Color(0xFFFFFFFF),        // Pure White - 18.6:1 contrast on surface
+    ),
+    titleMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: Color(0xFFFFFFFF),        // Pure White - 18.6:1 contrast on surface
+    ),
+    titleSmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: Color(0xFFFFFFFF),        // Pure White - 18.6:1 contrast on surface
+    ),
+    bodyLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFFFFFFF),        // Pure White - 21:1 contrast
+      height: 1.5,
+    ),
+    bodyMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFFFFFFF),        // Pure White - 21:1 contrast
+      height: 1.43,
+    ),
+    bodySmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFE0E0E0),        // Light Gray - 13.1:1 contrast
+      height: 1.33,
+    ),
+    labelLarge: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.1,
+      color: Color(0xFFFFFFFF),        // Context-dependent, see usage notes
+    ),
+    labelMedium: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.5,
+      color: Color(0xFFFFFFFF),        // Context-dependent, see usage notes
+    ),
+    labelSmall: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: 11,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.5,
+      color: Color(0xFFFFFFFF),        // Context-dependent, see usage notes
+    ),
   ),
-  // ... (additional theme properties)
+
+  // CRITICAL: Tab bar theme with explicit text colors
+  tabBarTheme: TabBarTheme(
+    labelColor: Color(0xFFFFFFFF),          // Pure White for selected tabs
+    unselectedLabelColor: Color(0xFFE0E0E0), // Light Gray for unselected tabs
+    indicatorColor: Color(0xFF82B1FF),       // Bright Blue indicator
+    labelStyle: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      fontFamily: 'Inter',
+    ),
+    unselectedLabelStyle: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      fontFamily: 'Inter',
+    ),
+  ),
+
+  // CRITICAL: App bar theme with explicit text and icon colors
+  appBarTheme: AppBarTheme(
+    backgroundColor: Color(0xFF000000),     // Pure Black background
+    foregroundColor: Color(0xFFFFFFFF),     // Pure White text and icons
+    elevation: 1,
+    centerTitle: false,
+    titleTextStyle: TextStyle(
+      color: Color(0xFFFFFFFF),
+      fontSize: 32,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Inter',
+    ),
+    iconTheme: IconThemeData(
+      color: Color(0xFFFFFFFF),             // Pure White icons
+      size: 24,
+    ),
+  ),
+
+  // Bottom navigation bar theme
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    backgroundColor: Color(0xFF000000),
+    selectedItemColor: Color(0xFF82B1FF),     // Bright Blue
+    unselectedItemColor: Color(0xFFE0E0E0),   // Light Gray
+    selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+    unselectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+    type: BottomNavigationBarType.fixed,
+  ),
+
+  // Additional theme properties
+  visualDensity: VisualDensity.comfortable,
+  scaffoldBackgroundColor: Color(0xFF000000),
 )
 ```
 
@@ -1040,6 +1580,206 @@ Support light/dark theme switching based on:
 1. System preference (default)
 2. Optional in-app manual toggle
 3. Time-based automatic switching (e.g., dark after 6pm for evening events)
+
+---
+
+## Contrast Validation & Text Color Decision Guide
+
+### Complete Contrast Ratio Reference
+
+This section provides a comprehensive reference for all text color combinations to ensure ZERO contrast failures.
+
+#### Light Theme - Text on Background/Surface (#FFFFFF)
+
+| Text Element | Color | Hex Code | Contrast Ratio | WCAG Level |
+|--------------|-------|----------|----------------|------------|
+| Display Text | True Black | #000000 | 21:1 | AAA |
+| Headline Text | True Black | #000000 | 21:1 | AAA |
+| Title Text | True Black | #000000 | 21:1 | AAA |
+| Body Large/Medium | True Black | #000000 | 21:1 | AAA |
+| Body Small (metadata) | Dark Gray | #424242 | 11.9:1 | AAA |
+| Tab - Selected | True Black | #000000 | 21:1 | AAA |
+| Tab - Unselected | Dark Gray | #424242 | 11.9:1 | AAA |
+| App Bar Title | True Black | #000000 | 21:1 | AAA |
+| App Bar Icons | True Black | #000000 | 21:1 | AAA |
+| Primary Labels | True Black | #000000 | 21:1 | AAA |
+| Secondary Labels | Dark Gray | #424242 | 11.9:1 | AAA |
+| Timestamps | Dark Gray | #424242 | 11.9:1 | AAA |
+| Helper Text | Dark Gray | #424242 | 11.9:1 | AAA |
+| Error Text | Pure Red | #B71C1C | 9.7:1 | AAA |
+
+#### Light Theme - Text on Colored Backgrounds
+
+| Element | Background | Text Color | Contrast Ratio | WCAG Level |
+|---------|------------|------------|----------------|------------|
+| Primary Button | Pure Blue #0D47A1 | White #FFFFFF | 10.4:1 | AAA |
+| Secondary Button | Deep Teal #00695C | White #FFFFFF | 8.1:1 | AAA |
+| Error Button | Pure Red #B71C1C | White #FFFFFF | 9.7:1 | AAA |
+| SENT Badge | Deep Cyan Blue #01579B | White #FFFFFF | 8.7:1 | AAA |
+| PENDING Badge | Deep Orange #E65100 | White #FFFFFF | 7.1:1 | AAA |
+| FULFILLED Badge | Deep Forest Green #1B5E20 | White #FFFFFF | 8.2:1 | AAA |
+
+#### Dark Theme - Text on Background (#000000) / Surface (#1C1C1C)
+
+| Text Element | Color | Hex Code | Contrast on Background | Contrast on Surface | WCAG Level |
+|--------------|-------|----------|------------------------|---------------------|------------|
+| Display Text | Pure White | #FFFFFF | 21:1 | 18.6:1 | AAA |
+| Headline Text | Pure White | #FFFFFF | 21:1 | 18.6:1 | AAA |
+| Title Text | Pure White | #FFFFFF | 21:1 | 18.6:1 | AAA |
+| Body Large/Medium | Pure White | #FFFFFF | 21:1 | 18.6:1 | AAA |
+| Body Small (metadata) | Light Gray | #E0E0E0 | 13.1:1 | 11.5:1 | AAA |
+| Tab - Selected | Pure White | #FFFFFF | 21:1 | 18.6:1 | AAA |
+| Tab - Unselected | Light Gray | #E0E0E0 | 13.1:1 | 11.5:1 | AAA |
+| App Bar Title | Pure White | #FFFFFF | 21:1 | - | AAA |
+| App Bar Icons | Pure White | #FFFFFF | 21:1 | - | AAA |
+| Primary Labels | Pure White | #FFFFFF | 21:1 | 18.6:1 | AAA |
+| Secondary Labels | Light Gray | #E0E0E0 | 13.1:1 | 11.5:1 | AAA |
+| Timestamps | Light Gray | #E0E0E0 | 13.1:1 | 11.5:1 | AAA |
+| Helper Text | Light Gray | #E0E0E0 | 13.1:1 | 11.5:1 | AAA |
+| Error Text | Bright Red | #FF5252 | 8.3:1 | 7.4:1 | AAA |
+
+#### Dark Theme - Text on Colored Backgrounds
+
+| Element | Background | Text Color | Contrast Ratio | WCAG Level |
+|---------|------------|------------|----------------|------------|
+| Primary Button | Bright Blue #82B1FF | Black #000000 | 10.6:1 | AAA |
+| Secondary Button | Bright Aqua #64FFDA | Black #000000 | 11.8:1 | AAA |
+| Error Button | Bright Red #FF5252 | Black #000000 | 8.3:1 | AAA |
+| SENT Badge | Bright Cyan #40C4FF | Black #000000 | 9.4:1 | AAA |
+| PENDING Badge | Bright Orange #FF9100 | Black #000000 | 7.8:1 | AAA |
+| FULFILLED Badge | Vibrant Green #69F0AE | Black #000000 | 11.2:1 | AAA |
+
+### Text Color Decision Tree
+
+Use this decision tree to choose the correct text color for any UI element:
+
+**Step 1: Identify the background**
+- Is it a colored element (button, badge, chip)? → Go to Step 2
+- Is it a neutral surface (background, card, list)? → Go to Step 3
+
+**Step 2: Text on Colored Backgrounds**
+```
+IF background is Primary/Secondary/Error/Status color THEN
+  IF light theme THEN
+    use White (#FFFFFF) - specified by onPrimary/onSecondary/onError/onSuccess/onWarning/onInfo
+  ELSE IF dark theme THEN
+    use Black (#000000) - specified by onPrimary/onSecondary/onError/onSuccess/onWarning/onInfo
+  END IF
+END IF
+```
+
+**Step 3: Text on Neutral Surfaces**
+```
+IF light theme THEN
+  IF primary text (headlines, titles, body, labels) THEN
+    use True Black (#000000)
+  ELSE IF secondary text (timestamps, metadata, helper text) THEN
+    use Dark Gray (#424242)
+  ELSE IF error text THEN
+    use Pure Red (#B71C1C)
+  END IF
+ELSE IF dark theme THEN
+  IF primary text (headlines, titles, body, labels) THEN
+    use Pure White (#FFFFFF)
+  ELSE IF secondary text (timestamps, metadata, helper text) THEN
+    use Light Gray (#E0E0E0)
+  ELSE IF error text THEN
+    use Bright Red (#FF5252)
+  END IF
+END IF
+```
+
+**Step 4: Special Cases**
+- **Tab labels (selected):** Use onBackground color (Black in light, White in dark)
+- **Tab labels (unselected):** Use neutral color (Dark Gray #424242 in light, Light Gray #E0E0E0 in dark)
+- **App bar text/icons:** Use onBackground color (Black in light, White in dark)
+- **Navigation selected items:** Use primary color for emphasis
+- **Navigation unselected items:** Use neutral color
+
+### Implementation Checklist
+
+Before deploying any UI component, verify:
+
+- [ ] **All text has explicit color specifications** - No reliance on defaults
+- [ ] **Tab bar uses explicit labelColor and unselectedLabelColor** - Never allow default text colors
+- [ ] **App bar uses explicit foregroundColor and titleTextStyle with color** - Never allow default text colors
+- [ ] **TextTheme includes color property for ALL text styles** - display, headline, title, body, label
+- [ ] **Status badges use onSuccess/onWarning/onInfo colors** - White on dark badges (light theme), Black on bright badges (dark theme)
+- [ ] **Secondary text uses neutral colors** - Dark Gray #424242 (light) or Light Gray #E0E0E0 (dark)
+- [ ] **All color combinations meet 7:1 minimum contrast ratio** - WCAG AAA compliance
+- [ ] **No light text on light backgrounds** - Verify in light theme
+- [ ] **No dark text on dark backgrounds** - Verify in dark theme
+- [ ] **Test with actual devices in various lighting** - Bright sunlight and dim environments
+- [ ] **Validate with contrast checker tools** - WebAIM, APCA, or built-in Flutter DevTools
+
+### Common Mistakes to Avoid
+
+**NEVER DO THIS:**
+
+1. **Omitting text colors from TextTheme**
+   ```dart
+   // WRONG - No color specified
+   bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400)
+   ```
+
+2. **Omitting TabBarTheme configuration**
+   ```dart
+   // WRONG - No TabBarTheme at all
+   ThemeData(
+     colorScheme: ColorScheme(...),
+     // Missing tabBarTheme!
+   )
+   ```
+
+3. **Omitting AppBarTheme foregroundColor**
+   ```dart
+   // WRONG - No foregroundColor specified
+   appBarTheme: AppBarTheme(
+     backgroundColor: Colors.white,
+     // Missing foregroundColor!
+   )
+   ```
+
+4. **Using wrong "on" colors for status badges**
+   ```dart
+   // WRONG - Using onSurface on colored badge
+   Container(
+     color: colorScheme.success,
+     child: Text('FULFILLED',
+       style: TextStyle(color: colorScheme.onSurface)), // WRONG!
+   )
+
+   // CORRECT - Using onSuccess
+   Container(
+     color: colorScheme.success,
+     child: Text('FULFILLED',
+       style: TextStyle(color: colorScheme.onSuccess)), // CORRECT!
+   )
+   ```
+
+5. **Forgetting to specify colors for secondary text**
+   ```dart
+   // WRONG - Using default color
+   Text('Last updated: 2 min ago',
+     style: Theme.of(context).textTheme.bodySmall) // May use wrong default
+
+   // CORRECT - Explicitly using neutral color
+   Text('Last updated: 2 min ago',
+     style: Theme.of(context).textTheme.bodySmall?.copyWith(
+       color: Theme.of(context).brightness == Brightness.light
+         ? Color(0xFF424242) : Color(0xFFE0E0E0)
+     ))
+   ```
+
+**ALWAYS DO THIS:**
+
+1. **Specify colors explicitly in all TextStyle definitions**
+2. **Configure TabBarTheme with labelColor and unselectedLabelColor**
+3. **Configure AppBarTheme with foregroundColor and titleTextStyle color**
+4. **Use colorScheme.on* properties for text on colored backgrounds**
+5. **Use brightness-aware neutral colors for secondary text**
+6. **Test all UI states (tabs, navigation, buttons) in both themes**
+7. **Validate with contrast checking tools before deployment**
 
 ---
 

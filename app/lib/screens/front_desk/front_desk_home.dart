@@ -65,8 +65,7 @@ class _FrontDeskHomeState extends State<FrontDeskHome> {
             tooltip: 'Delivered Posters',
           ),
         ],
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+        // Colors are now defined in theme - no need to override
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         elevation: 8,

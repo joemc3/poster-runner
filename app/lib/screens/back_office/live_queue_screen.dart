@@ -284,7 +284,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                     'PULL',
                     style: textTheme.labelLarge?.copyWith(
                       fontSize: 16,
-                      color: Colors.white,
+                      color: colorScheme.onSuccess, // Use theme color (white in light, black in dark)
                     ),
                   ),
                 ),

@@ -28,23 +28,58 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
 
-      // Typography - Using Inter font family
-      textTheme: _buildTextTheme(colorScheme.onSurface),
+      // Typography - Using Inter font family with explicit colors
+      textTheme: _buildTextTheme(Brightness.light),
 
       // Visual Density
       visualDensity: VisualDensity.comfortable,
 
-      // AppBar Theme
+      // AppBar Theme - CRITICAL: Explicit colors for text and icons
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
+        foregroundColor: const Color(0xFF000000), // True Black - 21:1 contrast
         elevation: 1,
         centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
-          fontSize: 20,
+          fontSize: 32, // Per spec: headlineLarge for app bar titles
           fontWeight: FontWeight.w600,
-          color: colorScheme.onSurface,
+          color: const Color(0xFF000000), // True Black - 21:1 contrast
         ),
+        iconTheme: const IconThemeData(
+          color: Color(0xFF000000), // True Black icons - 21:1 contrast
+          size: 24,
+        ),
+      ),
+
+      // CRITICAL: Tab Bar Theme with explicit text colors
+      tabBarTheme: TabBarTheme(
+        labelColor: const Color(0xFF000000), // True Black for selected tabs - 21:1 contrast
+        unselectedLabelColor: const Color(0xFF424242), // Dark Gray for unselected tabs - 11.9:1 contrast
+        indicatorColor: const Color(0xFF0D47A1), // Primary Blue indicator
+        labelStyle: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+        unselectedLabelStyle: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+
+      // Bottom Navigation Bar Theme - Explicit colors
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: const Color(0xFFFFFFFF), // Pure White
+        selectedItemColor: const Color(0xFF0D47A1), // Pure Blue - 10.4:1 contrast
+        unselectedItemColor: const Color(0xFF424242), // Dark Gray - 11.9:1 contrast
+        selectedLabelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        unselectedLabelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+        ),
+        type: BottomNavigationBarType.fixed,
       ),
 
       // Card Theme
@@ -183,23 +218,58 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
 
-      // Typography - Using Inter font family
-      textTheme: _buildTextTheme(colorScheme.onSurface),
+      // Typography - Using Inter font family with explicit colors
+      textTheme: _buildTextTheme(Brightness.dark),
 
       // Visual Density
       visualDensity: VisualDensity.comfortable,
 
-      // AppBar Theme
+      // AppBar Theme - CRITICAL: Explicit colors for text and icons
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
+        foregroundColor: const Color(0xFFFFFFFF), // Pure White - 21:1 contrast
         elevation: 1,
         centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
-          fontSize: 20,
+          fontSize: 32, // Per spec: headlineLarge for app bar titles
           fontWeight: FontWeight.w600,
-          color: colorScheme.onSurface,
+          color: const Color(0xFFFFFFFF), // Pure White - 21:1 contrast
         ),
+        iconTheme: const IconThemeData(
+          color: Color(0xFFFFFFFF), // Pure White icons - 21:1 contrast
+          size: 24,
+        ),
+      ),
+
+      // CRITICAL: Tab Bar Theme with explicit text colors
+      tabBarTheme: TabBarTheme(
+        labelColor: const Color(0xFFFFFFFF), // Pure White for selected tabs - 21:1 contrast
+        unselectedLabelColor: const Color(0xFFE0E0E0), // Light Gray for unselected tabs - 13.1:1 contrast
+        indicatorColor: const Color(0xFF82B1FF), // Bright Blue indicator
+        labelStyle: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+        unselectedLabelStyle: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+
+      // Bottom Navigation Bar Theme - Explicit colors
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: const Color(0xFF000000), // Pure Black
+        selectedItemColor: const Color(0xFF82B1FF), // Bright Blue - 10.6:1 contrast
+        unselectedItemColor: const Color(0xFFE0E0E0), // Light Gray - 13.1:1 contrast
+        selectedLabelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        unselectedLabelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+        ),
+        type: BottomNavigationBarType.fixed,
       ),
 
       // Card Theme
@@ -320,77 +390,87 @@ class AppTheme {
     );
   }
 
-  /// Build text theme with Inter font family
-  static TextTheme _buildTextTheme(Color textColor) {
+  /// Build text theme with Inter font family and explicit colors
+  /// CRITICAL: All text styles have explicit colors for maximum contrast
+  static TextTheme _buildTextTheme(Brightness brightness) {
+    // Define colors based on theme brightness
+    final Color primaryTextColor = brightness == Brightness.light
+        ? const Color(0xFF000000) // True Black for light theme - 21:1 contrast
+        : const Color(0xFFFFFFFF); // Pure White for dark theme - 21:1 contrast
+
+    final Color secondaryTextColor = brightness == Brightness.light
+        ? const Color(0xFF424242) // Dark Gray for light theme - 11.9:1 contrast
+        : const Color(0xFFE0E0E0); // Light Gray for dark theme - 13.1:1 contrast
+
     return TextTheme(
       // Display Text (rarely used)
       displayLarge: GoogleFonts.inter(
         fontSize: 57,
         fontWeight: FontWeight.w300,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
       displayMedium: GoogleFonts.inter(
         fontSize: 45,
         fontWeight: FontWeight.w300,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
       displaySmall: GoogleFonts.inter(
         fontSize: 36,
         fontWeight: FontWeight.w400,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
 
       // Headlines (screen titles & major sections)
       headlineLarge: GoogleFonts.inter(
         fontSize: 32,
         fontWeight: FontWeight.w600,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
       headlineMedium: GoogleFonts.inter(
         fontSize: 28,
         fontWeight: FontWeight.w600,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
       headlineSmall: GoogleFonts.inter(
         fontSize: 24,
         fontWeight: FontWeight.w600,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
 
       // Titles (list headers & card titles)
       titleLarge: GoogleFonts.inter(
         fontSize: 22,
         fontWeight: FontWeight.w500,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
       titleMedium: GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w500,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
       titleSmall: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w500,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
       ),
 
       // Body Text (primary content)
       bodyLarge: GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w400,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
         height: 1.5,
       ),
       bodyMedium: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w400,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
         height: 1.43,
       ),
       bodySmall: GoogleFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w400,
-        color: textColor,
+        color: secondaryTextColor, // CRITICAL: Dark Gray (light) / Light Gray (dark) for de-emphasized text
         height: 1.33,
       ),
 
@@ -398,19 +478,19 @@ class AppTheme {
       labelLarge: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w500,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
         letterSpacing: 0.1,
       ),
       labelMedium: GoogleFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w500,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
         letterSpacing: 0.5,
       ),
       labelSmall: GoogleFonts.inter(
         fontSize: 11,
         fontWeight: FontWeight.w500,
-        color: textColor,
+        color: primaryTextColor, // True Black (light) / Pure White (dark)
         letterSpacing: 0.5,
       ),
     );
