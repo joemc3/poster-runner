@@ -16,7 +16,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **Front desk persistence working** - Submitted requests and delivered audit persist to Hive
 - ✅ **BLE package installed** - flutter_reactive_ble ^5.3.1 with platform permissions configured
 - ✅ **State management implemented** - Provider ^6.1.2 integrated across all screens
-- ✅ **Provider architecture complete** - 3 providers managing connection state and data
+- ✅ **Provider architecture complete** - 4 providers managing theme, connection state, and data
+- ✅ **Theme selection implemented** - Light/Dark/System modes with persistence to Hive
 - ❌ **No BLE service implementation** - BLE communication layer doesn't exist yet
 - ❌ **No sync orchestration** - Connection/reconnection logic not implemented
 
@@ -27,9 +28,11 @@ flutter pub get
 flutter run  # See the complete UI with real persistence and state management!
 # Front Desk: Submit poster requests - they save via FrontDeskProvider to Hive!
 # Front Desk: Delivered Audit shows fulfilled requests with reactive updates
+# Front Desk: Use the settings menu (gear icon) to change theme (Light/Dark/System)
 # Back Office: Pull a poster and it updates via BackOfficeProvider to Hive!
-# Back Office: Use the settings menu (gear icon) to clear all fulfilled requests
+# Back Office: Use the settings menu (gear icon) to clear all fulfilled requests or change theme
 # All screens use Provider for centralized state management
+# Theme preference persists across app restarts
 ```
 
 **What Needs Implementation:**
@@ -77,12 +80,12 @@ flutter build apk
 ## Current Implementation Status
 
 ### Codebase Statistics
-- **Total Dart Files:** 19 files (~4,700 lines of code)
+- **Total Dart Files:** 20 files (~4,800 lines of code)
 - **Screens:** 7 complete screens
 - **Reusable Widgets:** 3 components
 - **Data Models:** 1 core model + 1 enum + generated Hive adapters + mock data generator
 - **Services:** 1 persistence service (both Front Desk and Back Office - COMPLETE)
-- **State Management:** 3 Provider models (BLE connection, Front Desk data, Back Office data)
+- **State Management:** 4 Provider models (Theme, BLE connection, Front Desk data, Back Office data)
 - **Test Coverage:** Minimal (1 smoke test)
 
 ### What's Complete ✅
@@ -90,13 +93,18 @@ flutter build apk
 **UI Layer (100% Complete)**
 - All screens implemented with real persistence
 - Role selection screen
-- Front Desk: Request Entry (saves to Hive) + Delivered Audit (reads from Hive)
-- Back Office: Live Queue + Fulfilled Log (both read/write to Hive)
+- Front Desk: Request Entry (saves to Hive) + Delivered Audit (reads from Hive with theme settings)
+- Back Office: Live Queue + Fulfilled Log (both read/write to Hive with theme settings)
 - Complete high-contrast theme system (light/dark mode)
   - Pure white backgrounds (#FFFFFF) for maximum contrast
   - True black text (#000000) with 21:1 contrast ratio
   - WCAG AAA compliant colors (7:1+ contrast) throughout
   - All UI components derive styling from theme (zero hardcoded values)
+  - User-selectable theme modes: Light, Dark, System (follows device settings)
+  - Theme preference persists to Hive and restores on app startup
+- Settings menus with theme selection
+  - Front Desk Delivered Audit: Gear icon menu with theme selection
+  - Back Office Fulfilled Log: Gear icon menu with "Clear All Fulfilled" and theme selection
 - Reusable widgets (StatusBadge, RequestListItem, SearchBarWidget)
 - All UX specifications from design documents implemented
 - Zero linting issues
@@ -132,6 +140,9 @@ flutter build apk
   - Special method: getUnsyncedSubmittedRequests() for BLE sync
   - Real-time data change listeners via Hive streams
   - Initialized in main.dart on app startup
+- `ThemeProvider` manages additional Hive box: app_preferences
+  - Stores theme mode preference (light/dark/system)
+  - Automatically loads saved preference on app startup
 - Back Office Live Queue screen
   - "PULL" button saves to Hive with timestampPulled
   - Error handling for save failures
@@ -141,9 +152,10 @@ flutter build apk
   - ValueListenableBuilder for real-time UI updates
   - Automatically refreshes when new requests are pulled
   - Data persists across app restarts
-  - Settings menu (gear icon) with "Clear All Fulfilled" option
+  - Settings menu (gear icon) with "Clear All Fulfilled" and theme selection options
   - Confirmation dialog before clearing all data
   - Clears both screen and persistent storage
+  - Theme selection (Light/Dark/System) with persistence
 - Front Desk Request Entry screen
   - Generates UUID for each new request
   - Saves to Hive database (submitted_requests box) with isSynced: false
@@ -157,8 +169,15 @@ flutter build apk
   - Live search/filter by poster number
   - Sorted alphabetically (A-Z) by poster number
   - Data persists across app restarts
+  - Settings menu (gear icon) with theme selection (Light/Dark/System)
 
 **State Management Layer (100% Complete - Phase 3)**
+- `ThemeProvider` class (`lib/providers/theme_provider.dart`)
+  - Manages application theme mode (Light, Dark, System)
+  - Persists theme preference to Hive (app_preferences box)
+  - Automatically loads saved theme on app startup
+  - Provides theme selection UI methods and display names
+  - Notifies listeners on theme changes for reactive UI updates
 - `BleConnectionProvider` class (`lib/providers/ble_connection_provider.dart`)
   - Manages BLE connection state (disconnected, scanning, connecting, connected, error)
   - Tracks device info, signal strength (RSSI), and last sync time
@@ -177,7 +196,7 @@ flutter build apk
   - Ready for BLE incoming request handling
 - All screens integrated with Provider using Consumer pattern
 - Clean architecture: UI ← Providers ← PersistenceService ← Hive
-- MultiProvider setup in main.dart
+- MultiProvider setup in main.dart with 4 providers
 
 ### What's NOT Implemented ⚠️
 
@@ -465,6 +484,7 @@ app/lib/
 │   ├── request_list_item.dart         # List item widget (✅ Complete)
 │   └── search_bar_widget.dart         # Search input widget (✅ Complete)
 ├── providers/
+│   ├── theme_provider.dart            # Theme management (✅ Complete - Light/Dark/System)
 │   ├── ble_connection_provider.dart   # BLE connection state (✅ Phase 3 - structure ready)
 │   ├── front_desk_provider.dart       # Front Desk data & ops (✅ Phase 3 complete)
 │   └── back_office_provider.dart      # Back Office data & ops (✅ Phase 3 complete)
