@@ -79,10 +79,10 @@ Native-quality UI with platform-specific optimizations.
 
 Poster Runner prioritizes **operational efficiency** and **reliability** over aesthetic decoration:
 
-- **Clarity**: High-contrast colors and generous spacing for readability in any lighting
-- **Speed**: Minimal data entry with large, accessible touch targets
+- **Clarity**: High-contrast theme with pure white backgrounds and true black text for maximum readability in any lighting
+- **Speed**: Minimal data entry with large, accessible touch targets (56dp minimum)
 - **Reliability**: Offline-first design with automatic synchronization
-- **Accessibility**: WCAG AA compliant with support for various abilities and environments
+- **Accessibility**: WCAG AAA compliant (7:1+ contrast ratios) with support for various abilities and environments
 
 ## Technology Stack
 
@@ -219,7 +219,11 @@ flutter build ios --release
 
 ### ✅ Completed
 - **UI Layer**: All screens and components fully implemented
-- **Theme System**: Complete light/dark mode support
+- **High-Contrast Theme System**: Complete light/dark mode support
+  - Pure white backgrounds (#FFFFFF) with true black text (#000000)
+  - WCAG AAA compliant (7:1+ contrast ratios) throughout
+  - All UI components derive styling from centralized theme
+  - Zero hardcoded colors, fonts, or theme values in implementation
 - **Role Selection**: Choose between Front Desk and Back Office roles
 - **Front Desk Screens**: Request Entry + Delivered Audit tabs
 - **Back Office Screens**: Live Queue + Fulfilled Log tabs (with settings menu)
