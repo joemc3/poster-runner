@@ -14,8 +14,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **Hive adapters generated** - Type adapters ready in poster_request.g.dart
 - ✅ **Back office persistence working** - Fulfilled requests persist across app restarts
 - ✅ **Front desk persistence working** - Submitted requests and delivered audit persist to Hive
-- ❌ **No BLE integration** - Package not installed, BLE service doesn't exist
-- ❌ **No state management** - Each screen manages its own state locally
+- ✅ **BLE package installed** - flutter_reactive_ble ^5.3.1 with platform permissions configured
+- ✅ **Provider package installed** - provider ^6.1.2 ready for state management
+- ❌ **No BLE service implementation** - BLE communication layer doesn't exist yet
+- ❌ **No state management integration** - Each screen still manages its own state locally
 
 **What You Can Do Right Now:**
 ```bash
@@ -29,10 +31,11 @@ flutter run  # See the complete UI with real persistence!
 ```
 
 **What Needs Implementation:**
-1. Add BLE package (flutter_reactive_ble recommended)
-2. Add state management (Provider recommended)
-3. Build BLE service and sync orchestration
-4. Connect Front Desk and Back Office via BLE for real-time sync
+1. ✅ ~~Add BLE package~~ (DONE - flutter_reactive_ble ^5.3.1 installed)
+2. ✅ ~~Add state management package~~ (DONE - provider ^6.1.2 installed)
+3. Implement state management with Provider (connection state, request data)
+4. Build BLE service and sync orchestration
+5. Connect Front Desk and Back Office via BLE for real-time sync
 
 ## Essential Commands
 
@@ -155,9 +158,9 @@ flutter build apk
 ### What's NOT Implemented ⚠️
 
 **Critical Gaps:**
-- **BLE package not installed** - Need to add flutter_reactive_ble to pubspec.yaml
 - **No BLE service implementation** - BLE communication layer doesn't exist
-- **No state management** - No Provider package installed
+- **No state management integration** - Provider package installed but not yet wired up
+- **No sync orchestration** - Connection/reconnection logic not implemented
 
 **Missing Functionality:**
 - BLE communication layer (connection, characteristics, scanning)
@@ -186,6 +189,8 @@ intl: ^0.19.0                  # Date/time formatting and internationalization
 hive: ^2.2.3                   # Local NoSQL database (initialized in main.dart)
 hive_flutter: ^1.1.0           # Flutter-specific Hive initialization
 uuid: ^4.5.1                   # UUID generation for unique request IDs
+flutter_reactive_ble: ^5.3.1   # BLE communication (Phase 2 - installed)
+provider: ^6.1.2               # State management (Phase 2 - installed)
 ```
 
 **Dev Dependencies:**
@@ -196,9 +201,11 @@ hive_generator: ^2.0.1         # Code generation for Hive type adapters
 build_runner: ^2.4.13          # Code generation framework
 ```
 
-**Critical Missing Packages:**
-- **BLE Communication:** No flutter_reactive_ble, flutter_blue_plus, or similar BLE package
-- **State Management:** No provider, riverpod, bloc, or state management package
+**Platform Permissions (Configured in Phase 2):**
+- **Android:** Bluetooth permissions for API 31+ and legacy versions (AndroidManifest.xml)
+- **macOS:** NSBluetoothAlwaysUsageDescription in Info.plist + bluetooth entitlements
+
+**Still Missing:**
 - **Testing:** Only basic flutter_test, no mockito or integration test packages
 
 ### Next Development Steps
@@ -211,16 +218,19 @@ To continue implementation, the recommended order is:
    - ✅ Wired up Front Desk Request Entry screen to save to Hive
    - ✅ Wired up Front Desk Delivered Audit screen to read from Hive with real-time updates
 
-2. **Add BLE Package** 📋 NEXT (Phase 2)
-   - Research: flutter_reactive_ble (recommended) vs. flutter_blue_plus
-   - Add flutter_reactive_ble and provider to pubspec.yaml
-   - Configure Android permissions (AndroidManifest.xml)
-   - Configure macOS permissions (Info.plist and entitlements)
-   - Test app builds on both Android and macOS
+2. **Add BLE Package & Platform Configuration** ✅ COMPLETED (Phase 2)
+   - ✅ Added flutter_reactive_ble ^5.3.1 to pubspec.yaml
+   - ✅ Added provider ^6.1.2 to pubspec.yaml
+   - ✅ Configured Android Bluetooth permissions (API 31+ and legacy support)
+   - ✅ Configured macOS Bluetooth permissions (Info.plist)
+   - ✅ Configured macOS entitlements (Debug and Release profiles)
+   - ✅ Verified app builds successfully on macOS
 
-3. **Add State Management**
-   - Recommended: Provider (simple, officially supported)
-   - Alternative: Riverpod (more powerful, modern)
+3. **Implement State Management** 📋 NEXT (Phase 3)
+   - Create Provider models for BLE connection state
+   - Create Provider models for request data
+   - Replace local state with Provider-managed state
+   - Wrap app in MultiProvider
 
 4. **Implement BLE Service Layer**
    - Build BLE service (connection, characteristics, GATT server/client)
