@@ -35,7 +35,7 @@ class _BackOfficeHomeState extends State<BackOfficeHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('📦 Poster Runner - Back Office'),
+        title: const Text('Poster Runner - Back Office'),
         actions: [
           // TODO: Add BLE connection status indicator
           IconButton(

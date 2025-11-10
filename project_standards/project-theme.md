@@ -24,7 +24,7 @@ Poster Runner is an offline-first operational utility application designed for f
 
 ---
 
-## 🎨 Colors (Light Theme)
+## Colors (Light Theme)
 
 **Method Selected:** Manual Color Definition
 
@@ -114,7 +114,7 @@ These colors support specific operational states and should be used consistently
 
 ---
 
-## 🌙 Colors (Dark Theme)
+## Colors (Dark Theme)
 
 **Method Selected:** Manual Dark Color Definition
 
@@ -307,7 +307,7 @@ Based on Flutter's Material 3 text theme, with adjustments for operational clari
 
 ---
 
-## 📏 Sizing & Spacing
+## Sizing & Spacing
 
 ### Base Spacing Unit
 
@@ -385,7 +385,7 @@ Use these standardized spacing values throughout the application:
 
 ---
 
-## 📐 Component Shape & Elevation
+## Component Shape & Elevation
 
 ### Global Border Radius
 
@@ -476,7 +476,7 @@ Material elevation communicates component importance and interaction state:
 
 ---
 
-## 🎬 Animation & Motion
+## Animation & Motion
 
 ### Animation Durations
 
@@ -553,7 +553,7 @@ Animation serves **functional purposes** in Poster Runner:
 
 ---
 
-## 🎯 Visual Density
+## Visual Density
 
 * **Visual Density**: `VisualDensity.comfortable`
 
@@ -593,7 +593,7 @@ Consider these adaptive density adjustments:
 
 ---
 
-## 🎨 Component-Specific Theme Guidelines
+## Component-Specific Theme Guidelines
 
 ### Status Indicators
 
@@ -715,7 +715,7 @@ Background: Surface color
 
 ---
 
-## 📱 Screen-Specific Guidance
+## Screen-Specific Guidance
 
 ### Request Entry/Queue Screen
 
@@ -785,7 +785,7 @@ This theme meets or exceeds the following accessibility standards:
 
 ---
 
-## 🔄 Theme Implementation Notes
+## Theme Implementation Notes
 
 ### Flutter Implementation
 
@@ -830,7 +830,7 @@ Support light/dark theme switching based on:
 
 ---
 
-## 📋 Design System Checklist
+## Design System Checklist
 
 Use this checklist when implementing new screens or components:
 
@@ -849,7 +849,7 @@ Use this checklist when implementing new screens or components:
 
 ---
 
-## 🎓 Rationale Summary
+## Rationale Summary
 
 This theme was designed with operational efficiency as the primary driver:
 

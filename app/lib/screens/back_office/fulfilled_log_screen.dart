@@ -173,7 +173,7 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
         backgroundColor: const Color(0xFFF5F5F5),
         elevation: 0,
         title: Text(
-          '✅ FULFILLED LOG',
+          'FULFILLED LOG',
           style: textTheme.headlineSmall,
         ),
         actions: [

@@ -27,11 +27,11 @@ Code snippet
 
 ```
 +---------------------------------+
-| 📦 Poster Runner - Back Office  |
+| Poster Runner - Back Office     |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
-| ⚡ **ACTIVE QUEUE** (4 Pending) |
+| **ACTIVE QUEUE** (4 Pending)    |
 | --------------------------------|
 |                                 |
 | 1. **C055** (10:50 AM) [ PULL ] |
@@ -45,7 +45,7 @@ Code snippet
 |    (Scrollable List...)         |
 |                                 |
 |---------------------------------|
-| [ ⚡ Queue ] [ ✅ Delivered ]    |
+| [ Queue ] [ Delivered ]         |
 +---------------------------------+
 ```
 
@@ -75,14 +75,14 @@ Code snippet
 
 ```
 +---------------------------------+
-| 📜 Poster Runner - Back Office  |
+| Poster Runner - Back Office     |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
-| ✅ **FULFILLED LOG** |
+| **FULFILLED LOG**               |
 | -------------------             |
 |                                 |
-| 🔍 [ Search by Poster # ]        |
+| [ Search by Poster # ]          |
 |                                 |
 | --- Sorted A-Z ---              |
 |                                 |
@@ -93,7 +93,7 @@ Code snippet
 | (Scrollable List...)            |
 |                                 |
 |---------------------------------|
-| [ ⚡ Queue ] [ ✅ Delivered ]    |
+| [ Queue ] [ Delivered ]         |
 +---------------------------------+
 ```
 

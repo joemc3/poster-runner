@@ -128,7 +128,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
               child: Row(
                 children: [
                   Text(
-                    '⚡ ACTIVE QUEUE',
+                    'ACTIVE QUEUE',
                     style: textTheme.headlineSmall,
                   ),
                   const SizedBox(width: 8),

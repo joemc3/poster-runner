@@ -581,3 +581,4 @@ Poster Runner prioritizes **operational efficiency over aesthetic decoration**:
 - Offline-first with automatic sync
 - Reliability and data integrity above all
 - After making any code or specification changes, ALWAYS check to see if the README.md and CLAUDE.md files need to be updates and make those updates.
+- I do not like emojis. Do not use emojis unless specifically asked to do so for that specific purpose

@@ -99,7 +99,7 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                '✅ DELIVERED POSTERS',
+                'DELIVERED POSTERS',
                 style: textTheme.headlineSmall,
               ),
             ),

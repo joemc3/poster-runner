@@ -35,7 +35,7 @@ class _FrontDeskHomeState extends State<FrontDeskHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('📢 Poster Runner - Front Desk'),
+        title: const Text('Poster Runner - Front Desk'),
         actions: [
           // TODO: Add BLE connection status indicator
           IconButton(

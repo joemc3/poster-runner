@@ -101,7 +101,7 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
             children: [
               // Section header
               Text(
-                '📝 NEW REQUEST',
+                'NEW REQUEST',
                 style: textTheme.headlineSmall,
               ),
               const SizedBox(height: 24),
@@ -180,7 +180,6 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
         ? colorScheme.success
         : colorScheme.error;
 
-    final String statusIcon = _lastStatus == RequestStatus.sent ? '🟢' : '🔴';
     final String statusText = _lastStatus == RequestStatus.sent ? 'SENT' : 'FAILED';
 
     final timeFormat = DateFormat('h:mm a');
@@ -195,7 +194,11 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
           children: [
             Row(
               children: [
-                Text(statusIcon, style: const TextStyle(fontSize: 20)),
+                Icon(
+                  _lastStatus == RequestStatus.sent ? Icons.check_circle : Icons.error,
+                  color: statusColor,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Status: $statusText',

@@ -27,11 +27,11 @@ Code snippet
 
 ```
 +---------------------------------+
-| 📢 Poster Runner - Front Desk   |
+| Poster Runner - Front Desk      |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
-| 📝 **NEW REQUEST** |
+| **NEW REQUEST**                 |
 | -----------------               |
 |                                 |
 |  [                               ]
@@ -43,11 +43,11 @@ Code snippet
 |  [        **SUBMIT** ]
 |  [                              ]
 |                                 |
-| 🟢 **Status: SENT** (11:58 AM)  |
+| **Status: SENT** (11:58 AM)     |
 | Last: A457 - Success.           |
 |                                 |
 |---------------------------------|
-| [ 📝 Request ] [ ✅ Delivered ] |
+| [ Request ] [ Delivered ]       |
 +---------------------------------+
 ```
 
@@ -79,14 +79,14 @@ Code snippet
 
 ```
 +---------------------------------+
-| 🔎 Poster Runner - Front Desk   |
+| Poster Runner - Front Desk      |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
-| ✅ **DELIVERED POSTERS** |
+| **DELIVERED POSTERS**           |
 | ------------------------        |
 |                                 |
-| 🔍 [ Search by Poster # ]        |
+| [ Search by Poster # ]          |
 |                                 |
 | --- Sorted A-Z ---              |
 |                                 |
@@ -98,7 +98,7 @@ Code snippet
 | (Scrollable List...)            |
 |                                 |
 |---------------------------------|
-| [ 📝 Request ] [ ✅ Delivered ] |
+| [ Request ] [ Delivered ]       |
 +---------------------------------+
 ```
 
