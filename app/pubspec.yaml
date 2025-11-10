@@ -49,7 +49,8 @@ dependencies:
   uuid: ^4.5.1
 
   # BLE communication
-  flutter_reactive_ble: ^5.3.1
+  flutter_reactive_ble: ^5.3.1  # Front Desk (GATT Client)
+  ble_peripheral: ^2.4.0         # Back Office (GATT Server)
 
   # State management
   provider: ^6.1.2
