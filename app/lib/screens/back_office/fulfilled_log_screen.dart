@@ -69,6 +69,84 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
     _loadAndFilterRequests();
   }
 
+  /// Show confirmation dialog before clearing all fulfilled requests
+  void _showClearAllConfirmation() {
+    final count = persistenceService.getFulfilledCount();
+
+    if (count == 0) {
+      // No requests to clear
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No fulfilled requests to clear'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Clear All Fulfilled Requests?'),
+          content: Text(
+            'This will permanently delete all $count fulfilled poster request(s) from the log.\n\nThis action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close dialog
+                await _clearAllFulfilledRequests();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('Clear All'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Clear all fulfilled requests from persistent storage
+  Future<void> _clearAllFulfilledRequests() async {
+    try {
+      await persistenceService.clearAllFulfilledRequests();
+
+      if (!mounted) return;
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All fulfilled requests cleared successfully'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Reload data (will show empty state)
+      _loadAndFilterRequests();
+    } catch (e) {
+      if (!mounted) return;
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error clearing requests: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -91,18 +169,40 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
   Widget _buildScaffold(ColorScheme colorScheme, TextTheme textTheme) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5), // Light gray background
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF5F5F5),
+        elevation: 0,
+        title: Text(
+          '✅ FULFILLED LOG',
+          style: textTheme.headlineSmall,
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.settings),
+            onSelected: (value) {
+              if (value == 'clear_all') {
+                _showClearAllConfirmation();
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'clear_all',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_sweep, size: 20),
+                    SizedBox(width: 8),
+                    Text('Clear All Fulfilled'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                '✅ FULFILLED LOG',
-                style: textTheme.headlineSmall,
-              ),
-            ),
 
             // Search bar
             SearchBarWidget(
