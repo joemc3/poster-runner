@@ -134,17 +134,32 @@ These colors have been significantly enhanced for instant recognition and maximu
   * **Change Rationale:** Darkened from #2E7D32 for stronger contrast and distinction
   * **Hue Position:** Pure green (120° on color wheel)
 
+* **onSuccess**: `#FFFFFF` (Pure White)
+  * **Usage:** Text and icons on success color backgrounds (status badges)
+  * **Contrast Ratio:** 8.2:1 against success background
+  * **Critical:** Dark green badge MUST use white text for proper contrast
+
 * **Warning (Pending Status)**: `#E65100` (Deep Orange)
   * **Usage:** Pending requests, items awaiting action
   * **Contrast Ratio:** 7.1:1 against white (WCAG AAA compliant)
   * **Change Rationale:** Shifted from #F57C00 to deeper, more orange-leaning amber for better distinction from info blue and success green
   * **Hue Position:** Orange (30° on color wheel) - maximum separation from blue and green
 
+* **onWarning**: `#FFFFFF` (Pure White)
+  * **Usage:** Text and icons on warning color backgrounds (status badges)
+  * **Contrast Ratio:** 7.1:1 against warning background
+  * **Critical:** Dark orange badge MUST use white text for proper contrast
+
 * **Info (Sent Status)**: `#01579B` (Deep Cyan Blue)
   * **Usage:** Sent but not yet acknowledged requests
   * **Contrast Ratio:** 8.7:1 against white (WCAG AAA compliant)
   * **Change Rationale:** Darkened from #0277BD and shifted toward cyan for better distinction from primary blue
   * **Hue Position:** Cyan-blue (195° on color wheel) - clearly different from primary blue and green
+
+* **onInfo**: `#FFFFFF` (Pure White)
+  * **Usage:** Text and icons on info color backgrounds (status badges)
+  * **Contrast Ratio:** 8.7:1 against info background
+  * **Critical:** Dark blue badge MUST use white text for proper contrast
 
 * **Neutral/Inactive**: `#424242` (Dark Gray)
   * **Usage:** Disabled states, inactive elements, subtle dividers
@@ -245,17 +260,32 @@ These colors have been significantly enhanced for maximum visibility and instant
   * **Change Rationale:** Significantly brightened from #66BB6A for superior contrast
   * **Visual Impact:** Bright, energetic green that signals completion unmistakably
 
+* **onSuccess**: `#000000` (True Black)
+  * **Usage:** Text and icons on success color backgrounds (status badges) in dark mode
+  * **Contrast Ratio:** 11.2:1 against bright green success background
+  * **Critical:** Bright green badge MUST use black text for proper contrast
+
 * **Warning (Pending Status)**: `#FF9100` (Bright Orange)
   * **Usage:** Pending requests in dark mode
   * **Contrast Ratio:** 7.8:1 against true black (WCAG AAA compliant)
   * **Change Rationale:** Brightened and shifted more orange from #FFA726 for better distinction
   * **Visual Impact:** Pure, saturated orange that demands attention
 
+* **onWarning**: `#000000` (True Black)
+  * **Usage:** Text and icons on warning color backgrounds (status badges) in dark mode
+  * **Contrast Ratio:** 7.8:1 against bright orange warning background
+  * **Critical:** Bright orange badge MUST use black text for proper contrast
+
 * **Info (Sent Status)**: `#40C4FF` (Bright Cyan)
   * **Usage:** Sent requests in dark mode
   * **Contrast Ratio:** 9.4:1 against true black (WCAG AAA compliant)
   * **Change Rationale:** Brightened from #42A5F5 and shifted toward pure cyan for maximum distinction from primary blue
   * **Visual Impact:** Cool, bright cyan that's clearly different from green and orange
+
+* **onInfo**: `#000000` (True Black)
+  * **Usage:** Text and icons on info color backgrounds (status badges) in dark mode
+  * **Contrast Ratio:** 9.4:1 against bright cyan info background
+  * **Critical:** Bright cyan badge MUST use black text for proper contrast
 
 * **Neutral/Inactive**: `#E0E0E0` (Light Gray)
   * **Usage:** Disabled states in dark mode
@@ -703,11 +733,11 @@ Shadow: None (badges sit on surfaces, don't float)
 
 **Status Color Mapping (High-Contrast Edition):**
 
-| Status | Light Theme | Dark Theme | Icon | Usage |
-|--------|-------------|------------|------|-------|
-| **SENT** | `#01579B` (Deep Cyan Blue) | `#40C4FF` (Bright Cyan) | → (arrow) | Request sent, awaiting acknowledgment |
-| **PENDING** | `#E65100` (Deep Orange) | `#FF9100` (Bright Orange) | ⏳ (hourglass) | Acknowledged, being fulfilled |
-| **FULFILLED** | `#1B5E20` (Deep Forest Green) | `#69F0AE` (Vibrant Light Green) | ✓ (checkmark) | Completed successfully |
+| Status | Light Theme Background | Light Theme Text | Dark Theme Background | Dark Theme Text | Icon | Usage |
+|--------|------------------------|------------------|----------------------|-----------------|------|-------|
+| **SENT** | `#01579B` (Deep Cyan Blue) | `#FFFFFF` (White) | `#40C4FF` (Bright Cyan) | `#000000` (Black) | → (arrow) | Request sent, awaiting acknowledgment |
+| **PENDING** | `#E65100` (Deep Orange) | `#FFFFFF` (White) | `#FF9100` (Bright Orange) | `#000000` (Black) | ⏳ (hourglass) | Acknowledged, being fulfilled |
+| **FULFILLED** | `#1B5E20` (Deep Forest Green) | `#FFFFFF` (White) | `#69F0AE` (Vibrant Light Green) | `#000000` (Black) | ✓ (checkmark) | Completed successfully |
 
 **High-Contrast Advantages:**
 - **Light theme:** All status colors achieve WCAG AAA compliance (7:1+ contrast) for maximum readability in bright environments
@@ -719,6 +749,11 @@ Shadow: None (badges sit on surfaces, don't float)
 - Always pair color with icon for accessibility (don't rely on color alone)
 - Use ALL CAPS text for immediate recognition across languages
 - Maintain consistent badge positioning (right-aligned in list items)
+- **CRITICAL - Text Colors:**
+  - Light theme badges MUST use WHITE text (`#FFFFFF`) on dark status backgrounds
+  - Dark theme badges MUST use BLACK text (`#000000`) on bright status backgrounds
+  - Use `colorScheme.onSuccess`, `colorScheme.onWarning`, `colorScheme.onInfo` getters for proper contrast
+  - Never use dark text on dark backgrounds or light text on light backgrounds
 
 ### List Items (Request Queue)
 
@@ -963,12 +998,22 @@ extension PosterRunnerColors on ColorScheme {
   Color get neutralLight => const Color(0xFF424242);      // Dark Gray - 11.9:1
   Color get dividerLight => const Color(0xFFBDBDBD);      // Medium Gray
 
+  // Light theme "on" colors for status badges (text on status background)
+  Color get onSuccessLight => const Color(0xFFFFFFFF);    // White text on dark green - 8.2:1
+  Color get onWarningLight => const Color(0xFFFFFFFF);    // White text on dark orange - 7.1:1
+  Color get onInfoLight => const Color(0xFFFFFFFF);       // White text on dark blue - 8.7:1
+
   // Dark theme status colors (WCAG AAA compliant)
   Color get successDark => const Color(0xFF69F0AE);       // Vibrant Light Green - 11.2:1
   Color get warningDark => const Color(0xFFFF9100);       // Bright Orange - 7.8:1
   Color get infoDark => const Color(0xFF40C4FF);          // Bright Cyan - 9.4:1
   Color get neutralDark => const Color(0xFFE0E0E0);       // Light Gray - 13.1:1
   Color get dividerDark => const Color(0xFF424242);       // Medium Dark Gray
+
+  // Dark theme "on" colors for status badges (text on status background)
+  Color get onSuccessDark => const Color(0xFF000000);     // Black text on bright green - 11.2:1
+  Color get onWarningDark => const Color(0xFF000000);     // Black text on bright orange - 7.8:1
+  Color get onInfoDark => const Color(0xFF000000);        // Black text on bright cyan - 9.4:1
 
   // Fulfilled background tints
   Color get fulfilledTintLight => const Color(0xFFE8F5E9); // Light green tint for light mode
@@ -981,6 +1026,11 @@ extension PosterRunnerColors on ColorScheme {
   Color get neutral => brightness == Brightness.light ? neutralLight : neutralDark;
   Color get divider => brightness == Brightness.light ? dividerLight : dividerDark;
   Color get fulfilledTint => brightness == Brightness.light ? fulfilledTintLight : fulfilledTintDark;
+
+  // Adaptive "on" color getters for status badges
+  Color get onSuccess => brightness == Brightness.light ? onSuccessLight : onSuccessDark;
+  Color get onWarning => brightness == Brightness.light ? onWarningLight : onWarningDark;
+  Color get onInfo => brightness == Brightness.light ? onInfoLight : onInfoDark;
 }
 ```
 
