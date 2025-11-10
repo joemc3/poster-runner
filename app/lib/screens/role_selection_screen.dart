@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'front_desk/front_desk_home.dart';
 import 'back_office/back_office_home.dart';
+import '../theme/app_theme.dart';
 
 /// Role Selection Screen
 /// Allows user to choose between Front Desk and Back Office roles
@@ -20,7 +21,7 @@ class RoleSelectionScreen extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light gray background
+      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -47,7 +48,7 @@ class RoleSelectionScreen extends StatelessWidget {
               Text(
                 'Select Your Role',
                 style: textTheme.titleLarge?.copyWith(
-                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: colorScheme.neutral,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -151,7 +152,7 @@ class _RoleCard extends StatelessWidget {
                     Text(
                       description,
                       style: textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.neutral,
                       ),
                     ),
                   ],

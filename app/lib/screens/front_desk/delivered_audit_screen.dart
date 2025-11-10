@@ -90,7 +90,7 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light gray background
+      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -152,7 +152,7 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
         color: colorScheme.fulfilledTint,
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerTheme.color ?? Colors.grey[300]!,
+            color: colorScheme.divider,
             width: 1,
           ),
         ),
@@ -173,7 +173,7 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
             Text(
               'Pulled: $pulledTime',
               style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.neutral,
+                color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast on tinted background
               ),
             ),
           ],

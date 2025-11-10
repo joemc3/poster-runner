@@ -58,7 +58,7 @@ class RequestListItem extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: Theme.of(context).dividerTheme.color ?? Colors.grey[300]!,
+                color: colorScheme.divider,
                 width: 1,
               ),
             ),

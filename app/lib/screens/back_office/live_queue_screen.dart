@@ -117,7 +117,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light gray background
+      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -144,7 +144,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                     child: Text(
                       '${_activeQueue.length} Pending',
                       style: textTheme.labelMedium?.copyWith(
-                        color: Colors.white,
+                        color: colorScheme.onWarning, // Use theme color for proper contrast
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -237,7 +237,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                               child: Text(
                                 '$rank',
                                 style: textTheme.titleSmall?.copyWith(
-                                  color: Colors.white,
+                                  color: isNext ? colorScheme.onPrimary : colorScheme.onSurface,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -261,7 +261,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                         child: Text(
                           receivedTime,
                           style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.neutral,
+                            color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast
                           ),
                         ),
                       ),
@@ -274,7 +274,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                   onPressed: () => _handlePull(request),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorScheme.success,
-                    foregroundColor: Colors.white,
+                    foregroundColor: colorScheme.onSuccess, // Use theme color for proper contrast
                     minimumSize: const Size(100, 56),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -284,7 +284,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                     'PULL',
                     style: textTheme.labelLarge?.copyWith(
                       fontSize: 16,
-                      color: Colors.white,
+                      color: colorScheme.onSuccess, // Use theme color (white in light, black in dark)
                     ),
                   ),
                 ),
