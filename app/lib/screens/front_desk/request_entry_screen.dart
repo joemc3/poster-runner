@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
+import 'package:provider/provider.dart';
 import '../../models/poster_request.dart';
 import '../../theme/app_theme.dart';
-import '../../main.dart'; // For global persistenceService
+import '../../providers/front_desk_provider.dart';
 
 /// Front Desk - Request Entry Screen (Tab 1)
 ///
@@ -15,20 +15,11 @@ import '../../main.dart'; // For global persistenceService
 /// - Status feedback area showing last submission result
 /// - Auto-clear input on successful submission
 ///
-/// Status:
-/// - Persistence: IMPLEMENTED - Requests are saved to Hive database
-/// - BLE sync: TODO - Connect to BLE service for transmission to Back Office
-/// - Error handling: TODO - Add comprehensive error handling for persistence failures
+/// Phase 3 Status: IMPLEMENTED - Uses FrontDeskProvider for state management
+/// Phase 4 TODO: Connect to BLE service for transmission to Back Office
 
 class RequestEntryScreen extends StatefulWidget {
-  /// Callback when a new request is submitted
-  /// TODO: Replace with actual BLE service call
-  final Function(String posterNumber)? onSubmitRequest;
-
-  const RequestEntryScreen({
-    this.onSubmitRequest,
-    super.key,
-  });
+  const RequestEntryScreen({super.key});
 
   @override
   State<RequestEntryScreen> createState() => _RequestEntryScreenState();
@@ -36,13 +27,6 @@ class RequestEntryScreen extends StatefulWidget {
 
 class _RequestEntryScreenState extends State<RequestEntryScreen> {
   final TextEditingController _posterNumberController = TextEditingController();
-  final _uuid = const Uuid();
-
-  // Status tracking for last submission
-  String? _lastSubmittedPoster;
-  RequestStatus? _lastStatus;
-  DateTime? _lastSubmissionTime;
-  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -52,8 +36,7 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
 
   /// Handle submit button press
   ///
-  /// Creates a new PosterRequest and saves it to Hive database.
-  /// The request is marked as 'sent' with isSynced: false (pending BLE transmission).
+  /// Uses FrontDeskProvider to create and save the request.
   Future<void> _handleSubmit() async {
     final posterNumber = _posterNumberController.text.trim().toUpperCase();
 
@@ -62,37 +45,15 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
       return;
     }
 
-    setState(() {
-      _isSubmitting = true;
-    });
+    // Get the provider
+    final frontDeskProvider = Provider.of<FrontDeskProvider>(context, listen: false);
 
-    try {
-      // Create new request with unique ID
-      final newRequest = PosterRequest(
-        uniqueId: _uuid.v4(),
-        posterNumber: posterNumber,
-        status: RequestStatus.sent,
-        timestampSent: DateTime.now(),
-        timestampPulled: null,
-        isSynced: false, // Will be set to true after BLE transmission
-      );
+    // Submit request via provider
+    final success = await frontDeskProvider.submitRequest(posterNumber);
 
-      // Save to Hive database (write-immediately pattern)
-      await persistenceService.saveSubmittedRequest(newRequest);
-
-      // TODO: Transmit via BLE to Back Office
-      // For now, request is saved locally and will sync when BLE is implemented
-
-      setState(() {
-        _lastSubmittedPoster = posterNumber;
-        _lastStatus = RequestStatus.sent;
-        _lastSubmissionTime = newRequest.timestampSent;
-        _isSubmitting = false;
-        _posterNumberController.clear();
-      });
-
-      // Call callback if provided
-      widget.onSubmitRequest?.call(posterNumber);
+    if (success) {
+      // Clear input field
+      _posterNumberController.clear();
 
       // Show success message
       if (mounted) {
@@ -104,14 +65,12 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
           ),
         );
       }
-    } catch (e) {
-      // Handle persistence errors
-      setState(() {
-        _lastStatus = null;
-        _isSubmitting = false;
-      });
-
-      _showError('Failed to save request: $e');
+    } else {
+      // Show error from provider
+      if (mounted) {
+        final error = frontDeskProvider.submissionError ?? 'Failed to save request';
+        _showError(error);
+      }
     }
   }
 
@@ -129,99 +88,113 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Section header
-              Text(
-                'NEW REQUEST',
-                style: textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 24),
-
-              // Large input field for poster number
-              Card(
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextField(
-                        controller: _posterNumberController,
-                        autofocus: true,
-                        textAlign: TextAlign.center,
-                        style: textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 4,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'A457',
-                          hintStyle: textTheme.displaySmall?.copyWith(
-                            color: colorScheme.neutral.withValues(alpha: 0.3),
-                            letterSpacing: 4,
-                          ),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                        ),
-                        textCapitalization: TextCapitalization.characters,
-                        onSubmitted: (_) => _handleSubmit(),
-                      ),
-                    ],
+    return Consumer<FrontDeskProvider>(
+      builder: (context, frontDeskProvider, child) {
+        return Scaffold(
+          backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Section header
+                  Text(
+                    'NEW REQUEST',
+                    style: textTheme.headlineSmall,
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-              // Submit button
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _handleSubmit,
-                child: _isSubmitting
-                    ? SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            colorScheme.onPrimary, // Use theme color (white in light, black in dark)
+                  // Large input field for poster number
+                  Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextField(
+                            controller: _posterNumberController,
+                            autofocus: true,
+                            textAlign: TextAlign.center,
+                            style: textTheme.displaySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 4,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'A457',
+                              hintStyle: textTheme.displaySmall?.copyWith(
+                                color: colorScheme.neutral.withValues(alpha: 0.3),
+                                letterSpacing: 4,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                            ),
+                            textCapitalization: TextCapitalization.characters,
+                            onSubmitted: (_) => _handleSubmit(),
                           ),
-                        ),
-                      )
-                    : Text(
-                        'SUBMIT',
-                        style: textTheme.labelLarge,
+                        ],
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Submit button
+                  ElevatedButton(
+                    onPressed: frontDeskProvider.isSubmitting ? null : _handleSubmit,
+                    child: frontDeskProvider.isSubmitting
+                        ? SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                colorScheme.onPrimary, // Use theme color (white in light, black in dark)
+                              ),
+                            ),
+                          )
+                        : Text(
+                            'SUBMIT',
+                            style: textTheme.labelLarge,
+                          ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Status feedback area
+                  if (frontDeskProvider.lastSubmissionStatus != null &&
+                      frontDeskProvider.lastSubmittedPoster != null)
+                    _buildStatusFeedback(
+                      colorScheme,
+                      textTheme,
+                      frontDeskProvider,
+                    ),
+
+                  const Spacer(),
+                ],
               ),
-              const SizedBox(height: 32),
-
-              // Status feedback area
-              if (_lastStatus != null && _lastSubmittedPoster != null)
-                _buildStatusFeedback(colorScheme, textTheme),
-
-              const Spacer(),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   /// Build status feedback widget
-  Widget _buildStatusFeedback(ColorScheme colorScheme, TextTheme textTheme) {
-    final Color statusColor = _lastStatus == RequestStatus.sent
+  Widget _buildStatusFeedback(
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+    FrontDeskProvider provider,
+  ) {
+    final Color statusColor = provider.lastSubmissionStatus == RequestStatus.sent
         ? colorScheme.success
         : colorScheme.error;
 
-    final String statusText = _lastStatus == RequestStatus.sent ? 'SENT' : 'FAILED';
+    final String statusText =
+        provider.lastSubmissionStatus == RequestStatus.sent ? 'SENT' : 'FAILED';
 
     final timeFormat = DateFormat('h:mm a');
-    final displayTime = timeFormat.format(_lastSubmissionTime!);
+    final displayTime = timeFormat.format(provider.lastSubmissionTime!);
 
     return Card(
       color: statusColor.withValues(alpha: 0.1),
@@ -233,7 +206,9 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
             Row(
               children: [
                 Icon(
-                  _lastStatus == RequestStatus.sent ? Icons.check_circle : Icons.error,
+                  provider.lastSubmissionStatus == RequestStatus.sent
+                      ? Icons.check_circle
+                      : Icons.error,
                   color: statusColor,
                   size: 20,
                 ),
@@ -256,7 +231,7 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Last: $_lastSubmittedPoster - Success.',
+              'Last: ${provider.lastSubmittedPoster} - Success.',
               style: textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast on tinted background
               ),

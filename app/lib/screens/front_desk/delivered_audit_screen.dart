@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import '../../models/poster_request.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
+import '../../providers/front_desk_provider.dart';
 
 /// Front Desk - Delivered Audit Screen (Tab 2)
 ///
@@ -15,20 +16,11 @@ import '../../theme/app_theme.dart';
 /// - Shows poster number and fulfillment time
 /// - Read-only view (no action buttons)
 ///
-/// Status:
-/// - Persistence: IMPLEMENTED - Reads from Hive database with real-time updates
-/// - BLE sync: TODO - Will populate from BLE status updates from Back Office
-/// - Search & filtering: IMPLEMENTED - Live filtering by poster number
+/// Phase 3 Status: IMPLEMENTED - Uses FrontDeskProvider for state management
+/// Phase 4 TODO: Will populate from BLE status updates from Back Office
 
 class DeliveredAuditScreen extends StatefulWidget {
-  /// Optional initial list for testing only
-  /// In production, data is read from Hive database
-  final List<PosterRequest>? fulfilledRequests;
-
-  const DeliveredAuditScreen({
-    this.fulfilledRequests,
-    super.key,
-  });
+  const DeliveredAuditScreen({super.key});
 
   @override
   State<DeliveredAuditScreen> createState() => _DeliveredAuditScreenState();
@@ -73,65 +65,65 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'DELIVERED POSTERS',
-                style: textTheme.headlineSmall,
-              ),
-            ),
+    return Consumer<FrontDeskProvider>(
+      builder: (context, frontDeskProvider, child) {
+        // Get all delivered audit entries from provider
+        final allRequests = frontDeskProvider.getDeliveredAudit();
 
-            // Search bar
-            SearchBarWidget(
-              hintText: 'Search by Poster #',
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-            ),
+        // Filter and sort based on search query
+        final filteredRequests = _filterAndSortRequests(allRequests);
 
-            // Sort indicator
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Text(
-                '--- Sorted A-Z ---',
-                style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.neutral,
+        return Scaffold(
+          backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'DELIVERED POSTERS',
+                    style: textTheme.headlineSmall,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ),
 
-            // List of fulfilled requests - real-time updates from Hive
-            Expanded(
-              child: ValueListenableBuilder(
-                valueListenable: Hive.box<PosterRequest>('delivered_audit').listenable(),
-                builder: (context, Box<PosterRequest> box, _) {
-                  // Get all delivered audit entries from Hive
-                  final allRequests = box.values.toList();
+                // Search bar
+                SearchBarWidget(
+                  hintText: 'Search by Poster #',
+                  controller: _searchController,
+                  onChanged: _onSearchChanged,
+                ),
 
-                  // Filter and sort based on search query
-                  final filteredRequests = _filterAndSortRequests(allRequests);
+                // Sort indicator
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Text(
+                    '--- Sorted A-Z ---',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.neutral,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
 
-                  return filteredRequests.isEmpty
+                // List of fulfilled requests - real-time updates from provider
+                Expanded(
+                  child: filteredRequests.isEmpty
                       ? _buildEmptyState(textTheme, colorScheme)
                       : ListView.builder(
                           itemCount: filteredRequests.length,
                           itemBuilder: (context, index) {
-                            return _buildListItem(filteredRequests[index], textTheme, colorScheme);
+                            return _buildListItem(
+                                filteredRequests[index], textTheme, colorScheme);
                           },
-                        );
-                },
-              ),
+                        ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

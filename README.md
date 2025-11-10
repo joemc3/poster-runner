@@ -88,6 +88,7 @@ Poster Runner prioritizes **operational efficiency** and **reliability** over ae
 
 - **Framework**: Flutter 3.35+
 - **Language**: Dart 3.9+
+- **State Management**: Provider ^6.1.2
 - **Persistence**: Hive (local NoSQL database)
 - **Communication**: Bluetooth Low Energy (BLE GATT protocol)
 - **Design**: Material Design 3
@@ -217,7 +218,7 @@ flutter build ios --release
 
 ## Current Implementation Status
 
-### ✅ Completed (Phase 1 - Persistence Layer Complete!)
+### ✅ Completed (Phase 3 - State Management Complete!)
 - **UI Layer**: All screens and components fully implemented with real persistence
 - **High-Contrast Theme System**: Complete light/dark mode support
   - Pure white backgrounds (#FFFFFF) with true black text (#000000)
@@ -225,21 +226,28 @@ flutter build ios --release
   - All UI components derive styling from centralized theme
   - Zero hardcoded colors, fonts, or theme values in implementation
 - **Role Selection**: Choose between Front Desk and Back Office roles
-- **Front Desk Screens**: Request Entry (saves to Hive) + Delivered Audit (reads from Hive)
-- **Back Office Screens**: Live Queue + Fulfilled Log (both read/write to Hive)
+- **Front Desk Screens**: Request Entry + Delivered Audit (both use FrontDeskProvider)
+- **Back Office Screens**: Live Queue + Fulfilled Log (both use BackOfficeProvider)
 - **Reusable Components**: Status badges, list items, search widgets
 - **Data Model**: `PosterRequest` class with status enum and Hive adapters
 - **Complete Persistence Layer**: Both Front Desk and Back Office data persist to Hive database
   - Back Office: fulfilled_requests box (pull functionality)
   - Front Desk: submitted_requests box (request entry) + delivered_audit box (fulfilled requests)
   - All data persists across app restarts
-  - Real-time UI updates via ValueListenableBuilder
+  - Real-time UI updates via Provider and Hive listeners
 - **Data Management**: Settings menu with clear all functionality
+- **State Management**: Complete Provider architecture (Phase 3)
+  - BleConnectionProvider for connection state (structure ready for Phase 4)
+  - FrontDeskProvider for Front Desk data and operations
+  - BackOfficeProvider for Back Office data and operations
+  - All screens integrated with Consumer pattern
+  - Clean architecture: UI ← Providers ← PersistenceService ← Hive
 
 ### ⚠️ Not Yet Implemented
-- BLE service implementation (package installed, not yet integrated)
-- State management integration (Provider package installed, not yet wired up)
+- BLE service implementation (package installed, providers ready, not yet integrated)
 - Actual data synchronization between devices via BLE
+- Wire providers to BLE characteristics (A, B, C)
+- Three-step reconnection handshake
 - BLE retry logic and error handling
 - Role persistence (role selection resets on app restart)
 
@@ -247,31 +255,36 @@ flutter build ios --release
 
 1. **Launch the app** using `flutter run`
 2. **Select a role** (Front Desk or Back Office)
-3. **Test Front Desk** (NEW - Full Persistence!):
-   - Enter poster numbers (e.g., "A457", "B123") - they save to Hive!
-   - Submit multiple requests and see success confirmations
+3. **Test Front Desk** (Phase 3 - State Management Working!):
+   - Enter poster numbers (e.g., "A457", "B123") - managed by FrontDeskProvider
+   - Submit multiple requests and see reactive UI updates
+   - Watch submission status feedback in real-time
    - Switch to Delivered Audit tab (empty for now, will populate via BLE sync)
-   - Restart the app - submitted requests persist!
+   - Restart the app - submitted requests persist via provider!
 4. **Test Back Office**:
-   - See pending requests in Live Queue
-   - Pull a poster request to mark it as fulfilled (persists to Hive)
+   - See pending requests in Live Queue (managed by BackOfficeProvider)
+   - Pull a poster request to mark it as fulfilled (reactive state update)
    - View the fulfilled request in the Fulfilled Log tab
    - Restart the app - fulfilled requests persist
    - Use the settings menu (gear icon) to clear all fulfilled requests
 5. **Test light/dark mode** via device settings
 6. **Try search/filter** on audit screens
 
-**Note:** Both Front Desk and Back Office data now persist to Hive database! Data does not yet sync between devices via BLE (Phase 2-6).
+**Note:** Both Front Desk and Back Office now use Provider for state management! All data persists to Hive database. Data does not yet sync between devices via BLE (Phase 4).
 
 ## Project Structure
 
 ```
 app/lib/
-├── main.dart                          # App entry point (✅ Hive initialized)
+├── main.dart                          # App entry point (✅ Hive + MultiProvider initialized)
 ├── models/
 │   ├── poster_request.dart            # PosterRequest data model (✅ Complete)
 │   ├── poster_request.g.dart          # Generated Hive adapters (✅ Complete)
 │   └── mock_data.dart                 # Mock data generator (✅ Complete)
+├── providers/
+│   ├── ble_connection_provider.dart   # BLE connection state (✅ Phase 3 - structure ready)
+│   ├── front_desk_provider.dart       # Front Desk data & ops (✅ Phase 3 complete)
+│   └── back_office_provider.dart      # Back Office data & ops (✅ Phase 3 complete)
 ├── theme/
 │   └── app_theme.dart                 # Theme configuration (✅ Complete)
 ├── widgets/
@@ -282,12 +295,12 @@ app/lib/
 │   ├── role_selection_screen.dart     # Role selection (✅ Complete)
 │   ├── front_desk/
 │   │   ├── front_desk_home.dart       # Navigation wrapper (✅ Complete)
-│   │   ├── request_entry_screen.dart  # Request entry (✅ Saves to Hive)
-│   │   └── delivered_audit_screen.dart # Audit log (✅ Reads from Hive)
+│   │   ├── request_entry_screen.dart  # Request entry (✅ Uses FrontDeskProvider)
+│   │   └── delivered_audit_screen.dart # Audit log (✅ Uses FrontDeskProvider)
 │   └── back_office/
 │       ├── back_office_home.dart      # Navigation wrapper (✅ Complete)
-│       ├── live_queue_screen.dart     # Live queue (✅ Pull to Hive working)
-│       └── fulfilled_log_screen.dart  # Fulfilled log (✅ Reads from Hive)
+│       ├── live_queue_screen.dart     # Live queue (✅ Uses BackOfficeProvider)
+│       └── fulfilled_log_screen.dart  # Fulfilled log (✅ Uses BackOfficeProvider)
 └── services/
     └── persistence_service.dart       # Hive storage (✅ COMPLETE - Both Front Desk & Back Office)
                                        # Note: ble_service.dart and sync_service.dart not yet created
@@ -327,27 +340,33 @@ To complete the application, the following components need to be implemented:
    - ✅ Configured macOS entitlements for Bluetooth (Debug and Release profiles)
    - ✅ Verified app builds successfully on macOS
 
-3. **Phase 3: Implement State Management** 📋 NEXT
-   - Create Provider models for BLE connection state
-   - Create Provider models for request data
-   - Replace local state with Provider-managed state
-   - Wrap app in MultiProvider
+3. **Phase 3: Implement State Management** ✅ COMPLETED
+   - ✅ Created BleConnectionProvider for BLE connection state management
+   - ✅ Created FrontDeskProvider for Front Desk data and operations
+   - ✅ Created BackOfficeProvider for Back Office data and operations
+   - ✅ Replaced local state with Provider-managed state in all screens
+   - ✅ Wrapped app in MultiProvider in main.dart
+   - ✅ Integrated all screens with Consumer pattern
+   - ✅ Clean architecture: UI ← Providers ← PersistenceService ← Hive
 
-4. **Phase 4: Implement BLE Service Layer** (`lib/services/ble_service.dart`)
-   - GATT server/client setup
+4. **Phase 4: Implement BLE Service Layer** 📋 NEXT (`lib/services/ble_service.dart`)
+   - GATT server/client setup using flutter_reactive_ble
    - Back Office as GATT Server (Service A000, Characteristics A001/A002/A003)
    - Front Desk as GATT Client (scanning, connecting, subscribing)
    - Integrate with PosterRequest serialization methods
+   - Wire providers to BLE characteristics
 
 5. **Phase 5: Implement Synchronization Service** (`lib/services/sync_service.dart`)
    - Three-step reconnection handshake
-   - isSynced flag management
+   - isSynced flag management via providers
    - Connection loss detection and offline caching
+   - Coordinate between BLE service and providers
 
-6. **Phase 6: UI Integration**
-   - Connect all screens to providers for real-time updates
-   - Add connection status indicators (Bluetooth icons)
-   - Wire up BLE events to UI updates
+6. **Phase 6: UI Integration with BLE**
+   - Add connection status indicators using BleConnectionProvider
+   - Wire up BLE events to provider updates
+   - Implement reconnection UI feedback
+   - Test end-to-end BLE synchronization
 
 7. **Phase 7: Testing & Polish**
    - Unit tests for serialization and persistence

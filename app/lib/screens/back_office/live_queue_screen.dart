@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../models/poster_request.dart';
-import '../../models/mock_data.dart';
 import '../../theme/app_theme.dart';
-import '../../main.dart';
+import '../../providers/back_office_provider.dart';
 
 /// Back Office - Live Request Queue Screen (Tab 1)
 ///
@@ -15,99 +15,40 @@ import '../../main.dart';
 /// - Clear visual hierarchy for next task
 /// - Shows pending count in header
 ///
-/// TODO: Connect to BLE service for real-time request sync
-/// TODO: Implement actual fulfillment action and status update
+/// Phase 3 Status: IMPLEMENTED - Uses BackOfficeProvider for state management
+/// Phase 4 TODO: Connect to BLE service for real-time request sync
 
-class LiveQueueScreen extends StatefulWidget {
-  /// Callback when a request is fulfilled
-  /// TODO: Replace with actual BLE service call
-  final Function(PosterRequest request)? onFulfillRequest;
-
-  /// List of pending requests
-  /// TODO: Replace with actual data from BLE sync
-  final List<PosterRequest>? pendingRequests;
-
-  const LiveQueueScreen({
-    this.onFulfillRequest,
-    this.pendingRequests,
-    super.key,
-  });
-
-  @override
-  State<LiveQueueScreen> createState() => _LiveQueueScreenState();
-}
-
-class _LiveQueueScreenState extends State<LiveQueueScreen> {
-  // TODO: Replace with actual state management
-  late List<PosterRequest> _activeQueue;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializePlaceholderData();
-  }
-
-  /// Initialize with placeholder data from MockPosterRequests
-  /// TODO: Remove when connected to actual data source
-  void _initializePlaceholderData() {
-    // Use centralized mock data (already sorted by timestampSent, oldest first)
-    _activeQueue = widget.pendingRequests ?? MockPosterRequests.liveQueue;
-  }
+class LiveQueueScreen extends StatelessWidget {
+  const LiveQueueScreen({super.key});
 
   /// Handle pull button press
   ///
-  /// This method:
-  /// 1. Creates a fulfilled version of the request with timestampPulled
-  /// 2. Saves it to persistent storage (Hive)
-  /// 3. Removes it from the active queue
-  /// 4. Shows a confirmation message
-  ///
-  /// TODO: Integrate with actual BLE service to sync with Front Desk
-  Future<void> _handlePull(PosterRequest request) async {
-    try {
-      // Create fulfilled version of the request
-      final fulfilledRequest = request.copyWith(
-        status: RequestStatus.fulfilled,
-        timestampPulled: DateTime.now(),
-        isSynced: false, // Not yet synced via BLE
-      );
+  /// Uses BackOfficeProvider to fulfill the request and update state.
+  Future<void> _handlePull(BuildContext context, PosterRequest request) async {
+    final backOfficeProvider = Provider.of<BackOfficeProvider>(context, listen: false);
 
-      // Save to persistent storage (write-immediately pattern)
-      await persistenceService.saveFulfilledRequest(fulfilledRequest);
+    final success = await backOfficeProvider.fulfillRequest(request);
 
-      // TODO: Transmit to Front Desk via BLE Queue Status Characteristic (B)
-      // final bleMessage = fulfilledRequest.toQueueStatusJson();
-      // await bleService.sendQueueStatusUpdate(bleMessage);
+    if (!context.mounted) return;
 
-      // Call callback if provided (for future use with state management)
-      widget.onFulfillRequest?.call(fulfilledRequest);
-
-      // Remove from active queue
-      setState(() {
-        _activeQueue.removeWhere((r) => r.uniqueId == request.uniqueId);
-      });
-
+    if (success) {
       // Show confirmation
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${request.posterNumber} marked as pulled'),
-            backgroundColor: Theme.of(context).colorScheme.success,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      // Show error message if save fails
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error saving request: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${request.posterNumber} marked as pulled'),
+          backgroundColor: Theme.of(context).colorScheme.success,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Error fulfilling request'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -116,72 +57,80 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header with pending count
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Text(
-                    'ACTIVE QUEUE',
-                    style: textTheme.headlineSmall,
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colorScheme.warning,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      '${_activeQueue.length} Pending',
-                      style: textTheme.labelMedium?.copyWith(
-                        color: colorScheme.onWarning, // Use theme color for proper contrast
-                        fontWeight: FontWeight.w600,
+    return Consumer<BackOfficeProvider>(
+      builder: (context, backOfficeProvider, child) {
+        final activeQueue = backOfficeProvider.activeQueue;
+
+        return Scaffold(
+          backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header with pending count
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'ACTIVE QUEUE',
+                        style: textTheme.headlineSmall,
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.warning,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '${activeQueue.length} Pending',
+                          style: textTheme.labelMedium?.copyWith(
+                            color: colorScheme.onWarning, // Use theme color for proper contrast
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
 
-            const Divider(height: 1),
+                const Divider(height: 1),
 
-            // Queue list
-            Expanded(
-              child: _activeQueue.isEmpty
-                  ? _buildEmptyState(textTheme, colorScheme)
-                  : ListView.builder(
-                      itemCount: _activeQueue.length,
-                      itemBuilder: (context, index) {
-                        final request = _activeQueue[index];
-                        final isNext = index == 0;
-                        return _buildQueueItem(
-                          request,
-                          index + 1,
-                          isNext,
-                          textTheme,
-                          colorScheme,
-                        );
-                      },
-                    ),
+                // Queue list
+                Expanded(
+                  child: activeQueue.isEmpty
+                      ? _buildEmptyState(textTheme, colorScheme)
+                      : ListView.builder(
+                          itemCount: activeQueue.length,
+                          itemBuilder: (context, index) {
+                            final request = activeQueue[index];
+                            final isNext = index == 0;
+                            return _buildQueueItem(
+                              context,
+                              request,
+                              index + 1,
+                              isNext,
+                              textTheme,
+                              colorScheme,
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   /// Build individual queue item with pull button
   Widget _buildQueueItem(
+    BuildContext context,
     PosterRequest request,
     int rank,
     bool isNext,
@@ -271,7 +220,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                 const SizedBox(width: 16),
                 // PULL button
                 ElevatedButton(
-                  onPressed: () => _handlePull(request),
+                  onPressed: () => _handlePull(context, request),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorScheme.success,
                     foregroundColor: colorScheme.onSuccess, // Use theme color for proper contrast
