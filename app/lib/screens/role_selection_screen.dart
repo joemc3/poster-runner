@@ -47,7 +47,9 @@ class RoleSelectionScreen extends StatelessWidget {
               Text(
                 'Select Your Role',
                 style: textTheme.titleLarge?.copyWith(
-                  color: colorScheme.neutral, // Use theme neutral color for proper contrast
+                  color: colorScheme.brightness == Brightness.light
+                    ? const Color(0xFF424242) // Dark Gray for light theme - 11.9:1 contrast
+                    : const Color(0xFFE0E0E0), // Light Gray for dark theme - 13.1:1 contrast
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -151,7 +153,9 @@ class _RoleCard extends StatelessWidget {
                     Text(
                       description,
                       style: textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.neutral, // Use theme neutral color for proper contrast
+                        color: Theme.of(context).colorScheme.brightness == Brightness.light
+                          ? const Color(0xFF424242) // Dark Gray for light theme - 11.9:1 contrast
+                          : const Color(0xFFE0E0E0), // Light Gray for dark theme - 13.1:1 contrast
                       ),
                     ),
                   ],

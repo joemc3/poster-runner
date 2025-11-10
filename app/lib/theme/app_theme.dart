@@ -52,7 +52,7 @@ class AppTheme {
       ),
 
       // CRITICAL: Tab Bar Theme with explicit text colors
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: const Color(0xFF000000), // True Black for selected tabs - 21:1 contrast
         unselectedLabelColor: const Color(0xFF424242), // Dark Gray for unselected tabs - 11.9:1 contrast
         indicatorColor: const Color(0xFF0D47A1), // Primary Blue indicator
@@ -242,7 +242,7 @@ class AppTheme {
       ),
 
       // CRITICAL: Tab Bar Theme with explicit text colors
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: const Color(0xFFFFFFFF), // Pure White for selected tabs - 21:1 contrast
         unselectedLabelColor: const Color(0xFFE0E0E0), // Light Gray for unselected tabs - 13.1:1 contrast
         indicatorColor: const Color(0xFF82B1FF), // Bright Blue indicator
