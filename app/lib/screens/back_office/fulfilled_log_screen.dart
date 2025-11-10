@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import '../../models/poster_request.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
-import '../../main.dart';
+import '../../providers/back_office_provider.dart';
 
 /// Back Office - Fulfilled Log Screen (Tab 2)
 ///
@@ -15,9 +15,10 @@ import '../../main.dart';
 /// - Sorted alphabetically/numerically by poster number
 /// - Shows poster number, sent time, and pulled time
 /// - Read-only view (no action buttons)
-/// - Real-time updates from Hive database
+/// - Real-time updates from provider
 ///
-/// TODO: Connect to BLE service for synced fulfillment data
+/// Phase 3 Status: IMPLEMENTED - Uses BackOfficeProvider for state management
+/// Phase 4 TODO: Connect to BLE service for synced fulfillment data
 
 class FulfilledLogScreen extends StatefulWidget {
   const FulfilledLogScreen({super.key});
@@ -29,13 +30,6 @@ class FulfilledLogScreen extends StatefulWidget {
 class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  List<PosterRequest> _filteredRequests = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAndFilterRequests();
-  }
 
   @override
   void dispose() {
@@ -43,35 +37,33 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
     super.dispose();
   }
 
-  /// Load all fulfilled requests from persistent storage and apply filter
-  void _loadAndFilterRequests() {
-    // Load all fulfilled requests from Hive
-    final allRequests = persistenceService.getAllFulfilledRequests();
+  /// Filter and sort requests based on search query
+  List<PosterRequest> _filterAndSortRequests(List<PosterRequest> allRequests) {
+    List<PosterRequest> filtered;
 
-    // Apply search filter
-    setState(() {
-      if (_searchQuery.isEmpty) {
-        _filteredRequests = List.from(allRequests);
-      } else {
-        _filteredRequests = allRequests
-            .where((request) =>
-                request.posterNumber.toUpperCase().contains(_searchQuery.toUpperCase()))
-            .toList();
-      }
+    if (_searchQuery.isEmpty) {
+      filtered = List.from(allRequests);
+    } else {
+      filtered = allRequests
+          .where((request) =>
+              request.posterNumber.toUpperCase().contains(_searchQuery.toUpperCase()))
+          .toList();
+    }
 
-      // Sort alphabetically/numerically by poster number
-      _filteredRequests.sort((a, b) => a.posterNumber.compareTo(b.posterNumber));
-    });
+    // Sort alphabetically/numerically by poster number
+    filtered.sort((a, b) => a.posterNumber.compareTo(b.posterNumber));
+    return filtered;
   }
 
   void _onSearchChanged(String query) {
-    _searchQuery = query;
-    _loadAndFilterRequests();
+    setState(() {
+      _searchQuery = query;
+    });
   }
 
   /// Show confirmation dialog before clearing all fulfilled requests
-  void _showClearAllConfirmation() {
-    final count = persistenceService.getFulfilledCount();
+  void _showClearAllConfirmation(BackOfficeProvider provider) {
+    final count = provider.getFulfilledCount();
 
     if (count == 0) {
       // No requests to clear
@@ -102,7 +94,7 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop(); // Close dialog
-                await _clearAllFulfilledRequests();
+                await _clearAllFulfilledRequests(provider);
               },
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
@@ -115,13 +107,13 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
     );
   }
 
-  /// Clear all fulfilled requests from persistent storage
-  Future<void> _clearAllFulfilledRequests() async {
-    try {
-      await persistenceService.clearAllFulfilledRequests();
+  /// Clear all fulfilled requests using provider
+  Future<void> _clearAllFulfilledRequests(BackOfficeProvider provider) async {
+    final success = await provider.clearAllFulfilledRequests();
 
-      if (!mounted) return;
+    if (!mounted) return;
 
+    if (success) {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -130,16 +122,11 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
           duration: const Duration(seconds: 2),
         ),
       );
-
-      // Reload data (will show empty state)
-      _loadAndFilterRequests();
-    } catch (e) {
-      if (!mounted) return;
-
+    } else {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error clearing requests: $e'),
+          content: const Text('Error clearing requests'),
           backgroundColor: Theme.of(context).colorScheme.error,
           duration: const Duration(seconds: 3),
         ),
@@ -152,91 +139,86 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    // Use ValueListenableBuilder to automatically rebuild when Hive data changes
-    return ValueListenableBuilder(
-      valueListenable: Hive.box<PosterRequest>('fulfilled_requests').listenable(),
-      builder: (context, Box<PosterRequest> box, _) {
-        // Reload data whenever box changes
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _loadAndFilterRequests();
-        });
+    return Consumer<BackOfficeProvider>(
+      builder: (context, backOfficeProvider, child) {
+        // Get all fulfilled requests from provider
+        final allRequests = backOfficeProvider.getFulfilledRequests();
 
-        return _buildScaffold(colorScheme, textTheme);
-      },
-    );
-  }
+        // Filter and sort based on search query
+        final filteredRequests = _filterAndSortRequests(allRequests);
 
-  Widget _buildScaffold(ColorScheme colorScheme, TextTheme textTheme) {
-    return Scaffold(
-      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
-      appBar: AppBar(
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        title: Text(
-          'FULFILLED LOG',
-          style: textTheme.headlineSmall,
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.settings),
-            onSelected: (value) {
-              if (value == 'clear_all') {
-                _showClearAllConfirmation();
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem<String>(
-                value: 'clear_all',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete_sweep, size: 20),
-                    SizedBox(width: 8),
-                    Text('Clear All Fulfilled'),
-                  ],
-                ),
+        return Scaffold(
+          backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
+          appBar: AppBar(
+            backgroundColor: colorScheme.surface,
+            elevation: 0,
+            title: Text(
+              'FULFILLED LOG',
+              style: textTheme.headlineSmall,
+            ),
+            actions: [
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.settings),
+                onSelected: (value) {
+                  if (value == 'clear_all') {
+                    _showClearAllConfirmation(backOfficeProvider);
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'clear_all',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_sweep, size: 20),
+                        SizedBox(width: 8),
+                        Text('Clear All Fulfilled'),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-
-            // Search bar
-            SearchBarWidget(
-              hintText: 'Search by Poster #',
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-            ),
-
-            // Sort indicator
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Text(
-                '--- Sorted A-Z ---',
-                style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.neutral,
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Search bar
+                SearchBarWidget(
+                  hintText: 'Search by Poster #',
+                  controller: _searchController,
+                  onChanged: _onSearchChanged,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ),
 
-            // List of fulfilled requests
-            Expanded(
-              child: _filteredRequests.isEmpty
-                  ? _buildEmptyState(textTheme, colorScheme)
-                  : ListView.builder(
-                      itemCount: _filteredRequests.length,
-                      itemBuilder: (context, index) {
-                        return _buildListItem(_filteredRequests[index], textTheme, colorScheme);
-                      },
+                // Sort indicator
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Text(
+                    '--- Sorted A-Z ---',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.neutral,
                     ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+
+                // List of fulfilled requests
+                Expanded(
+                  child: filteredRequests.isEmpty
+                      ? _buildEmptyState(textTheme, colorScheme)
+                      : ListView.builder(
+                          itemCount: filteredRequests.length,
+                          itemBuilder: (context, index) {
+                            return _buildListItem(
+                                filteredRequests[index], textTheme, colorScheme);
+                          },
+                        ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
