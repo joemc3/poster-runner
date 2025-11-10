@@ -92,7 +92,7 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light gray background
+      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -157,9 +157,7 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                       )
                     : Text(
                         'SUBMIT',
-                        style: textTheme.labelLarge?.copyWith(
-                          fontSize: 18,
-                        ),
+                        style: textTheme.labelLarge,
                       ),
               ),
               const SizedBox(height: 32),
@@ -213,7 +211,7 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                 Text(
                   displayTime,
                   style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.neutral,
+                    color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast on tinted background
                   ),
                 ),
               ],
@@ -221,7 +219,9 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
             const SizedBox(height: 8),
             Text(
               'Last: $_lastSubmittedPoster - Success.',
-              style: textTheme.bodyMedium,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast on tinted background
+              ),
             ),
           ],
         ),

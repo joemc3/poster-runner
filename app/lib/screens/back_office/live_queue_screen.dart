@@ -117,7 +117,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light gray background
+      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -261,7 +261,7 @@ class _LiveQueueScreenState extends State<LiveQueueScreen> {
                         child: Text(
                           receivedTime,
                           style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.neutral,
+                            color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast
                           ),
                         ),
                       ),

@@ -124,10 +124,10 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('All fulfilled requests cleared successfully'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: const Text('All fulfilled requests cleared successfully'),
+          backgroundColor: Theme.of(context).colorScheme.success,
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -168,9 +168,9 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
 
   Widget _buildScaffold(ColorScheme colorScheme, TextTheme textTheme) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light gray background
+      backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         title: Text(
           'FULFILLED LOG',
@@ -253,7 +253,7 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
         color: colorScheme.fulfilledTint,
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerTheme.color ?? Colors.grey[300]!,
+            color: colorScheme.divider,
             width: 1,
           ),
         ),
@@ -281,12 +281,14 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
                   Text(
                     'Sent:',
                     style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.neutral,
+                      color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast on tinted background
                     ),
                   ),
                   Text(
                     sentTime,
-                    style: textTheme.bodyMedium,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast on tinted background
+                    ),
                   ),
                 ],
               ),
@@ -300,13 +302,14 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
                   Text(
                     'Pulled:',
                     style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.neutral,
+                      color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast on tinted background
                     ),
                   ),
                   Text(
                     pulledTime,
                     style: textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurface, // True Black (light) / Pure White (dark) for proper contrast on tinted background
                     ),
                   ),
                 ],

@@ -42,8 +42,7 @@ class StatusBadge extends StatelessWidget {
           // Status icon for accessibility
           Text(
             status.icon,
-            style: TextStyle(
-              fontSize: 14,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: textColor,
             ),
           ),
