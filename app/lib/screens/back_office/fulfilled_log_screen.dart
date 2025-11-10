@@ -5,6 +5,7 @@ import '../../models/poster_request.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/back_office_provider.dart';
+import '../../providers/theme_provider.dart';
 
 /// Back Office - Fulfilled Log Screen (Tab 2)
 ///
@@ -134,13 +135,86 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
     }
   }
 
+  /// Show theme selection dialog
+  void _showThemeDialog(ThemeProvider themeProvider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choose Theme'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildThemeOption(
+                context,
+                themeProvider,
+                ThemeMode.light,
+                Icons.light_mode,
+              ),
+              _buildThemeOption(
+                context,
+                themeProvider,
+                ThemeMode.dark,
+                Icons.dark_mode,
+              ),
+              _buildThemeOption(
+                context,
+                themeProvider,
+                ThemeMode.system,
+                Icons.settings_suggest,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Build individual theme option radio button
+  Widget _buildThemeOption(
+    BuildContext context,
+    ThemeProvider themeProvider,
+    ThemeMode mode,
+    IconData icon,
+  ) {
+    final isSelected = themeProvider.isThemeModeActive(mode);
+    final displayName = themeProvider.getThemeDisplayName(mode);
+
+    return RadioListTile<ThemeMode>(
+      title: Row(
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 8),
+          Text(displayName),
+        ],
+      ),
+      value: mode,
+      groupValue: themeProvider.themeMode,
+      onChanged: (ThemeMode? value) {
+        if (value != null) {
+          themeProvider.setThemeMode(value);
+          Navigator.of(context).pop();
+        }
+      },
+      selected: isSelected,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Consumer<BackOfficeProvider>(
-      builder: (context, backOfficeProvider, child) {
+    return Consumer2<BackOfficeProvider, ThemeProvider>(
+      builder: (context, backOfficeProvider, themeProvider, child) {
         // Get all fulfilled requests from provider
         final allRequests = backOfficeProvider.getFulfilledRequests();
 
@@ -162,6 +236,8 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
                 onSelected: (value) {
                   if (value == 'clear_all') {
                     _showClearAllConfirmation(backOfficeProvider);
+                  } else if (value == 'theme') {
+                    _showThemeDialog(themeProvider);
                   }
                 },
                 itemBuilder: (BuildContext context) => [
@@ -172,6 +248,16 @@ class _FulfilledLogScreenState extends State<FulfilledLogScreen> {
                         Icon(Icons.delete_sweep, size: 20),
                         SizedBox(width: 8),
                         Text('Clear All Fulfilled'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'theme',
+                    child: Row(
+                      children: [
+                        Icon(Icons.palette, size: 20),
+                        SizedBox(width: 8),
+                        Text('Theme'),
                       ],
                     ),
                   ),

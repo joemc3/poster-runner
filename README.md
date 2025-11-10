@@ -38,6 +38,7 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 - Complete alphabetically-sorted list of fulfilled requests
 - Quick lookup for client verification
 - Persistent record of all completed pulls
+- Settings menu with theme selection (Light/Dark/System)
 
 ### For Back Office Staff
 
@@ -50,14 +51,16 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 - Shared view of completed requests
 - Alphabetically sorted for easy reference
 - Synchronized with Front Desk records
-- Settings menu with "Clear All" functionality
-- Persistent storage management
+- Settings menu with "Clear All" functionality and theme selection
+- Theme modes: Light, Dark, System (follows device settings)
+- Persistent storage management with theme preference saved
 
 ## Technical Highlights
 
 ### Offline-First Architecture
 
 - **Local Persistence**: All data stored immediately using Hive database
+- **User Preferences**: Theme selection and app settings persist across restarts
 - **Automatic Sync**: Intelligent reconnection protocol ensures data convergence
 - **Zero Data Loss**: Write-immediately pattern guarantees request preservation
 
@@ -80,6 +83,7 @@ Native-quality UI with platform-specific optimizations.
 Poster Runner prioritizes **operational efficiency** and **reliability** over aesthetic decoration:
 
 - **Clarity**: High-contrast theme with pure white backgrounds and true black text for maximum readability in any lighting
+- **Flexibility**: User-selectable Light/Dark/System theme modes to match user preference and environment
 - **Speed**: Minimal data entry with large, accessible touch targets (56dp minimum)
 - **Reliability**: Offline-first design with automatic synchronization
 - **Accessibility**: WCAG AAA compliant (7:1+ contrast ratios) with support for various abilities and environments

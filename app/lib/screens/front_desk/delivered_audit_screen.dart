@@ -5,6 +5,7 @@ import '../../models/poster_request.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/front_desk_provider.dart';
+import '../../providers/theme_provider.dart';
 
 /// Front Desk - Delivered Audit Screen (Tab 2)
 ///
@@ -60,13 +61,86 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
     });
   }
 
+  /// Show theme selection dialog
+  void _showThemeDialog(ThemeProvider themeProvider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choose Theme'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildThemeOption(
+                context,
+                themeProvider,
+                ThemeMode.light,
+                Icons.light_mode,
+              ),
+              _buildThemeOption(
+                context,
+                themeProvider,
+                ThemeMode.dark,
+                Icons.dark_mode,
+              ),
+              _buildThemeOption(
+                context,
+                themeProvider,
+                ThemeMode.system,
+                Icons.settings_suggest,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Build individual theme option radio button
+  Widget _buildThemeOption(
+    BuildContext context,
+    ThemeProvider themeProvider,
+    ThemeMode mode,
+    IconData icon,
+  ) {
+    final isSelected = themeProvider.isThemeModeActive(mode);
+    final displayName = themeProvider.getThemeDisplayName(mode);
+
+    return RadioListTile<ThemeMode>(
+      title: Row(
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 8),
+          Text(displayName),
+        ],
+      ),
+      value: mode,
+      groupValue: themeProvider.themeMode,
+      onChanged: (ThemeMode? value) {
+        if (value != null) {
+          themeProvider.setThemeMode(value);
+          Navigator.of(context).pop();
+        }
+      },
+      selected: isSelected,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Consumer<FrontDeskProvider>(
-      builder: (context, frontDeskProvider, child) {
+    return Consumer2<FrontDeskProvider, ThemeProvider>(
+      builder: (context, frontDeskProvider, themeProvider, child) {
         // Get all delivered audit entries from provider
         final allRequests = frontDeskProvider.getDeliveredAudit();
 
@@ -75,18 +149,40 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
 
         return Scaffold(
           backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
+          appBar: AppBar(
+            backgroundColor: colorScheme.surface,
+            elevation: 0,
+            title: Text(
+              'DELIVERED POSTERS',
+              style: textTheme.headlineSmall,
+            ),
+            actions: [
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.settings),
+                onSelected: (value) {
+                  if (value == 'theme') {
+                    _showThemeDialog(themeProvider);
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'theme',
+                    child: Row(
+                      children: [
+                        Icon(Icons.palette, size: 20),
+                        SizedBox(width: 8),
+                        Text('Theme'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
           body: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'DELIVERED POSTERS',
-                    style: textTheme.headlineSmall,
-                  ),
-                ),
 
                 // Search bar
                 SearchBarWidget(
