@@ -46,10 +46,12 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 - Fair, first-come-first-served processing
 - One-tap fulfillment marking
 
-**Delivery Audit**
+**Fulfilled Log**
 - Shared view of completed requests
 - Alphabetically sorted for easy reference
 - Synchronized with Front Desk records
+- Settings menu with "Clear All" functionality
+- Persistent storage management
 
 ## Technical Highlights
 
@@ -220,13 +222,15 @@ flutter build ios --release
 - **Theme System**: Complete light/dark mode support
 - **Role Selection**: Choose between Front Desk and Back Office roles
 - **Front Desk Screens**: Request Entry + Delivered Audit tabs
-- **Back Office Screens**: Live Queue + Fulfilled Log tabs
+- **Back Office Screens**: Live Queue + Fulfilled Log tabs (with settings menu)
 - **Reusable Components**: Status badges, list items, search widgets
-- **Data Model**: `PosterRequest` class with status enum
+- **Data Model**: `PosterRequest` class with status enum and Hive adapters
+- **Back Office Persistence**: Fulfilled requests persist to Hive database
+- **Data Management**: Settings menu with clear all functionality
 
-### ⚠️ Not Yet Implemented (Using Placeholder Data)
+### ⚠️ Not Yet Implemented
 - BLE communication layer
-- Hive local persistence
+- Front Desk persistence (still using placeholder data)
 - State management (Provider/Riverpod/BLoC)
 - Actual data synchronization between devices
 - Error handling and retry logic
@@ -234,17 +238,20 @@ flutter build ios --release
 
 ### How to Test the Current Build
 
-The app currently runs with **hardcoded placeholder data** to demonstrate the UI/UX:
-
 1. **Launch the app** using `flutter run`
 2. **Select a role** (Front Desk or Back Office)
 3. **Explore the UI**:
-   - Front Desk: Enter poster numbers, view delivered audit
-   - Back Office: See pending requests, mark as fulfilled
-4. **Test light/dark mode** via device settings
-5. **Try search/filter** on audit screens
+   - Front Desk: Enter poster numbers, view delivered audit (placeholder data)
+   - Back Office: See pending requests, mark as fulfilled (persists to Hive)
+4. **Test persistence** (Back Office):
+   - Pull a poster request to mark it as fulfilled
+   - View the fulfilled request in the Fulfilled Log tab
+   - Restart the app - fulfilled requests persist
+   - Use the settings menu (gear icon) to clear all fulfilled requests
+5. **Test light/dark mode** via device settings
+6. **Try search/filter** on audit screens
 
-**Note:** All interactions are local-only and do not persist between app restarts. Data does not sync between devices.
+**Note:** Front Desk data is placeholder only. Back Office fulfilled requests persist to Hive database. Data does not yet sync between devices via BLE.
 
 ## Project Structure
 

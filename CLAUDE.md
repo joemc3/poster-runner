@@ -23,6 +23,7 @@ cd app
 flutter pub get
 flutter run  # See the complete UI with mock data
 # Back Office: Pull a poster and it will persist to Hive database!
+# Back Office: Use the settings menu (gear icon) to clear all fulfilled requests
 ```
 
 **What Needs Implementation:**
@@ -126,6 +127,9 @@ flutter build apk
   - ValueListenableBuilder for real-time UI updates
   - Automatically refreshes when new requests are pulled
   - Data persists across app restarts
+  - Settings menu (gear icon) with "Clear All Fulfilled" option
+  - Confirmation dialog before clearing all data
+  - Clears both screen and persistent storage
 
 ### What's NOT Implemented ⚠️
 
