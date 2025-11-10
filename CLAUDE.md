@@ -71,7 +71,7 @@ flutter build apk
 ## Current Implementation Status
 
 ### Codebase Statistics
-- **Total Dart Files:** 16 files (~1,700 lines of code)
+- **Total Dart Files:** 16 files (~3,100 lines of code)
 - **Screens:** 7 complete screens
 - **Reusable Widgets:** 3 components
 - **Data Models:** 1 core model + 1 enum + generated Hive adapters + mock data generator
@@ -163,7 +163,7 @@ flutter: sdk: flutter
 cupertino_icons: ^1.0.8        # iOS-style icons
 google_fonts: ^6.2.1           # Inter font family for typography
 intl: ^0.19.0                  # Date/time formatting and internationalization
-hive: ^2.2.3                   # Local NoSQL database (not yet initialized)
+hive: ^2.2.3                   # Local NoSQL database (initialized in main.dart)
 hive_flutter: ^1.1.0           # Flutter-specific Hive initialization
 ```
 
@@ -409,9 +409,8 @@ app/lib/
 │       ├── live_queue_screen.dart     # Live queue (✅ Pull to Hive working)
 │       └── fulfilled_log_screen.dart  # Fulfilled log (✅ Reads from Hive)
 └── services/
-    ├── persistence_service.dart       # Hive storage (✅ Back office complete)
-    ├── ble_service.dart               # BLE communication (❌ Not implemented)
-    └── sync_service.dart              # Sync orchestration (❌ Not implemented)
+    └── persistence_service.dart       # Hive storage (✅ Back office complete)
+                                       # Note: ble_service.dart and sync_service.dart not yet created
 ```
 
 ## Available Claude Code Agents
@@ -581,3 +580,4 @@ Poster Runner prioritizes **operational efficiency over aesthetic decoration**:
 - Large touch targets for event environments
 - Offline-first with automatic sync
 - Reliability and data integrity above all
+- After making any code or specification changes, ALWAYS check to see if the README.md and CLAUDE.md files need to be updates and make those updates.
