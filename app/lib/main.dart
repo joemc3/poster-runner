@@ -7,6 +7,7 @@ import 'services/persistence_service.dart';
 import 'providers/ble_connection_provider.dart';
 import 'providers/front_desk_provider.dart';
 import 'providers/back_office_provider.dart';
+import 'providers/theme_provider.dart';
 
 /// Global instance of the persistence service
 ///
@@ -52,6 +53,11 @@ class PosterRunnerApp extends StatelessWidget {
     // Wrap app in MultiProvider for state management
     return MultiProvider(
       providers: [
+        // Theme Provider - Manages light/dark/system theme preference
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(),
+        ),
+
         // BLE Connection State - Shared across both roles
         ChangeNotifierProvider(
           create: (_) => BleConnectionProvider(),
@@ -67,17 +73,21 @@ class PosterRunnerApp extends StatelessWidget {
           create: (_) => BackOfficeProvider(persistenceService),
         ),
       ],
-      child: MaterialApp(
-        title: 'Poster Runner',
-        debugShowCheckedModeBanner: false,
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Poster Runner',
+            debugShowCheckedModeBanner: false,
 
-        // Theme configuration based on project-theme.md
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system, // Respect system preference
+            // Theme configuration based on project-theme.md
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode, // Use provider-managed theme mode
 
-        // Start with role selection screen
-        home: const RoleSelectionScreen(),
+            // Start with role selection screen
+            home: const RoleSelectionScreen(),
+          );
+        },
       ),
     );
   }
