@@ -41,9 +41,14 @@ void main() async {
 /// - Light and dark theme support
 /// - State management with Provider (Phase 3 - IMPLEMENTED)
 ///
-/// Phase 3 Status: IMPLEMENTED - Provider state management for all roles
-/// Phase 4 TODO: Integrate BLE service layer for actual request communication
-/// TODO: Add comprehensive error handling and retry logic
+/// Phase 4 Status: INTEGRATED - BLE services initialized lazily when role selected
+///
+/// BLE Initialization:
+/// - When user selects Front Desk: BleInitializer.initializeForFrontDesk() called
+/// - When user selects Back Office: BleInitializer.initializeForBackOffice() called
+/// - Sync services injected into providers after role selection
+///
+/// See: lib/services/ble_initializer.dart for initialization logic
 
 class PosterRunnerApp extends StatelessWidget {
   const PosterRunnerApp({super.key});
@@ -53,22 +58,30 @@ class PosterRunnerApp extends StatelessWidget {
     // Wrap app in MultiProvider for state management
     return MultiProvider(
       providers: [
+        // Persistence Service - Make available to BLE initializer
+        Provider<PersistenceService>.value(
+          value: persistenceService,
+        ),
+
         // Theme Provider - Manages light/dark/system theme preference
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(),
         ),
 
         // BLE Connection State - Shared across both roles
+        // Note: BLE services initialized lazily when role is selected
         ChangeNotifierProvider(
           create: (_) => BleConnectionProvider(),
         ),
 
         // Front Desk Data Provider - Manages submitted requests and delivered audit
+        // Note: Sync service injected when Front Desk role is selected
         ChangeNotifierProvider(
           create: (_) => FrontDeskProvider(persistenceService),
         ),
 
         // Back Office Data Provider - Manages pending queue and fulfilled log
+        // Note: Sync service injected when Back Office role is selected
         ChangeNotifierProvider(
           create: (_) => BackOfficeProvider(persistenceService),
         ),

@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../models/poster_request.dart';
 import '../services/persistence_service.dart';
+import '../services/sync_service.dart';
 
 /// Front Desk Data Provider
 ///
@@ -11,16 +12,15 @@ import '../services/persistence_service.dart';
 /// - Delivered audit (fulfilled requests received from Back Office)
 /// - Request submission and status tracking
 ///
-/// Phase 3 Status: IMPLEMENTED - Full state management for Front Desk operations
-/// Phase 4 TODO: Integrate with BLE service for actual data synchronization
+/// Phase 4 Status: INTEGRATED - Connected to BLE services for data synchronization
 ///
 /// Data Flow:
 /// 1. User submits request via Request Entry screen
 /// 2. Provider creates PosterRequest with isSynced: false
 /// 3. Provider saves to Hive (submitted_requests box)
-/// 4. [Phase 4] Provider transmits via BLE Request Characteristic (A)
-/// 5. [Phase 4] Provider receives status updates via BLE Queue Status Characteristic (B)
-/// 6. [Phase 4] Provider updates delivered_audit box with fulfilled requests
+/// 4. Provider transmits via BLE Request Characteristic (A) using SyncService
+/// 5. Provider receives status updates via BLE Queue Status Characteristic (B)
+/// 6. Provider updates delivered_audit box with fulfilled requests
 ///
 /// Usage:
 /// ```dart
@@ -38,8 +38,16 @@ class FrontDeskProvider extends ChangeNotifier {
   bool _isSubmitting = false;
   String? _submissionError;
 
+  // BLE sync service (set when role is selected)
+  SyncService? _syncService;
+
   FrontDeskProvider(this._persistenceService) {
     _initializeListeners();
+  }
+
+  /// Set sync service (called after provider initialization when role is selected)
+  void setSyncService(SyncService syncService) {
+    _syncService = syncService;
   }
 
   // Getters
@@ -118,13 +126,16 @@ class FrontDeskProvider extends ChangeNotifier {
       // Save to Hive database (write-immediately pattern)
       await _persistenceService.saveSubmittedRequest(newRequest);
 
-      // TODO Phase 4: Transmit via BLE to Back Office
-      // if (bleConnectionProvider.isConnected) {
-      //   final bleMessage = newRequest.toRequestCharacteristicJson();
-      //   await bleService.sendRequest(bleMessage);
-      //   // Mark as synced after successful transmission
-      //   await _markRequestAsSynced(newRequest.uniqueId);
-      // }
+      // Transmit via BLE to Back Office (if connected)
+      if (_syncService != null) {
+        final success = await _syncService!.sendNewRequest(newRequest);
+        if (!success) {
+          debugPrint('[Front Desk Provider] BLE transmission failed - request queued for sync');
+          // Request is already saved with isSynced: false, so it will be synced later
+        }
+      } else {
+        debugPrint('[Front Desk Provider] No sync service - offline mode');
+      }
 
       // Update UI state
       _lastSubmittedPoster = posterNumber.trim().toUpperCase();
@@ -145,18 +156,6 @@ class FrontDeskProvider extends ChangeNotifier {
     }
   }
 
-  /// Mark a submitted request as synced
-  ///
-  /// Called after successful BLE transmission
-  /// Phase 4 TODO: Wire up to BLE service confirmation
-  Future<void> _markRequestAsSynced(String uniqueId) async {
-    final request = _persistenceService.getSubmittedRequest(uniqueId);
-    if (request != null) {
-      final syncedRequest = request.copyWith(isSynced: true);
-      await _persistenceService.saveSubmittedRequest(syncedRequest);
-    }
-  }
-
   /// Clear last submission feedback
   ///
   /// Used to reset UI state after user acknowledges submission
@@ -170,10 +169,8 @@ class FrontDeskProvider extends ChangeNotifier {
 
   /// Handle incoming status update from BLE
   ///
-  /// Called when Back Office sends Queue Status Characteristic (B) update
+  /// Called by SyncService when Back Office sends Queue Status Characteristic (B) update
   /// indicating a request has been fulfilled.
-  ///
-  /// Phase 4 TODO: Wire up to BLE service Queue Status Characteristic (B)
   Future<void> handleStatusUpdate(Map<String, dynamic> bleMessage) async {
     try {
       // Parse BLE message
@@ -210,43 +207,9 @@ class FrontDeskProvider extends ChangeNotifier {
     }
   }
 
-  /// Sync all unsynced requests via BLE
-  ///
-  /// Called during reconnection handshake (step 1)
-  /// Phase 4 TODO: Implement with BLE service
-  Future<void> syncUnsyncedRequests() async {
-    final unsyncedRequests = getUnsyncedRequests();
-
-    // TODO Phase 4: Transmit each unsynced request via BLE
-    // for (final request in unsyncedRequests) {
-    //   final bleMessage = request.toRequestCharacteristicJson();
-    //   await bleService.sendRequest(bleMessage);
-    //   await _markRequestAsSynced(request.uniqueId);
-    // }
-  }
-
-  /// Perform full queue sync via BLE
-  ///
-  /// Called during reconnection handshake (step 3)
-  /// Reads full queue state from Back Office to reconcile any discrepancies
-  ///
-  /// Phase 4 TODO: Implement with BLE Full Queue Sync Characteristic (C)
-  Future<void> performFullQueueSync() async {
-    // TODO Phase 4: Read Full Queue Sync Characteristic (C)
-    // final fullQueueJson = await bleService.readFullQueue();
-    // final allRequests = (fullQueueJson as List)
-    //     .map((json) => PosterRequest.fromJson(json))
-    //     .toList();
-    //
-    // // Clear and rebuild delivered_audit box
-    // // Note: Need to add clearDeliveredAudit() method to PersistenceService
-    // for (final request in allRequests) {
-    //   if (request.status == RequestStatus.fulfilled) {
-    //     await _persistenceService.saveToDeliveredAudit(request);
-    //   }
-    // }
-    // notifyListeners();
-  }
+  /// Note: syncUnsyncedRequests and performFullQueueSync are now handled
+  /// automatically by SyncService during the three-step reconnection handshake.
+  /// No manual intervention needed from this provider.
 
   @override
   void dispose() {

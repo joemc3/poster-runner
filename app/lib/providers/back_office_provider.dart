@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/poster_request.dart';
-import '../models/mock_data.dart';
 import '../services/persistence_service.dart';
+import '../services/sync_service.dart';
 
 /// Back Office Data Provider
 ///
@@ -11,15 +11,14 @@ import '../services/persistence_service.dart';
 /// - Fulfilled log (completed requests)
 /// - Request fulfillment and status tracking
 ///
-/// Phase 3 Status: IMPLEMENTED - Full state management for Back Office operations
-/// Phase 4 TODO: Integrate with BLE service for actual data synchronization
+/// Phase 4 Status: INTEGRATED - Connected to BLE services for data synchronization
 ///
 /// Data Flow:
-/// 1. [Phase 4] Provider receives requests via BLE Request Characteristic (A)
+/// 1. Provider receives requests via BLE Request Characteristic (A) from SyncService
 /// 2. Provider adds requests to active queue
 /// 3. User pulls request via Live Queue screen
 /// 4. Provider marks as fulfilled and saves to Hive (fulfilled_requests box)
-/// 5. [Phase 4] Provider transmits status update via BLE Queue Status Characteristic (B)
+/// 5. Provider transmits status update via BLE Queue Status Characteristic (B) using SyncService
 ///
 /// Usage:
 /// ```dart
@@ -33,9 +32,20 @@ class BackOfficeProvider extends ChangeNotifier {
   List<PosterRequest> _activeQueue = [];
   bool _isInitialized = false;
 
+  // Callback to notify BleServerService of queue changes
+  Function(List<PosterRequest>)? onQueueChanged;
+
+  // BLE sync service (set when role is selected)
+  SyncService? _syncService;
+
   BackOfficeProvider(this._persistenceService) {
     _initializeListeners();
     _loadInitialQueue();
+  }
+
+  /// Set sync service (called after provider initialization when role is selected)
+  void setSyncService(SyncService syncService) {
+    _syncService = syncService;
   }
 
   // Getters
@@ -58,19 +68,21 @@ class BackOfficeProvider extends ChangeNotifier {
   void _initializeListeners() {
     // Listen to fulfilled_requests box changes
     Hive.box<PosterRequest>('fulfilled_requests').listenable().addListener(() {
+      _notifyQueueChanged();
       notifyListeners();
     });
   }
 
   /// Load initial queue data
   ///
-  /// Phase 3: Uses mock data for testing
-  /// Phase 4 TODO: Load from BLE sync or persistent queue storage
+  /// Phase 4+: Queue is populated via BLE from Front Desk
+  /// No mock data - starts empty and receives real requests via BLE
   void _loadInitialQueue() {
-    // Use mock data for Phase 3 testing
-    // This simulates requests received from Front Desk via BLE
-    _activeQueue = List.from(MockPosterRequests.liveQueue);
+    // Start with empty queue
+    // Requests will be added via BLE when Front Desk sends them
+    _activeQueue = [];
     _isInitialized = true;
+    _notifyQueueChanged();
     notifyListeners();
   }
 
@@ -101,6 +113,7 @@ class BackOfficeProvider extends ChangeNotifier {
       // Sort by timestampSent (chronological, oldest first)
       _activeQueue.sort((a, b) => a.timestampSent.compareTo(b.timestampSent));
 
+      _notifyQueueChanged();
       notifyListeners();
     } catch (e) {
       debugPrint('Error handling incoming request: $e');
@@ -112,8 +125,6 @@ class BackOfficeProvider extends ChangeNotifier {
   /// Called when Back Office user presses "PULL" button.
   /// Updates request status, saves to fulfilled_requests box,
   /// removes from active queue, and transmits status update via BLE.
-  ///
-  /// Phase 4 TODO: Transmit via BLE Queue Status Characteristic (B)
   Future<bool> fulfillRequest(PosterRequest request) async {
     try {
       // Create fulfilled version of the request
@@ -126,17 +137,21 @@ class BackOfficeProvider extends ChangeNotifier {
       // Save to persistent storage (write-immediately pattern)
       await _persistenceService.saveFulfilledRequest(fulfilledRequest);
 
-      // TODO Phase 4: Transmit to Front Desk via BLE Queue Status Characteristic (B)
-      // if (bleConnectionProvider.isConnected) {
-      //   final bleMessage = fulfilledRequest.toQueueStatusJson();
-      //   await bleService.sendQueueStatusUpdate(bleMessage);
-      //   // Mark as synced after successful transmission
-      //   await _markFulfilledAsSynced(fulfilledRequest.uniqueId);
-      // }
+      // Transmit status update to Front Desk via BLE (if connected)
+      if (_syncService != null) {
+        final success = await _syncService!.sendStatusUpdate(fulfilledRequest);
+        if (!success) {
+          debugPrint('[Back Office Provider] BLE transmission failed - status update queued for sync');
+          // Status update is already saved with isSynced: false, so it will be synced later
+        }
+      } else {
+        debugPrint('[Back Office Provider] No sync service - offline mode');
+      }
 
       // Remove from active queue
       _activeQueue.removeWhere((r) => r.uniqueId == request.uniqueId);
 
+      _notifyQueueChanged();
       notifyListeners();
       return true;
     } catch (e) {
@@ -145,57 +160,25 @@ class BackOfficeProvider extends ChangeNotifier {
     }
   }
 
-  /// Mark a fulfilled request as synced
+  /// Provide full queue state for BLE sync
   ///
-  /// Called after successful BLE transmission
-  /// Phase 4 TODO: Wire up to BLE service confirmation
-  Future<void> _markFulfilledAsSynced(String uniqueId) async {
-    final request = _persistenceService.getFulfilledRequest(uniqueId);
-    if (request != null) {
-      final syncedRequest = request.copyWith(isSynced: true);
-      await _persistenceService.saveFulfilledRequest(syncedRequest);
-    }
-  }
-
-  /// Get all unsynced fulfilled requests
+  /// Called by SyncService when Front Desk reads Full Queue Sync Characteristic (C)
+  /// during reconnection handshake (step 3).
   ///
-  /// Used during BLE reconnection handshake (step 2)
-  /// Phase 4 TODO: Wire up to reconnection logic
-  List<PosterRequest> getUnsyncedFulfilledRequests() {
-    final allFulfilled = _persistenceService.getAllFulfilledRequests();
-    return allFulfilled.where((r) => !r.isSynced).toList();
-  }
-
-  /// Sync all unsynced fulfilled requests via BLE
-  ///
-  /// Called during reconnection handshake (step 2)
-  /// Phase 4 TODO: Implement with BLE service
-  Future<void> syncUnsyncedFulfilledRequests() async {
-    final unsyncedRequests = getUnsyncedFulfilledRequests();
-
-    // TODO Phase 4: Transmit each unsynced status update via BLE
-    // for (final request in unsyncedRequests) {
-    //   final bleMessage = request.toQueueStatusJson();
-    //   await bleService.sendQueueStatusUpdate(bleMessage);
-    //   await _markFulfilledAsSynced(request.uniqueId);
-    // }
-  }
-
-  /// Provide full queue state via BLE
-  ///
-  /// Called when Front Desk reads Full Queue Sync Characteristic (C)
-  /// during reconnection handshake (step 3)
-  ///
-  /// Phase 4 TODO: Implement with BLE Full Queue Sync Characteristic (C)
-  List<Map<String, dynamic>> getFullQueueState() {
+  /// Returns all requests (active and fulfilled) for reconciliation.
+  List<PosterRequest> getFullQueueState() {
     // Combine active queue and fulfilled log
     final allRequests = [
       ..._activeQueue,
       ...getFulfilledRequests(),
     ];
 
-    return allRequests.map((r) => r.toJson()).toList();
+    return allRequests;
   }
+
+  /// Note: syncUnsyncedFulfilledRequests is now handled automatically by
+  /// SyncService during the three-step reconnection handshake.
+  /// No manual intervention needed from this provider.
 
   /// Clear all fulfilled requests from persistent storage
   ///
@@ -203,12 +186,18 @@ class BackOfficeProvider extends ChangeNotifier {
   Future<bool> clearAllFulfilledRequests() async {
     try {
       await _persistenceService.clearAllFulfilledRequests();
+      _notifyQueueChanged();
       notifyListeners();
       return true;
     } catch (e) {
       debugPrint('Error clearing fulfilled requests: $e');
       return false;
     }
+  }
+
+  /// Notify BleServerService of queue changes
+  void _notifyQueueChanged() {
+    onQueueChanged?.call(getFullQueueState());
   }
 
   /// Refresh active queue
@@ -225,6 +214,7 @@ class BackOfficeProvider extends ChangeNotifier {
   void addRequestToQueue(PosterRequest request) {
     _activeQueue.add(request);
     _activeQueue.sort((a, b) => a.timestampSent.compareTo(b.timestampSent));
+    _notifyQueueChanged();
     notifyListeners();
   }
 
@@ -233,6 +223,7 @@ class BackOfficeProvider extends ChangeNotifier {
   /// This is a development/testing method
   void removeRequestFromQueue(String uniqueId) {
     _activeQueue.removeWhere((r) => r.uniqueId == uniqueId);
+    _notifyQueueChanged();
     notifyListeners();
   }
 

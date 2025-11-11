@@ -55,6 +55,9 @@ dependencies:
   # State management
   provider: ^6.1.2
 
+  # Runtime permissions for Android 12+
+  permission_handler: ^11.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

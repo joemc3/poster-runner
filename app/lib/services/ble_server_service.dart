@@ -29,8 +29,16 @@ class BleServerService {
   bool _isAdvertising = false;
   bool _isClientConnected = false;
 
+  // Buffer for reassembling fragmented write requests
+  final Map<String, List<int>> _writeBuffers = {};
+  final Map<String, Timer> _writeTimers = {};
+
   // Full queue data provider (called when Front Desk reads Characteristic C)
-  Future<List<PosterRequest>> Function()? fullQueueProvider;
+  set fullQueueProvider(List<PosterRequest> queue) {
+    _cachedQueue = queue;
+  }
+
+  List<PosterRequest> _cachedQueue = [];
 
   /// Is currently advertising
   bool get isAdvertising => _isAdvertising;
@@ -64,61 +72,88 @@ class BleServerService {
 
     try {
       // Clear any existing services
+      debugPrint('[BLE Server] Clearing existing services...');
       await BlePeripheral.clearServices();
 
+      // Add delay to allow cleanup to complete (especially on macOS)
+      await Future.delayed(const Duration(seconds: 1));
+
       // Add Poster Runner Service with 3 characteristics
+      debugPrint('[BLE Server] Creating GATT service...');
       final service = BleService(
         uuid: serviceUuid,
         primary: true,
         characteristics: [
           // Characteristic A: Request (Front Desk writes new requests)
-          BleCharacteristic(
-            uuid: requestCharacteristicUuid,
-            properties: [
-              CharacteristicProperties.write.index,
-              CharacteristicProperties.writeWithoutResponse.index,
-            ],
-            permissions: [
-              AttributePermissions.writeable.index,
-            ],
-          ),
-
-          // Characteristic B: Queue Status (Back Office notifies status updates)
-          BleCharacteristic(
-            uuid: queueStatusCharacteristicUuid,
-            properties: [
-              CharacteristicProperties.notify.index,
-              CharacteristicProperties.indicate.index,
-            ],
-            permissions: [
-              AttributePermissions.readable.index,
-            ],
-          ),
-
-          // Characteristic C: Full Queue Sync (Front Desk reads full state)
-          BleCharacteristic(
-            uuid: fullQueueSyncCharacteristicUuid,
-            properties: [
-              CharacteristicProperties.read.index,
-            ],
-            permissions: [
-              AttributePermissions.readable.index,
-            ],
-          ),
-        ],
+                    BleCharacteristic(
+                      uuid: requestCharacteristicUuid,
+                      properties: [
+                        CharacteristicProperties.write.index,
+                        CharacteristicProperties.writeWithoutResponse.index,
+                      ],
+                      permissions: [
+                        AttributePermissions.writeable.index,
+                      ],
+                    ),
+          
+                    // Characteristic B: Queue Status (Back Office notifies status updates)
+                    // Note: CCCD descriptor is automatically added by ble_peripheral when notify property is set
+                    BleCharacteristic(
+                      uuid: queueStatusCharacteristicUuid,
+                      properties: [
+                        CharacteristicProperties.notify.index,
+                        CharacteristicProperties.read.index, // Allow reading current value
+                      ],
+                      permissions: [
+                        AttributePermissions.readable.index,
+                      ],
+                    ),
+          
+                    // Characteristic C: Full Queue Sync (Front Desk reads full state)
+                    BleCharacteristic(
+                      uuid: fullQueueSyncCharacteristicUuid,
+                      properties: [
+                        CharacteristicProperties.read.index,
+                      ],
+                      permissions: [
+                        AttributePermissions.readable.index,
+                      ],
+                    ),        ],
       );
 
-      await BlePeripheral.addService(service);
+      // Add service with extended timeout for macOS
+      debugPrint('[BLE Server] Adding service to BLE stack (this may take 10-15 seconds on macOS)...');
+      debugPrint('[BLE Server] Service configuration:');
+      debugPrint('  - Characteristic A (Request): $requestCharacteristicUuid');
+      debugPrint('  - Characteristic B (Queue Status): $queueStatusCharacteristicUuid with CCCD');
+      debugPrint('  - Characteristic C (Full Queue): $fullQueueSyncCharacteristicUuid');
+
+      await BlePeripheral.addService(service).timeout(
+        const Duration(seconds: 20),
+        onTimeout: () {
+          throw TimeoutException(
+            'Service addition timed out after 20 seconds. '
+            'macOS has known limitations with BLE peripheral mode. '
+            'Please try testing on iOS or Android devices for full functionality. '
+            'See README.md troubleshooting section for details.',
+          );
+        },
+      );
       debugPrint('[BLE Server] Service added successfully');
 
       // Start advertising with device name
+      // Note: Keep name short to fit in BLE advertising packet (31 byte limit)
+      debugPrint('[BLE Server] Starting BLE advertising...');
       await BlePeripheral.startAdvertising(
         services: [serviceUuid],
-        localName: 'Poster Runner - Back Office',
+        localName: 'PosterRunner-BO', // Shortened to fit BLE 31-byte limit
       );
       debugPrint('[BLE Server] Advertising started successfully');
     } catch (e) {
       debugPrint('[BLE Server] Failed to start advertising: $e');
+      if (e is TimeoutException) {
+        debugPrint('[BLE Server] TIMEOUT DETAILS: ${e.message}');
+      }
       rethrow;
     }
   }
@@ -209,15 +244,15 @@ class BleServerService {
     debugPrint('[BLE Server] Read request from $deviceId: char=$characteristicId, offset=$offset');
 
     // Only handle reads for Full Queue Sync Characteristic (C)
-    if (characteristicId == fullQueueSyncCharacteristicUuid) {
+    if (characteristicId.toLowerCase() == fullQueueSyncCharacteristicUuid.toLowerCase()) {
       try {
-        // TODO: For production, cache the full queue data in a synchronous variable
-        // that gets updated whenever the queue changes. For now, return empty array.
-        debugPrint('[BLE Server] Full queue sync read - returning cached data');
+        final jsonString = jsonEncode(_cachedQueue.map((r) => r.toJson()).toList());
+        final data = Uint8List.fromList(utf8.encode(jsonString));
 
-        // Return empty array for now (this should be cached data in production)
+        debugPrint('[BLE Server] Full queue sync read - returning ${_cachedQueue.length} items');
+
         return ReadRequestResult(
-          value: Uint8List.fromList(utf8.encode('[]')),
+          value: data,
           status: 0, // Success
         );
       } catch (e) {
@@ -250,29 +285,23 @@ class BleServerService {
     debugPrint('[BLE Server] Write request from $deviceId: char=$characteristicId, offset=$offset, ${value.length} bytes');
 
     // Only handle writes for Request Characteristic (A)
-    if (characteristicId == requestCharacteristicUuid) {
-      try {
-        // Parse incoming request
-        final jsonString = utf8.decode(value);
-        debugPrint('[BLE Server] Received request: $jsonString');
+    if (characteristicId.toLowerCase() == requestCharacteristicUuid.toLowerCase()) {
+      // Append incoming data to the buffer for this device
+      final currentBuffer = _writeBuffers[deviceId] ?? [];
+      _writeBuffers[deviceId] = currentBuffer..addAll(value);
 
-        final json = jsonDecode(jsonString) as Map<String, dynamic>;
-        final posterRequest = PosterRequest.fromJsonSynced(json, isSynced: true);
+      debugPrint('[BLE Server] Buffered ${value.length} bytes, total buffer size: ${_writeBuffers[deviceId]!.length} bytes');
 
-        debugPrint('[BLE Server] Parsed request: ${posterRequest.uniqueId} - ${posterRequest.posterNumber}');
+      // Cancel the existing timer and start a new one
+      // Wait 1 second after last write to ensure all fragments are received
+      _writeTimers[deviceId]?.cancel();
+      _writeTimers[deviceId] = Timer(const Duration(seconds: 1), () {
+        _processWriteBuffer(deviceId);
+      });
 
-        // Notify callback
-        onRequestReceived?.call(posterRequest);
-
-        return WriteRequestResult(
-          status: 0, // Success
-        );
-      } catch (e) {
-        debugPrint('[BLE Server] Failed to handle write request: $e');
-        return WriteRequestResult(
-          status: 1, // Error
-        );
-      }
+      return WriteRequestResult(
+        status: 0, // Success
+      );
     }
 
     // Unknown characteristic
@@ -282,9 +311,35 @@ class BleServerService {
     );
   }
 
+  /// Process the write buffer for a device
+  void _processWriteBuffer(String deviceId) {
+    final bufferedBytes = _writeBuffers.remove(deviceId);
+    _writeTimers.remove(deviceId);
+
+    if (bufferedBytes == null) {
+      return;
+    }
+
+    try {
+      final jsonString = utf8.decode(bufferedBytes);
+      debugPrint('[BLE Server] Received complete request: $jsonString');
+
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      final posterRequest = PosterRequest.fromJsonSynced(json, isSynced: true);
+
+      debugPrint('[BLE Server] Parsed request: ${posterRequest.uniqueId} - ${posterRequest.posterNumber}');
+
+      // Notify callback
+      onRequestReceived?.call(posterRequest);
+    } catch (e) {
+      debugPrint('[BLE Server] Failed to handle write request: $e');
+    }
+  }
+
   /// Dispose of resources
   Future<void> dispose() async {
     await stopAdvertising();
     await BlePeripheral.clearServices();
+    _writeTimers.forEach((_, timer) => timer.cancel());
   }
 }

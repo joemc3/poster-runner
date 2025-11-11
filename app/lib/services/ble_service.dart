@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter/foundation.dart';
 import '../models/poster_request.dart';
-import 'ble_server_service.dart';
 
 /// BLE Service UUIDs
 ///
@@ -217,19 +216,20 @@ class BleService {
     await disconnect();
 
     // Establish connection
-    _connectionSubscription = _ble
-        .connectToDevice(
+    _connectionSubscription = _ble.connectToDevice(
       id: deviceId,
       connectionTimeout: const Duration(seconds: 10),
-    )
-        .listen(
+    ).listen(
       (connectionState) {
         debugPrint(
             '[BLE Service] Connection state: ${connectionState.connectionState}');
 
         if (connectionState.connectionState == DeviceConnectionState.connected) {
           _connectedDeviceId = deviceId;
-          _subscribeToQueueStatusCharacteristic(deviceId);
+          // Request larger MTU for larger payloads
+          _requestMtu(deviceId);
+          // Discover services before subscribing to characteristics
+          _discoverServicesAndSubscribe(deviceId);
         } else if (connectionState.connectionState ==
             DeviceConnectionState.disconnected) {
           _handleDisconnection();
@@ -243,6 +243,49 @@ class BleService {
         _handleDisconnection();
       },
     );
+  }
+
+  /// Request larger MTU (Maximum Transmission Unit)
+  ///
+  /// Default BLE MTU is 23 bytes (20 bytes payload), which is too small for our JSON payloads.
+  /// Request 512 bytes to send larger messages without fragmentation.
+  Future<void> _requestMtu(String deviceId) async {
+    try {
+      debugPrint('[BLE Service] Requesting MTU of 512 bytes...');
+      final mtu = await _ble.requestMtu(deviceId: deviceId, mtu: 512);
+      debugPrint('[BLE Service] MTU negotiated: $mtu bytes (payload: ${mtu - 3} bytes)');
+    } catch (e) {
+      debugPrint('[BLE Service] MTU request failed: $e (will use default 20 byte chunks)');
+    }
+  }
+
+  /// Discover services and then subscribe to characteristics
+  ///
+  /// This must be called after connection is established
+  Future<void> _discoverServicesAndSubscribe(String deviceId) async {
+    try {
+      debugPrint('[BLE Service] Discovering services...');
+
+      // Wait longer for service discovery to complete
+      // The Android logs show service discovery takes time:
+      // 1. discoverServices() is called
+      // 2. onSearchComplete() is called when done
+      // 3. onServiceChanged() is called after that
+      await Future.delayed(const Duration(seconds: 2));
+
+      debugPrint('[BLE Service] Service discovery complete, subscribing to characteristics...');
+      await _subscribeToQueueStatusCharacteristic(deviceId);
+    } catch (e) {
+      debugPrint('[BLE Service] Service discovery error: $e');
+      // Retry once after another delay
+      debugPrint('[BLE Service] Retrying subscription after 1 second...');
+      await Future.delayed(const Duration(seconds: 1));
+      try {
+        await _subscribeToQueueStatusCharacteristic(deviceId);
+      } catch (retryError) {
+        debugPrint('[BLE Service] Retry failed: $retryError');
+      }
+    }
   }
 
   /// Subscribe to Queue Status Characteristic (B)
@@ -312,7 +355,7 @@ class BleService {
     debugPrint('[BLE Service] Request payload: $jsonString (${bytes.length} bytes)');
 
     try {
-      await _ble.writeCharacteristicWithResponse(characteristic, value: bytes);
+      await _ble.writeCharacteristicWithoutResponse(characteristic, value: bytes);
       debugPrint('[BLE Service] Request written successfully');
     } catch (e) {
       debugPrint('[BLE Service] Failed to write request: $e');

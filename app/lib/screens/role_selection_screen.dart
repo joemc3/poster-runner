@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'front_desk/front_desk_home.dart';
 import 'back_office/back_office_home.dart';
 import '../theme/app_theme.dart';
+import '../services/ble_initializer.dart';
 
 /// Role Selection Screen
 /// Allows user to choose between Front Desk and Back Office roles
@@ -12,8 +13,72 @@ import '../theme/app_theme.dart';
 /// - User login/authentication
 /// - Configuration/settings
 
-class RoleSelectionScreen extends StatelessWidget {
+class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
+
+  @override
+  State<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
+}
+
+class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
+  bool _isInitializing = false;
+  String? _initializationError;
+
+  /// Initialize BLE services for Front Desk role
+  Future<void> _initializeFrontDesk() async {
+    setState(() {
+      _isInitializing = true;
+      _initializationError = null;
+    });
+
+    try {
+      await BleInitializer.initializeForFrontDesk(context);
+
+      if (!mounted) return;
+
+      // Navigate to Front Desk home
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const FrontDeskHome(),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _initializationError = 'Failed to initialize BLE: $e';
+        _isInitializing = false;
+      });
+    }
+  }
+
+  /// Initialize BLE services for Back Office role
+  Future<void> _initializeBackOffice() async {
+    setState(() {
+      _isInitializing = true;
+      _initializationError = null;
+    });
+
+    try {
+      await BleInitializer.initializeForBackOffice(context);
+
+      if (!mounted) return;
+
+      // Navigate to Back Office home
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const BackOfficeHome(),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _initializationError = 'Failed to initialize BLE: $e';
+        _isInitializing = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +90,62 @@ class RoleSelectionScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 40), // Add top padding when scrollable
+              // Show loading indicator if initializing
+              if (_isInitializing)
+                const Column(
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Initializing Bluetooth...'),
+                  ],
+                ),
+
+              // Show error message if initialization failed
+              if (_initializationError != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: colorScheme.error.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colorScheme.error),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.error_outline, color: colorScheme.error),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _initializationError!,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.error,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _initializationError = null;
+                            });
+                          },
+                          child: const Text('Dismiss'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               // App title and icon
               Icon(
                 Icons.receipt_long,
@@ -60,13 +177,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 title: 'Front Desk',
                 description: 'Submit poster requests and check delivery status',
                 color: colorScheme.primary,
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const FrontDeskHome(),
-                    ),
-                  );
-                },
+                onTap: _isInitializing ? null : _initializeFrontDesk,
               ),
               const SizedBox(height: 24),
 
@@ -76,16 +187,12 @@ class RoleSelectionScreen extends StatelessWidget {
                 title: 'Back Office',
                 description: 'Process poster requests and manage fulfillment queue',
                 color: colorScheme.secondary,
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const BackOfficeHome(),
-                    ),
-                  );
-                },
+                onTap: _isInitializing ? null : _initializeBackOffice,
               ),
+              const SizedBox(height: 40), // Add bottom padding when scrollable
             ],
           ),
+        ),
         ),
       ),
     );
@@ -99,7 +206,7 @@ class _RoleCard extends StatelessWidget {
   final String title;
   final String description;
   final Color color;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _RoleCard({
     required this.icon,

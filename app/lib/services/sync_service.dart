@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import '../models/poster_request.dart';
 import '../providers/ble_connection_provider.dart';
 import '../providers/front_desk_provider.dart';
@@ -27,6 +28,8 @@ class SyncService {
   final FrontDeskProvider? _frontDeskProvider;
   final BackOfficeProvider? _backOfficeProvider;
 
+  StreamSubscription<DiscoveredDevice>? _scanSubscription;
+
   // Retry configuration
   static const int maxRetries = 3;
   static const Duration retryDelay = Duration(seconds: 2);
@@ -49,6 +52,32 @@ class SyncService {
     if (bleService.role == DeviceRole.backOffice && backOfficeProvider == null) {
       throw ArgumentError('Back Office role requires BackOfficeProvider');
     }
+  }
+
+  /// Start scanning for Back Office devices and connect when found
+  void startScan() {
+    if (_bleService.role != DeviceRole.frontDesk) return;
+
+    debugPrint('[Sync Service] Starting BLE scan...');
+    _scanSubscription?.cancel();
+    _scanSubscription = _bleService.startScanning().listen(
+      (device) {
+        if (device.name == 'PosterRunner-BO') {
+          debugPrint('[Sync Service] Found Back Office device: ${device.id}');
+          _scanSubscription?.cancel();
+          connectToDevice(device.id);
+        }
+      },
+      onError: (error) {
+        debugPrint('[Sync Service] Scan error: $error');
+      },
+    );
+  }
+
+  /// Connect to a specific device
+  Future<void> connectToDevice(String deviceId) async {
+    debugPrint('[Sync Service] Attempting to connect to $deviceId');
+    await _bleService.connect(deviceId);
   }
 
   /// Execute the complete three-step reconnection handshake
@@ -174,6 +203,9 @@ class SyncService {
   Future<bool> _writeRequestWithRetry(PosterRequest request) async {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
+        if (attempt == 1) {
+          await Future.delayed(const Duration(seconds: 2));
+        }
         debugPrint('[Sync Service] Writing request ${request.uniqueId} (attempt $attempt/$maxRetries)');
         await _bleService.writeRequest(request);
         return true;

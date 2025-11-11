@@ -95,83 +95,83 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Section header
-                  Text(
-                    'NEW REQUEST',
-                    style: textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 24),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Section header
+                    Text(
+                      'NEW REQUEST',
+                      style: textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 24),
 
-                  // Large input field for poster number
-                  Card(
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          TextField(
-                            controller: _posterNumberController,
-                            autofocus: true,
-                            textAlign: TextAlign.center,
-                            style: textTheme.displaySmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 4,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'A457',
-                              hintStyle: textTheme.displaySmall?.copyWith(
-                                color: colorScheme.neutral.withValues(alpha: 0.3),
+                    // Large input field for poster number
+                    Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            TextField(
+                              controller: _posterNumberController,
+                              autofocus: true,
+                              textAlign: TextAlign.center,
+                              style: textTheme.displaySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
                                 letterSpacing: 4,
                               ),
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
+                              decoration: InputDecoration(
+                                hintText: 'A457',
+                                hintStyle: textTheme.displaySmall?.copyWith(
+                                  color: colorScheme.neutral.withValues(alpha: 0.3),
+                                  letterSpacing: 4,
+                                ),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                              ),
+                              textCapitalization: TextCapitalization.characters,
+                              onSubmitted: (_) => _handleSubmit(),
                             ),
-                            textCapitalization: TextCapitalization.characters,
-                            onSubmitted: (_) => _handleSubmit(),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Submit button
-                  ElevatedButton(
-                    onPressed: frontDeskProvider.isSubmitting ? null : _handleSubmit,
-                    child: frontDeskProvider.isSubmitting
-                        ? SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                colorScheme.onPrimary, // Use theme color (white in light, black in dark)
+                    // Submit button
+                    ElevatedButton(
+                      onPressed: frontDeskProvider.isSubmitting ? null : _handleSubmit,
+                      child: frontDeskProvider.isSubmitting
+                          ? SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  colorScheme.onPrimary, // Use theme color (white in light, black in dark)
+                                ),
                               ),
+                            )
+                          : Text(
+                              'SUBMIT',
+                              style: textTheme.labelLarge,
                             ),
-                          )
-                        : Text(
-                            'SUBMIT',
-                            style: textTheme.labelLarge,
-                          ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Status feedback area
-                  if (frontDeskProvider.lastSubmissionStatus != null &&
-                      frontDeskProvider.lastSubmittedPoster != null)
-                    _buildStatusFeedback(
-                      colorScheme,
-                      textTheme,
-                      frontDeskProvider,
                     ),
+                    const SizedBox(height: 32),
 
-                  const Spacer(),
-                ],
+                    // Status feedback area
+                    if (frontDeskProvider.lastSubmissionStatus != null &&
+                        frontDeskProvider.lastSubmittedPoster != null)
+                      _buildStatusFeedback(
+                        colorScheme,
+                        textTheme,
+                        frontDeskProvider,
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
