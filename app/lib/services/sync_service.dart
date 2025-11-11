@@ -64,7 +64,7 @@ class SyncService {
 
     debugPrint('[Sync Service] Starting BLE scan...');
     _scanSubscription?.cancel();
-    _scanSubscription = _bleService!.startScanning().listen(
+    _scanSubscription = _bleService.startScanning().listen(
       (device) {
         if (device.name == 'PosterRunner-BO') {
           debugPrint('[Sync Service] Found Back Office device: ${device.id}');
@@ -82,7 +82,7 @@ class SyncService {
   Future<void> connectToDevice(String deviceId) async {
     if (_bleService == null) return;
     debugPrint('[Sync Service] Attempting to connect to $deviceId');
-    await _bleService!.connect(deviceId);
+    await _bleService.connect(deviceId);
   }
 
   /// Execute the complete three-step reconnection handshake
@@ -206,13 +206,15 @@ class SyncService {
 
   /// Write request to Back Office with retry logic
   Future<bool> _writeRequestWithRetry(PosterRequest request) async {
+    if (_bleService == null) return false;
+
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         if (attempt == 1) {
           await Future.delayed(const Duration(seconds: 2));
         }
         debugPrint('[Sync Service] Writing request ${request.uniqueId} (attempt $attempt/$maxRetries)');
-        await _bleService!.writeRequest(request);
+        await _bleService.writeRequest(request);
         return true;
       } catch (e) {
         debugPrint('[Sync Service] Write failed (attempt $attempt/$maxRetries): $e');
@@ -279,9 +281,11 @@ class SyncService {
       try {
         debugPrint('[Sync Service] Sending status update ${request.uniqueId} (attempt $attempt/$maxRetries)');
         if (_bleService != null) {
-          await _bleService!.sendStatusUpdate(request);
+          await _bleService.sendStatusUpdate(request);
+        } else if (_bleServerService != null) {
+          await _bleServerService.sendStatusUpdate(request);
         } else {
-          await _bleServerService!.sendStatusUpdate(request);
+          return false; // No service available
         }
         return true;
       } catch (e) {
@@ -305,15 +309,15 @@ class SyncService {
   ///
   /// Overwrites local delivered audit with authoritative state from Back Office
   Future<bool> _readFullQueueSync() async {
-    if (_frontDeskProvider == null) {
-      debugPrint('[Sync Service] No Front Desk provider available');
+    if (_frontDeskProvider == null || _bleService == null) {
+      debugPrint('[Sync Service] No Front Desk provider or BLE service available');
       return false;
     }
 
     debugPrint('[Sync Service] Step 3: Reading full queue sync');
 
     try {
-      final allRequests = await _bleService!.readFullQueueSync();
+      final allRequests = await _bleService.readFullQueueSync();
       debugPrint('[Sync Service] Received ${allRequests.length} requests from Back Office');
 
       // Filter for fulfilled requests (these go in Delivered Audit)
@@ -388,12 +392,12 @@ class SyncService {
   ///
   /// Called when user submits a new request via Front Desk UI
   Future<bool> sendNewRequest(PosterRequest request) async {
-    if (_frontDeskProvider == null) {
-      debugPrint('[Sync Service] No Front Desk provider available');
+    if (_frontDeskProvider == null || _bleService == null) {
+      debugPrint('[Sync Service] No Front Desk provider or BLE service available');
       return false;
     }
 
-    if (!_bleService!.isConnected) {
+    if (!_bleService.isConnected) {
       debugPrint('[Sync Service] Not connected - request will be queued');
       // Request is already saved with isSynced: false by FrontDeskProvider
       return true; // Return true because we successfully queued it
@@ -430,10 +434,10 @@ class SyncService {
     bool isConnected = false;
     if (_bleServerService != null) {
       // For Back Office, check if client is connected to server
-      isConnected = _bleServerService!.isClientConnected;
-    } else {
+      isConnected = _bleServerService.isClientConnected;
+    } else if (_bleService != null) {
       // For Front Desk, check if connected to server
-      isConnected = _bleService!.isConnected;
+      isConnected = _bleService.isConnected;
     }
 
     if (!isConnected) {
