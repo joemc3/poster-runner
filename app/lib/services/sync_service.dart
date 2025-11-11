@@ -6,6 +6,7 @@ import '../providers/ble_connection_provider.dart';
 import '../providers/front_desk_provider.dart';
 import '../providers/back_office_provider.dart';
 import 'ble_service.dart';
+import 'ble_server_service.dart';
 import 'persistence_service.dart';
 
 /// Sync Service
@@ -20,7 +21,8 @@ import 'persistence_service.dart';
 ///
 /// See: project_standards/Synchronization Protocol and Error Handling.md
 class SyncService {
-  final BleService _bleService;
+  final BleService? _bleService;
+  final BleServerService? _bleServerService;
   final BleConnectionProvider _connectionProvider;
   final PersistenceService _persistenceService;
 
@@ -35,32 +37,34 @@ class SyncService {
   static const Duration retryDelay = Duration(seconds: 2);
 
   SyncService({
-    required BleService bleService,
+    BleService? bleService,
+    BleServerService? bleServerService,
     required BleConnectionProvider connectionProvider,
     required PersistenceService persistenceService,
     FrontDeskProvider? frontDeskProvider,
     BackOfficeProvider? backOfficeProvider,
   })  : _bleService = bleService,
+        _bleServerService = bleServerService,
         _connectionProvider = connectionProvider,
         _persistenceService = persistenceService,
         _frontDeskProvider = frontDeskProvider,
         _backOfficeProvider = backOfficeProvider {
     // Validate role-specific providers
-    if (bleService.role == DeviceRole.frontDesk && frontDeskProvider == null) {
+    if (bleService != null && frontDeskProvider == null) {
       throw ArgumentError('Front Desk role requires FrontDeskProvider');
     }
-    if (bleService.role == DeviceRole.backOffice && backOfficeProvider == null) {
+    if (bleServerService != null && backOfficeProvider == null) {
       throw ArgumentError('Back Office role requires BackOfficeProvider');
     }
   }
 
   /// Start scanning for Back Office devices and connect when found
   void startScan() {
-    if (_bleService.role != DeviceRole.frontDesk) return;
+    if (_bleService == null) return; // Only Front Desk scans
 
     debugPrint('[Sync Service] Starting BLE scan...');
     _scanSubscription?.cancel();
-    _scanSubscription = _bleService.startScanning().listen(
+    _scanSubscription = _bleService!.startScanning().listen(
       (device) {
         if (device.name == 'PosterRunner-BO') {
           debugPrint('[Sync Service] Found Back Office device: ${device.id}');
@@ -76,8 +80,9 @@ class SyncService {
 
   /// Connect to a specific device
   Future<void> connectToDevice(String deviceId) async {
+    if (_bleService == null) return;
     debugPrint('[Sync Service] Attempting to connect to $deviceId');
-    await _bleService.connect(deviceId);
+    await _bleService!.connect(deviceId);
   }
 
   /// Execute the complete three-step reconnection handshake
@@ -89,7 +94,7 @@ class SyncService {
     debugPrint('[Sync Service] Starting three-step reconnection handshake');
 
     try {
-      if (_bleService.role == DeviceRole.frontDesk) {
+      if (_bleService != null) {
         return await _executeFrontDeskHandshake();
       } else {
         return await _executeBackOfficeHandshake();
@@ -207,7 +212,7 @@ class SyncService {
           await Future.delayed(const Duration(seconds: 2));
         }
         debugPrint('[Sync Service] Writing request ${request.uniqueId} (attempt $attempt/$maxRetries)');
-        await _bleService.writeRequest(request);
+        await _bleService!.writeRequest(request);
         return true;
       } catch (e) {
         debugPrint('[Sync Service] Write failed (attempt $attempt/$maxRetries): $e');
@@ -273,7 +278,11 @@ class SyncService {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         debugPrint('[Sync Service] Sending status update ${request.uniqueId} (attempt $attempt/$maxRetries)');
-        await _bleService.sendStatusUpdate(request);
+        if (_bleService != null) {
+          await _bleService!.sendStatusUpdate(request);
+        } else {
+          await _bleServerService!.sendStatusUpdate(request);
+        }
         return true;
       } catch (e) {
         debugPrint('[Sync Service] Send failed (attempt $attempt/$maxRetries): $e');
@@ -304,7 +313,7 @@ class SyncService {
     debugPrint('[Sync Service] Step 3: Reading full queue sync');
 
     try {
-      final allRequests = await _bleService.readFullQueueSync();
+      final allRequests = await _bleService!.readFullQueueSync();
       debugPrint('[Sync Service] Received ${allRequests.length} requests from Back Office');
 
       // Filter for fulfilled requests (these go in Delivered Audit)
@@ -384,7 +393,7 @@ class SyncService {
       return false;
     }
 
-    if (!_bleService.isConnected) {
+    if (!_bleService!.isConnected) {
       debugPrint('[Sync Service] Not connected - request will be queued');
       // Request is already saved with isSynced: false by FrontDeskProvider
       return true; // Return true because we successfully queued it
@@ -417,7 +426,17 @@ class SyncService {
       return false;
     }
 
-    if (!_bleService.isConnected) {
+    // Check connection based on service type
+    bool isConnected = false;
+    if (_bleServerService != null) {
+      // For Back Office, check if client is connected to server
+      isConnected = _bleServerService!.isClientConnected;
+    } else {
+      // For Front Desk, check if connected to server
+      isConnected = _bleService!.isConnected;
+    }
+
+    if (!isConnected) {
       debugPrint('[Sync Service] Not connected - status update will be queued');
       // Update is already saved with isSynced: false by BackOfficeProvider
       return true; // Return true because we successfully queued it

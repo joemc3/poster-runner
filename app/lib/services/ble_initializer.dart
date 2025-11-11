@@ -118,7 +118,7 @@ class BleInitializer {
 
       // Create sync service
       final syncService = SyncService(
-        bleService: BleService(role: DeviceRole.backOffice), // Placeholder for compatibility
+        bleServerService: bleServerService,
         connectionProvider: bleConnectionProvider,
         persistenceService: persistenceService,
         backOfficeProvider: backOfficeProvider,
