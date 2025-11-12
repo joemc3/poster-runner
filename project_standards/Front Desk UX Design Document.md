@@ -37,11 +37,21 @@ Code snippet
 |  [                               ]
 |  [    **A 4 5 7** ]
 |  [     (Large Input Field)      ]
+|  [     (No auto-focus)          ]
 |  [                               ]
 |                                 |
-|  [                              ]
-|  [        **SUBMIT** ]
-|  [                              ]
+|  +---+---+---+---+              |
+|  | A | B | C | D |              |
+|  +---+---+---+---+              |
+|  | 7 | 8 | 9 | - |              |
+|  +---+---+---+---+              |
+|  | 4 | 5 | 6 | E |              |
+|  +---+---+---+ N |              |
+|  | 1 | 2 | 3 | T |              |
+|  +---+---+---+ E |              |
+|  |     0     | R |              |
+|  +-----------+---+              |
+|    (Custom Keypad)              |
 |                                 |
 | **Status: SENT** (11:58 AM)     |
 | Last: A457 - Success.           |
@@ -55,8 +65,8 @@ Code snippet
 
 |**Element**|**Detail**|
 |---|---|
-|**Input Field**|Large, clear font. Accepts alphanumeric input. Clears automatically upon successful submission.|
-|**SUBMIT Button**|Large, high-visibility button. Triggered upon full entry, initiates BLE transmission.|
+|**Input Field**|Large, clear font. Displays entered characters. NO auto-focus (prevents mobile keyboard popup). Clears automatically upon successful submission.|
+|**Custom Keypad**|4x5 grid layout with buttons for A-D (row 1), 7-9 and dash (row 2), 4-6 and top of ENTER (row 3), 1-3 and middle of ENTER (row 4), 0 (wide) and bottom of ENTER (row 5). ENTER button spans 3 rows vertically. Each button appends its character to the input field. ENTER button triggers submission.|
 |**Status Bar**|Shows instant feedback: `SENT` (green check) or `FAILED` (red X). Includes the timestamp for the last action.|
 |**Navigation**|Bottom navigation bar for switching to the Delivered Audit tab.|
 

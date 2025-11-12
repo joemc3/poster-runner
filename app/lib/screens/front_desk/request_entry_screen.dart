@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/poster_request.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/front_desk_provider.dart';
+import '../../widgets/poster_entry_keypad.dart';
 
 /// Front Desk - Request Entry Screen (Tab 1)
 ///
@@ -32,6 +33,13 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
   void dispose() {
     _posterNumberController.dispose();
     super.dispose();
+  }
+
+  /// Handle keypad character press
+  ///
+  /// Appends the character to the text field.
+  void _handleCharacterPressed(String character) {
+    _posterNumberController.text += character;
   }
 
   /// Handle submit button press
@@ -116,7 +124,7 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                           children: [
                             TextField(
                               controller: _posterNumberController,
-                              autofocus: true,
+                              readOnly: true, // Prevent mobile keyboard from appearing
                               textAlign: TextAlign.center,
                               style: textTheme.displaySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
@@ -132,12 +140,17 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                               ),
-                              textCapitalization: TextCapitalization.characters,
-                              onSubmitted: (_) => _handleSubmit(),
                             ),
                           ],
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Custom keypad
+                    PosterEntryKeypad(
+                      onCharacterPressed: _handleCharacterPressed,
+                      onEnterPressed: _handleSubmit,
                     ),
                     const SizedBox(height: 24),
 
