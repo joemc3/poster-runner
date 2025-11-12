@@ -64,6 +64,15 @@ class BackOfficeProvider extends ChangeNotifier {
     return _persistenceService.getFulfilledCount();
   }
 
+  /// Get count of unsynced fulfilled requests
+  ///
+  /// Returns the number of fulfilled requests that haven't been transmitted
+  /// to Front Desk via BLE yet. Used for offline queue badge indicator.
+  int getUnsyncedFulfilledCount() {
+    final unsynced = _persistenceService.getUnsyncedFulfilledRequests();
+    return unsynced.length;
+  }
+
   /// Initialize Hive box listeners for real-time updates
   void _initializeListeners() {
     // Listen to fulfilled_requests box changes

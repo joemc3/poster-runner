@@ -35,12 +35,14 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 - Input becomes read-only during submission to prevent accidental entry
 - Instant transmission confirmation via BLE
 - Automatic local caching during connection issues
+- Offline queue badge showing count of pending sync requests
 
 **Delivery Audit**
 - Complete alphabetically-sorted list of fulfilled requests
 - Quick lookup for client verification
 - Persistent record of all completed pulls
 - Real-time BLE connection status indicator (color-coded icon)
+- Offline queue badge showing count of unsynced requests
 - Settings menu with "Clear All Delivered" and theme selection (Light/Dark/System)
 
 ### For Back Office Staff
@@ -50,6 +52,7 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 - Fair, first-come-first-served processing
 - One-tap fulfillment marking
 - Real-time BLE connection status indicator (color-coded icon)
+- Offline queue badge showing count of unsynced status updates
 
 **Fulfilled Log**
 - Shared view of completed requests
@@ -300,7 +303,7 @@ flutter build ios --release
 - User documentation and troubleshooting guides
 
 **Phase 9 - Post v1.0 Enhancements (Optional):**
-- Role persistence (save role selection across app restarts)
+- Role persistence and switching (save role selection across app restarts, single-device mode with local data transfer when changing roles)
 - Request history/audit trail with export capabilities
 - Multi-device support (multiple Front Desks → one Back Office)
 - Advanced sync features (manual sync, conflict resolution)
@@ -651,7 +654,7 @@ To complete the application, the following components need to be implemented:
    - User documentation and troubleshooting guides
 
 10. **Phase 10: Post v1.0 Enhancements** (Optional)
-   - Role persistence (save role selection across app restarts)
+   - Role persistence and switching (save role selection across app restarts, single-device mode with local data transfer when changing roles)
    - Request history/audit trail (searchable archive, CSV export, analytics)
    - Multi-device support (multiple Front Desks → one Back Office)
    - Advanced sync features (manual sync, conflict resolution UI, batch operations)

@@ -31,7 +31,7 @@ Code snippet
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
-| **NEW REQUEST**                 |
+| **NEW REQUEST** [🔄2 pending]   |
 | -----------------               |
 |                                 |
 |  [                               ]
@@ -65,6 +65,7 @@ Code snippet
 
 |**Element**|**Detail**|
 |---|---|
+|**Sync Badge**|Amber badge showing count of unsynced submitted requests (e.g., "🔄2 pending"). Appears next to header when items are waiting to sync via BLE. Auto-hides when count is 0 (all synced).|
 |**Input Field**|Large, clear font. Displays entered characters. NO auto-focus (prevents mobile keyboard popup on load). Accepts keyboard input (physical keyboard or tap to show mobile keyboard). Pressing Enter on keyboard submits the request. **Becomes read-only immediately when Enter is pressed** to prevent accidental entry during submission processing. Returns to editable state when submission completes and field is cleared.|
 |**Custom Keypad**|4x5 grid layout with buttons for A-D (row 1), 7-9 and dash (row 2), 4-6 and top of ENTER (row 3), 1-3 and middle of ENTER (row 4), 0 (wide) and bottom of ENTER (row 5). ENTER button spans 3 rows vertically. Each button appends its character to the input field when editable. ENTER button triggers submission.|
 |**Status Bar**|Shows instant feedback: `SENT` (green check) or `FAILED` (red X). Includes the timestamp for the last action.|

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/poster_request.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/back_office_provider.dart';
+import '../../widgets/sync_badge.dart';
 
 /// Back Office - Live Request Queue Screen (Tab 1)
 ///
@@ -67,7 +68,7 @@ class LiveQueueScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header with pending count
+                // Header with pending count and sync badge
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -93,6 +94,11 @@ class LiveQueueScreen extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      SyncBadge(
+                        count: backOfficeProvider.getUnsyncedFulfilledCount(),
+                        label: 'unsynced',
                       ),
                     ],
                   ),

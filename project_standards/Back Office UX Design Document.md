@@ -32,6 +32,7 @@ Code snippet
 |          (Header Bar)           |
 |                                 |
 | **ACTIVE QUEUE** (4 Pending)    |
+|                  [🔄1 unsynced] |
 | --------------------------------|
 |                                 |
 | 1. **C055** (10:50 AM) [ PULL ] |
@@ -53,6 +54,7 @@ Code snippet
 
 |**Element**|**Detail**|
 |---|---|
+|**Sync Badge**|Amber badge showing count of unsynced fulfilled requests (e.g., "🔄1 unsynced"). Appears next to pending count when status updates are waiting to sync to Front Desk via BLE. Auto-hides when count is 0 (all synced).|
 |**Queue Items**|Each row clearly shows the **Rank/Order**, **Poster Number (bold, large font)**, and **Time Received**.|
 |**PULL Button**|Large, high-visibility button. Tapping it marks the request as **Fulfilled/Pulled**, sends the status back via BLE, and removes the item from the queue.|
 |**Order**|Strictly **chronological**, sorted by the `timestamp_sent` (oldest requests at the top).|

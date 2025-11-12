@@ -30,6 +30,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **Phase 5 complete** - All BLE features implemented and tested successfully
 - ✅ **BLE status icons added** - Real-time connection status displayed in Front Desk and Back Office headers
 - ✅ **Clear All Delivered added** - Front Desk can now clear delivered audit history via settings menu
+- ✅ **Offline queue badges added** - Visual indicators show count of unsynced items in Front Desk and Back Office
 - ⚡ **Phase 6 in progress** - Essential UX feedback, comprehensive test coverage, and production readiness
 
 **What You Can Do Right Now:**
@@ -65,7 +66,7 @@ flutter run  # Run on two devices to see BLE communication in action!
 
 **Phase 6 - Essential UX Feedback (IN PROGRESS - High Priority - 1 week):**
 1. ✅ Connection Status Indicators (DONE - Real-time BLE status icons in Front Desk and Back Office home screens)
-2. 📋 Offline Queue Indicators (badge for unsynced requests)
+2. ✅ Offline Queue Indicators (DONE - Badge showing count of unsynced requests in both roles)
 3. 📋 Error Handling & User Feedback (better BLE error messages)
 4. ⚡ Settings Screen & Data Management (PARTIAL - "Clear All Delivered" for Front Desk DONE, About section and diagnostics TODO)
 
@@ -80,7 +81,7 @@ flutter run  # Run on two devices to see BLE communication in action!
 10. 📋 Documentation (user guide, troubleshooting, admin docs)
 
 **Phase 9 - Nice-to-Have Features (Optional - Post v1.0):**
-11. 📋 Role Persistence (save role selection across restarts)
+11. 📋 Role Persistence & Switching (save role selection across restarts, "Change Role" in settings, single-device mode with local data transfer: Front Desk unsynced requests → Back Office queue, Back Office unsynced fulfilled → Front Desk audit)
 12. 📋 Request History/Audit Trail (searchable archive, CSV export)
 13. 📋 Multi-Device Support (multiple Front Desks → one Back Office)
 14. 📋 Advanced Sync Features (manual sync, conflict resolution UI, batch operations)
@@ -125,7 +126,7 @@ flutter build apk
 ### Codebase Statistics
 - **Total Dart Files:** 26 files (~6,700 lines of code)
 - **Screens:** 7 complete screens
-- **Reusable Widgets:** 4 components
+- **Reusable Widgets:** 5 components
 - **Data Models:** 1 core model + 1 enum + generated Hive adapters + mock data generator
 - **Services:** 5 services (persistence, BLE client, BLE server, sync orchestration, BLE initializer)
 - **State Management:** 4 Provider models (Theme, BLE connection, Front Desk data, Back Office data)
@@ -152,7 +153,13 @@ flutter build apk
   - Color-coded Bluetooth icons in Front Desk and Back Office home screen headers
   - Shows connection state: Connected (green), Scanning/Connecting (amber), Disconnected (gray), Error (red)
   - Tooltip displays current status text on hover/tap
-- Reusable widgets (StatusBadge, RequestListItem, SearchBarWidget, PosterEntryKeypad)
+- Offline queue badge indicators
+  - Front Desk Request Entry: Badge showing count of unsynced submitted requests ("pending")
+  - Back Office Live Queue: Badge showing count of unsynced fulfilled requests ("unsynced")
+  - Amber/warning styling with sync icon for visibility
+  - Auto-hides when count is 0 (all items synced)
+  - Provides instant feedback during offline operation
+- Reusable widgets (StatusBadge, RequestListItem, SearchBarWidget, PosterEntryKeypad, SyncBadge)
 - All UX specifications from design documents implemented
 - Zero linting issues
 - Zero hardcoded colors, fonts, or theme values in implementation files
@@ -182,9 +189,9 @@ flutter build apk
 - `PersistenceService` class (`lib/services/persistence_service.dart`)
   - Manages 3 Hive boxes: fulfilled_requests, submitted_requests, delivered_audit
   - Write-immediately pattern for data safety
-  - Back Office methods: save/retrieve/delete fulfilled requests
+  - Back Office methods: save/retrieve/delete fulfilled requests + getUnsyncedFulfilledRequests()
   - Front Desk methods: save/retrieve/delete submitted requests and delivered audit
-  - Special method: getUnsyncedSubmittedRequests() for BLE sync
+  - Special methods: getUnsyncedSubmittedRequests() and getUnsyncedFulfilledRequests() for BLE sync
   - Real-time data change listeners via Hive streams
   - Initialized in main.dart on app startup
 - `ThemeProvider` manages additional Hive box: app_preferences
@@ -279,12 +286,12 @@ flutter build apk
 - ✅ **Persistence Integration** - All BLE-synced data persists to Hive correctly
 
 **Known Limitations (To Be Addressed in Phases 6-8):**
-- 📋 **Connection Status UI** - Bluetooth icons in screens need to show real connection state (Phase 6)
-- 📋 **Offline Queue UI** - No visual indicator for unsynced requests awaiting transmission (Phase 6)
-- 📋 **Front Desk Data Management** - No "Clear All Delivered" option in settings menu (Phase 6)
+- ✅ ~~**Connection Status UI**~~ - DONE (Real-time BLE status icons showing connection state)
+- ✅ ~~**Offline Queue UI**~~ - DONE (Badge indicators showing unsynced request counts)
+- ✅ ~~**Front Desk Data Management**~~ - DONE ("Clear All Delivered" option in settings menu)
 - 📋 **Comprehensive Test Coverage** - Only basic smoke test exists (Phase 7)
 - 📋 **Production Polish** - Missing app store assets, structured logging, user documentation (Phase 8)
-- 📋 **Role Persistence** - Role selection resets on app restart (Phase 9 - optional)
+- 📋 **Role Persistence & Single-Device Mode** - Role selection resets on app restart, no local data transfer when switching roles (Phase 9 - optional)
 
 **Current Behavior:**
 - **Back Office:** Full offline functionality + BLE server receives requests and sends status updates (✅ 100% WORKING)
@@ -398,7 +405,7 @@ To continue implementation, the recommended order is:
    - **Documentation:** User guide/quick start, troubleshooting for BLE issues, admin setup documentation
 
 10. **Nice-to-Have Features** 📋 (Phase 9 - Post v1.0)
-   - **Role Persistence:** Save role to Hive, skip selection on subsequent launches, "Change Role" in settings
+   - **Role Persistence & Switching:** Save role to Hive, skip selection on subsequent launches, "Change Role" in settings, single-device mode (transfer unsynced Front Desk requests to Back Office queue when switching roles, transfer unsynced Back Office fulfilled to Front Desk audit)
    - **Request History/Audit Trail:** Full history archive, searchable, CSV/PDF export, analytics
    - **Multi-Device Support:** Multiple Front Desks → one Back Office, device identification, device management UI
    - **Advanced Sync Features:** Manual "Sync Now" button, conflict resolution UI, batch operations, sync statistics
@@ -630,7 +637,8 @@ app/lib/
 │   ├── status_badge.dart              # Status indicator widget (✅ Complete)
 │   ├── request_list_item.dart         # List item widget (✅ Complete)
 │   ├── search_bar_widget.dart         # Search input widget (✅ Complete)
-│   └── poster_entry_keypad.dart       # Custom keypad for poster number entry (✅ Complete)
+│   ├── poster_entry_keypad.dart       # Custom keypad for poster number entry (✅ Complete)
+│   └── sync_badge.dart                # Offline queue badge indicator (✅ Complete)
 ├── providers/
 │   ├── theme_provider.dart            # Theme management (✅ Phase 3)
 │   ├── ble_connection_provider.dart   # BLE connection state (✅ Phase 4 - integrated with BLE)

@@ -192,6 +192,26 @@ class PersistenceService {
     return _fulfilledBox!.length;
   }
 
+  /// Get all unsynced fulfilled requests (Back Office)
+  ///
+  /// Returns only fulfilled requests where isSynced is false.
+  /// Used during reconnection to sync pending status updates to Front Desk.
+  ///
+  /// **Example:**
+  /// ```dart
+  /// final unsynced = persistenceService.getUnsyncedFulfilledRequests();
+  /// for (final request in unsynced) {
+  ///   // Transmit status update via BLE
+  /// }
+  /// ```
+  List<PosterRequest> getUnsyncedFulfilledRequests() {
+    if (_fulfilledBox == null) {
+      throw StateError('PersistenceService not initialized. Call initialize() first.');
+    }
+
+    return _fulfilledBox!.values.where((request) => !request.isSynced).toList();
+  }
+
   /// Listen to changes in the fulfilled requests box
   ///
   /// Returns a stream that emits BoxEvent whenever data changes.
