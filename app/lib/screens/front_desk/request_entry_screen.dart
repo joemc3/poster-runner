@@ -5,6 +5,7 @@ import '../../models/poster_request.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/front_desk_provider.dart';
 import '../../widgets/poster_entry_keypad.dart';
+import '../../widgets/sync_badge.dart';
 
 /// Front Desk - Request Entry Screen (Tab 1)
 ///
@@ -113,10 +114,19 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Section header
-                    Text(
-                      'NEW REQUEST',
-                      style: textTheme.headlineSmall,
+                    // Section header with sync badge
+                    Row(
+                      children: [
+                        Text(
+                          'NEW REQUEST',
+                          style: textTheme.headlineSmall,
+                        ),
+                        const SizedBox(width: 12),
+                        SyncBadge(
+                          count: frontDeskProvider.getUnsyncedCount(),
+                          label: 'pending',
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 24),
 
