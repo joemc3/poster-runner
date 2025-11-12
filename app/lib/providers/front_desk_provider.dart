@@ -207,6 +207,28 @@ class FrontDeskProvider extends ChangeNotifier {
     }
   }
 
+  /// Clear all delivered audit entries
+  ///
+  /// Called from settings menu when user wants to clear the delivered audit history.
+  /// Returns true if successful, false if an error occurred.
+  Future<bool> clearAllDeliveredAudit() async {
+    try {
+      await _persistenceService.clearAllDeliveredAudit();
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Error clearing delivered audit: $e');
+      return false;
+    }
+  }
+
+  /// Get count of delivered audit entries
+  ///
+  /// Used to show user how many entries will be cleared
+  int getDeliveredAuditCount() {
+    return _persistenceService.getDeliveredAuditCount();
+  }
+
   /// Note: syncUnsyncedRequests and performFullQueueSync are now handled
   /// automatically by SyncService during the three-step reconnection handshake.
   /// No manual intervention needed from this provider.

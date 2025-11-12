@@ -60,6 +60,10 @@ class BleInitializer {
       // Create BLE service (GATT Client)
       final bleService = BleService(role: DeviceRole.frontDesk);
 
+      // CRITICAL: Set up connection state change callback
+      // This ensures the UI updates when connection state changes
+      bleService.onConnectionStateChanged = bleConnectionProvider.handleConnectionStateChange;
+
       // Create sync service
       final syncService = SyncService(
         bleService: bleService,
@@ -136,8 +140,13 @@ class BleInitializer {
 
       // Start advertising
       await bleServerService.startAdvertising();
-      debugPrint('[BLE Initializer] Back Office advertising started');
 
+      // CRITICAL: Update connection provider status to show we're ready
+      // Back Office (server) shows as "connected" when advertising and ready to receive connections
+      // This updates the BLE status icon in the UI to green
+      bleConnectionProvider.setConnectedStatus();
+
+      debugPrint('[BLE Initializer] Back Office advertising started and status updated');
       debugPrint('[BLE Initializer] Back Office initialization complete');
     } catch (e) {
       debugPrint('[BLE Initializer] Failed to initialize Back Office: $e');

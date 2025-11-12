@@ -520,6 +520,23 @@ class PersistenceService {
     return _deliveredAuditBox!.watch();
   }
 
+  /// Clear all delivered audit entries (Front Desk)
+  ///
+  /// **WARNING:** This permanently deletes all delivered audit data.
+  /// Use with caution - typically only for admin functions or user-requested cleanup.
+  ///
+  /// **Example:**
+  /// ```dart
+  /// await persistenceService.clearAllDeliveredAudit();
+  /// ```
+  Future<void> clearAllDeliveredAudit() async {
+    if (_deliveredAuditBox == null) {
+      throw StateError('PersistenceService not initialized. Call initialize() first.');
+    }
+
+    await _deliveredAuditBox!.clear();
+  }
+
   /// Clear all Front Desk data
   ///
   /// **WARNING:** This permanently deletes all submitted requests and delivered audit data.

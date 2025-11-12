@@ -27,7 +27,7 @@ Code snippet
 
 ```
 +---------------------------------+
-| Poster Runner - Front Desk      |
+| Poster Runner - FD      [BLE]   |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
@@ -89,7 +89,7 @@ Code snippet
 
 ```
 +---------------------------------+
-| Poster Runner - Front Desk      |
+| Poster Runner - FD  [BLE] [⚙️]  |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
@@ -116,6 +116,8 @@ Code snippet
 
 |**Element**|**Detail**|
 |---|---|
+|**BLE Status Icon**|Shows real-time Bluetooth connection status in header: 🔵 Connected (green), 🔍 Scanning/Connecting (amber), ⚫ Disconnected (gray), ❌ Error (red). Tap for tooltip with status text.|
+|**Settings Menu (⚙️)**|Gear icon in header opens menu with: "Clear All Delivered" (removes all delivered audit entries with confirmation dialog) and "Theme" (Light/Dark/System mode selection).|
 |**Search Bar**|Allows users to type in a poster number (e.g., 'B2') to instantly filter the list.|
 |**Poster List**|Shows the **Poster Number (bold)** and the **Time Pulled/Fulfilled**.|
 |**Sort Order**|Permanently sorted **alphabetically/numerically by Poster Number**.|
