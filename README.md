@@ -303,7 +303,7 @@ flutter build ios --release
 - User documentation and troubleshooting guides
 
 **Phase 9 - Post v1.0 Enhancements (Optional):**
-- Role persistence (save role selection across app restarts)
+- Role persistence and switching (save role selection across app restarts, single-device mode with local data transfer when changing roles)
 - Request history/audit trail with export capabilities
 - Multi-device support (multiple Front Desks → one Back Office)
 - Advanced sync features (manual sync, conflict resolution)
@@ -654,7 +654,7 @@ To complete the application, the following components need to be implemented:
    - User documentation and troubleshooting guides
 
 10. **Phase 10: Post v1.0 Enhancements** (Optional)
-   - Role persistence (save role selection across app restarts)
+   - Role persistence and switching (save role selection across app restarts, single-device mode with local data transfer when changing roles)
    - Request history/audit trail (searchable archive, CSV export, analytics)
    - Multi-device support (multiple Front Desks → one Back Office)
    - Advanced sync features (manual sync, conflict resolution UI, batch operations)

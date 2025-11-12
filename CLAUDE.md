@@ -81,7 +81,7 @@ flutter run  # Run on two devices to see BLE communication in action!
 10. 📋 Documentation (user guide, troubleshooting, admin docs)
 
 **Phase 9 - Nice-to-Have Features (Optional - Post v1.0):**
-11. 📋 Role Persistence (save role selection across restarts)
+11. 📋 Role Persistence & Switching (save role selection across restarts, "Change Role" in settings, single-device mode with local data transfer: Front Desk unsynced requests → Back Office queue, Back Office unsynced fulfilled → Front Desk audit)
 12. 📋 Request History/Audit Trail (searchable archive, CSV export)
 13. 📋 Multi-Device Support (multiple Front Desks → one Back Office)
 14. 📋 Advanced Sync Features (manual sync, conflict resolution UI, batch operations)
@@ -291,7 +291,7 @@ flutter build apk
 - ✅ ~~**Front Desk Data Management**~~ - DONE ("Clear All Delivered" option in settings menu)
 - 📋 **Comprehensive Test Coverage** - Only basic smoke test exists (Phase 7)
 - 📋 **Production Polish** - Missing app store assets, structured logging, user documentation (Phase 8)
-- 📋 **Role Persistence** - Role selection resets on app restart (Phase 9 - optional)
+- 📋 **Role Persistence & Single-Device Mode** - Role selection resets on app restart, no local data transfer when switching roles (Phase 9 - optional)
 
 **Current Behavior:**
 - **Back Office:** Full offline functionality + BLE server receives requests and sends status updates (✅ 100% WORKING)
@@ -405,7 +405,7 @@ To continue implementation, the recommended order is:
    - **Documentation:** User guide/quick start, troubleshooting for BLE issues, admin setup documentation
 
 10. **Nice-to-Have Features** 📋 (Phase 9 - Post v1.0)
-   - **Role Persistence:** Save role to Hive, skip selection on subsequent launches, "Change Role" in settings
+   - **Role Persistence & Switching:** Save role to Hive, skip selection on subsequent launches, "Change Role" in settings, single-device mode (transfer unsynced Front Desk requests to Back Office queue when switching roles, transfer unsynced Back Office fulfilled to Front Desk audit)
    - **Request History/Audit Trail:** Full history archive, searchable, CSV/PDF export, analytics
    - **Multi-Device Support:** Multiple Front Desks → one Back Office, device identification, device management UI
    - **Advanced Sync Features:** Manual "Sync Now" button, conflict resolution UI, batch operations, sync statistics
