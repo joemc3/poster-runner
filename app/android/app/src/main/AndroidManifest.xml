@@ -14,7 +14,7 @@
                      android:maxSdkVersion="30" />
 
     <application
-        android:label="app"
+        android:label="PRunner"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
