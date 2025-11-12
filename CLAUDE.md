@@ -145,9 +145,13 @@ flutter build apk
   - All UI components derive styling from theme (zero hardcoded values)
   - User-selectable theme modes: Light, Dark, System (follows device settings)
   - Theme preference persists to Hive and restores on app startup
-- Settings menus with theme selection
-  - Front Desk Delivered Audit: Gear icon menu with theme selection
+- Settings menus with data management and theme selection
+  - Front Desk Delivered Audit: Gear icon menu with "Clear All Delivered" and theme selection
   - Back Office Fulfilled Log: Gear icon menu with "Clear All Fulfilled" and theme selection
+- Real-time BLE connection status icons
+  - Color-coded Bluetooth icons in Front Desk and Back Office home screen headers
+  - Shows connection state: Connected (green), Scanning/Connecting (amber), Disconnected (gray), Error (red)
+  - Tooltip displays current status text on hover/tap
 - Reusable widgets (StatusBadge, RequestListItem, SearchBarWidget, PosterEntryKeypad)
 - All UX specifications from design documents implemented
 - Zero linting issues

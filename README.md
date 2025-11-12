@@ -39,7 +39,8 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 - Complete alphabetically-sorted list of fulfilled requests
 - Quick lookup for client verification
 - Persistent record of all completed pulls
-- Settings menu with theme selection (Light/Dark/System)
+- Real-time BLE connection status indicator (color-coded icon)
+- Settings menu with "Clear All Delivered" and theme selection (Light/Dark/System)
 
 ### For Back Office Staff
 
@@ -47,12 +48,14 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 - Chronologically ordered list of unfulfilled requests
 - Fair, first-come-first-served processing
 - One-tap fulfillment marking
+- Real-time BLE connection status indicator (color-coded icon)
 
 **Fulfilled Log**
 - Shared view of completed requests
 - Alphabetically sorted for easy reference
 - Synchronized with Front Desk records
-- Settings menu with "Clear All" functionality and theme selection
+- Real-time BLE connection status indicator (color-coded icon)
+- Settings menu with "Clear All Fulfilled" and theme selection
 - Theme modes: Light, Dark, System (follows device settings)
 - Persistent storage management with theme preference saved
 
@@ -223,8 +226,10 @@ flutter build ios --release
 
 ## Current Implementation Status
 
-### ✅ Completed (Phase 5 - Full BLE Working!)
+### ✅ Completed (Phase 5 - Full BLE Working! + Phase 6 Started)
 - **UI Layer**: All screens and components fully implemented with real persistence
+- **Connection Status Indicators**: Real-time BLE status icons in Front Desk and Back Office headers (Phase 6.1 ✅)
+- **Data Management**: "Clear All Delivered" option added to Front Desk settings menu (Phase 6.4 partial ✅)
 - **High-Contrast Theme System**: Complete light/dark mode support
   - Pure white backgrounds (#FFFFFF) with true black text (#000000)
   - WCAG AAA compliant (7:1+ contrast ratios) throughout
@@ -277,11 +282,11 @@ flutter build ios --release
 
 ### 📋 Next Phases (Phases 6-9)
 
-**Phase 6 - Essential UX Feedback (1 week):**
-- Connection status indicators showing real-time BLE state
-- Visual indicators for unsynced offline requests
-- Better error handling and user feedback for BLE operations
-- Settings screen improvements (About, diagnostics, "Clear All Delivered" for Front Desk)
+**Phase 6 - Essential UX Feedback (IN PROGRESS - 1 week):**
+- ✅ Connection status indicators showing real-time BLE state (DONE - color-coded icons in app headers)
+- 📋 Visual indicators for unsynced offline requests (TODO - badge showing count)
+- 📋 Better error handling and user feedback for BLE operations (TODO - improved error messages)
+- ⚡ Settings screen improvements (PARTIAL - "Clear All Delivered" for Front Desk DONE, About/diagnostics TODO)
 
 **Phase 7 - Testing & QA (2-3 weeks):**
 - Comprehensive unit tests (60%+ coverage target)
@@ -627,11 +632,11 @@ To complete the application, the following components need to be implemented:
    - ✅ Tested offline mode and automatic reconnection sync
    - ✅ Confirmed persistence integration with BLE sync
 
-7. **Phase 7: Essential UX Feedback** 📋 NEXT (1 week)
-   - Connection status indicators (show real BLE state in UI)
-   - Offline queue indicators (badge for unsynced requests)
-   - Error handling & user feedback (better BLE error messages)
-   - Settings screen improvements (About, diagnostics, "Clear All Delivered" for Front Desk)
+7. **Phase 6: Essential UX Feedback** ⚡ IN PROGRESS (1 week)
+   - ✅ Connection status indicators (DONE - Real-time BLE status icons with color coding)
+   - 📋 Offline queue indicators (TODO - Badge showing count of unsynced requests)
+   - 📋 Error handling & user feedback (TODO - Better BLE error messages)
+   - ⚡ Settings screen improvements (PARTIAL - "Clear All Delivered" for Front Desk DONE, About/diagnostics TODO)
 
 8. **Phase 8: Testing & Quality Assurance** (2-3 weeks)
    - Unit tests for BLE services, providers, and persistence (60%+ coverage)
