@@ -59,7 +59,7 @@ class BleConnectionProvider extends ChangeNotifier {
   BleConnectionProvider({BleService? bleService}) : _bleService = bleService {
     if (_bleService != null) {
       // Set up connection state change callback
-      _bleService.onConnectionStateChanged = _handleConnectionStateChange;
+      _bleService.onConnectionStateChanged = handleConnectionStateChange;
     }
   }
 
@@ -189,7 +189,7 @@ class BleConnectionProvider extends ChangeNotifier {
       // Initiate connection
       await _bleService.connect(deviceId);
 
-      // Connection state changes will be handled by _handleConnectionStateChange callback
+      // Connection state changes will be handled by handleConnectionStateChange callback
     } catch (e) {
       debugPrint('[BLE Connection Provider] Connection failed: $e');
       setError('Connection failed: $e');
@@ -213,7 +213,10 @@ class BleConnectionProvider extends ChangeNotifier {
   }
 
   /// Handle connection state changes from BLE service
-  void _handleConnectionStateChange(ConnectionStateUpdate update) {
+  ///
+  /// This is called by BLE services when connection state changes
+  /// (e.g., connecting, connected, disconnected)
+  void handleConnectionStateChange(ConnectionStateUpdate update) {
     debugPrint('[BLE Connection Provider] Connection state: ${update.connectionState}');
 
     switch (update.connectionState) {
@@ -289,6 +292,13 @@ class BleConnectionProvider extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
     }
+  }
+
+  /// Set status to connected (used by Back Office when advertising starts)
+  void setConnectedStatus() {
+    _status = BleConnectionStatus.connected;
+    _errorMessage = null;
+    notifyListeners();
   }
 
   /// Attempt to reconnect after disconnection
