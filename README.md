@@ -30,7 +30,8 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 ### For Front Desk Staff
 
 **Request Entry**
-- Single-field input for rapid poster number entry
+- Custom entry keypad with A-D, 0-9, dash, and ENTER button for rapid input
+- Single-field input accepts keypad or keyboard entry (no auto-focus to prevent unwanted keyboard popup)
 - Instant transmission confirmation via BLE
 - Automatic local caching during connection issues
 
@@ -521,7 +522,8 @@ app/lib/
 ├── widgets/
 │   ├── status_badge.dart              # Status indicator widget (✅ Complete)
 │   ├── request_list_item.dart         # List item widget (✅ Complete)
-│   └── search_bar_widget.dart         # Search input widget (✅ Complete)
+│   ├── search_bar_widget.dart         # Search input widget (✅ Complete)
+│   └── poster_entry_keypad.dart       # Custom keypad for poster number entry (✅ Complete)
 ├── screens/
 │   ├── role_selection_screen.dart     # Role selection (✅ Complete)
 │   ├── front_desk/
