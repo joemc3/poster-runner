@@ -32,6 +32,7 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 **Request Entry**
 - Custom entry keypad with A-D, 0-9, dash, and ENTER button for rapid input
 - Single-field input accepts keypad or keyboard entry (no auto-focus to prevent unwanted keyboard popup)
+- Input becomes read-only during submission to prevent accidental entry
 - Instant transmission confirmation via BLE
 - Automatic local caching during connection issues
 

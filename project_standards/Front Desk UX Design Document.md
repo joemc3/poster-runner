@@ -27,7 +27,7 @@ Code snippet
 
 ```
 +---------------------------------+
-| Poster Runner - FD      [BLE]   |
+| Front Desk              [BLE]   |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
@@ -89,7 +89,7 @@ Code snippet
 
 ```
 +---------------------------------+
-| Poster Runner - FD  [BLE] [⚙️]  |
+| Front Desk          [BLE] [⚙️]  |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
