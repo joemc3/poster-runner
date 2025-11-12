@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'request_entry_screen.dart';
 import 'delivered_audit_screen.dart';
 import '../../providers/ble_connection_provider.dart';
+import '../../theme/app_theme.dart';
 
 /// Front Desk Home Screen
 /// Provides bottom navigation between Request Entry and Delivered Audit tabs

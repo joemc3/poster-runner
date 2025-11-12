@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'live_queue_screen.dart';
 import 'fulfilled_log_screen.dart';
 import '../../providers/ble_connection_provider.dart';
+import '../../theme/app_theme.dart';
 
 /// Back Office Home Screen
 /// Provides bottom navigation between Live Queue and Fulfilled Log tabs
