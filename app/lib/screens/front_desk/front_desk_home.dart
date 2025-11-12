@@ -76,7 +76,7 @@ class _FrontDeskHomeState extends State<FrontDeskHome> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Poster Runner - Front Desk'),
+            title: const Text('Front Desk'),
             actions: [
               IconButton(
                 icon: Icon(_getBluetoothIcon(status)),

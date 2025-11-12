@@ -27,7 +27,7 @@ Code snippet
 
 ```
 +---------------------------------+
-| Poster Runner - BO      [BLE]   |
+| Back Office             [BLE]   |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
@@ -75,7 +75,7 @@ Code snippet
 
 ```
 +---------------------------------+
-| Poster Runner - BO  [BLE] [⚙️]  |
+| Back Office         [BLE] [⚙️]  |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |

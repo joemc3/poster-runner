@@ -76,7 +76,7 @@ class _BackOfficeHomeState extends State<BackOfficeHome> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Poster Runner - Back Office'),
+            title: const Text('Back Office'),
             actions: [
               IconButton(
                 icon: Icon(_getBluetoothIcon(status)),
