@@ -61,6 +61,79 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
     });
   }
 
+  /// Show confirmation dialog before clearing all delivered audit entries
+  void _showClearAllConfirmation(FrontDeskProvider provider) {
+    final count = provider.getDeliveredAuditCount();
+
+    if (count == 0) {
+      // No entries to clear
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No delivered posters to clear'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Clear All Delivered Posters?'),
+          content: Text(
+            'This will permanently delete all $count delivered poster(s) from the audit log.\n\nThis action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close dialog
+                await _clearAllDeliveredAudit(provider);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('Clear All'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Clear all delivered audit entries using provider
+  Future<void> _clearAllDeliveredAudit(FrontDeskProvider provider) async {
+    final success = await provider.clearAllDeliveredAudit();
+
+    if (!mounted) return;
+
+    if (success) {
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('All delivered posters cleared successfully'),
+          backgroundColor: Theme.of(context).colorScheme.success,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Error clearing delivered posters'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   /// Show theme selection dialog
   void _showThemeDialog(ThemeProvider themeProvider) {
     showDialog(
@@ -160,11 +233,23 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
               PopupMenuButton<String>(
                 icon: const Icon(Icons.settings),
                 onSelected: (value) {
-                  if (value == 'theme') {
+                  if (value == 'clear_all') {
+                    _showClearAllConfirmation(frontDeskProvider);
+                  } else if (value == 'theme') {
                     _showThemeDialog(themeProvider);
                   }
                 },
                 itemBuilder: (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'clear_all',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_sweep, size: 20),
+                        SizedBox(width: 8),
+                        Text('Clear All Delivered'),
+                      ],
+                    ),
+                  ),
                   const PopupMenuItem<String>(
                     value: 'theme',
                     child: Row(
