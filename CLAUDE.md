@@ -28,7 +28,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **Mock data removed** - App starts with clean slate, only real BLE data
 - ✅ **Full BLE communication working** - Bidirectional communication tested and confirmed on real devices
 - ✅ **Phase 5 complete** - All BLE features implemented and tested successfully
-- 📋 **Next steps** - Essential UX feedback, comprehensive test coverage, and production readiness
+- ✅ **BLE status icons added** - Real-time connection status displayed in Front Desk and Back Office headers
+- ✅ **Clear All Delivered added** - Front Desk can now clear delivered audit history via settings menu
+- ⚡ **Phase 6 in progress** - Essential UX feedback, comprehensive test coverage, and production readiness
 
 **What You Can Do Right Now:**
 ```bash
@@ -36,9 +38,11 @@ cd app
 flutter pub get
 flutter run  # Run on two devices to see BLE communication in action!
 # Front Desk (Device 1): Submit poster requests - they send via BLE to Back Office!
+# Front Desk: Watch the BLE status icon in header change color (green=connected, amber=scanning, gray=disconnected)
 # Front Desk: Delivered Audit automatically updates when Back Office marks requests as fulfilled
-# Front Desk: Use the settings menu (gear icon) to change theme (Light/Dark/System)
+# Front Desk: Use the settings menu (gear icon) to clear all delivered posters or change theme (Light/Dark/System)
 # Back Office (Device 2): Receives requests in real-time via BLE
+# Back Office: Watch the BLE status icon show connection state in real-time
 # Back Office: Pull a poster - status updates automatically sent to Front Desk via BLE!
 # Back Office: Use the settings menu (gear icon) to clear all fulfilled requests or change theme
 # All screens use Provider for centralized state management
@@ -59,11 +63,11 @@ flutter run  # Run on two devices to see BLE communication in action!
 10. ✅ ~~Remove mock data~~ (DONE - app starts with clean state)
 11. ✅ ~~Debug and test BLE communication~~ (DONE - Full bidirectional sync working on real devices)
 
-**Phase 6 - Essential UX Feedback (High Priority - 1 week):**
-1. 📋 Connection Status Indicators (show real BLE state in UI)
+**Phase 6 - Essential UX Feedback (IN PROGRESS - High Priority - 1 week):**
+1. ✅ Connection Status Indicators (DONE - Real-time BLE status icons in Front Desk and Back Office home screens)
 2. 📋 Offline Queue Indicators (badge for unsynced requests)
 3. 📋 Error Handling & User Feedback (better BLE error messages)
-4. 📋 Settings Screen & Data Management (About section, diagnostics, "Clear All Delivered" for Front Desk)
+4. ⚡ Settings Screen & Data Management (PARTIAL - "Clear All Delivered" for Front Desk DONE, About section and diagnostics TODO)
 
 **Phase 7 - Testing & QA (Critical - 2-3 weeks):**
 5. 📋 Unit Tests (PosterRequest, Providers, Services - target 60%+ coverage)

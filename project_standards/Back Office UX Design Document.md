@@ -27,7 +27,7 @@ Code snippet
 
 ```
 +---------------------------------+
-| Poster Runner - Back Office     |
+| Poster Runner - BO      [BLE]   |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
@@ -75,7 +75,7 @@ Code snippet
 
 ```
 +---------------------------------+
-| Poster Runner - Back Office     |
+| Poster Runner - BO  [BLE] [⚙️]  |
 |---------------------------------|
 |          (Header Bar)           |
 |                                 |
@@ -101,6 +101,8 @@ Code snippet
 
 |**Element**|**Detail**|
 |---|---|
+|**BLE Status Icon**|Shows real-time Bluetooth connection status in header: 🔵 Connected (green), 🔍 Scanning/Connecting (amber), ⚫ Disconnected (gray), ❌ Error (red). Tap for tooltip with status text.|
+|**Settings Menu (⚙️)**|Gear icon in header opens menu with: "Clear All Fulfilled" (removes all fulfilled log entries with confirmation dialog) and "Theme" (Light/Dark/System mode selection).|
 |**Search Bar**|Essential for filtering a large log of fulfilled items.|
 |**Poster List**|Shows **Poster Number (bold)**, **Time Sent**, and **Time Pulled** for a complete audit trail.|
 |**Sort Order**|Permanently sorted **alphabetically/numerically by Poster Number**.|
