@@ -28,7 +28,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **Mock data removed** - App starts with clean slate, only real BLE data
 - ✅ **Full BLE communication working** - Bidirectional communication tested and confirmed on real devices
 - ✅ **Phase 5 complete** - All BLE features implemented and tested successfully
-- 📋 **Next steps** - Add role persistence and comprehensive test coverage
+- 📋 **Next steps** - Essential UX feedback, comprehensive test coverage, and production readiness
 
 **What You Can Do Right Now:**
 ```bash
@@ -59,11 +59,27 @@ flutter run  # Run on two devices to see BLE communication in action!
 10. ✅ ~~Remove mock data~~ (DONE - app starts with clean state)
 11. ✅ ~~Debug and test BLE communication~~ (DONE - Full bidirectional sync working on real devices)
 
-**Phase 6 - Future Enhancements:**
-1. 📋 Add role persistence (currently resets on app restart)
-2. 📋 Add comprehensive test coverage
-3. 📋 Add connection status UI indicators
-4. 📋 Implement offline queue management UI
+**Phase 6 - Essential UX Feedback (High Priority - 1 week):**
+1. 📋 Connection Status Indicators (show real BLE state in UI)
+2. 📋 Offline Queue Indicators (badge for unsynced requests)
+3. 📋 Error Handling & User Feedback (better BLE error messages)
+4. 📋 Settings Screen & Data Management (About section, diagnostics, "Clear All Delivered" for Front Desk)
+
+**Phase 7 - Testing & QA (Critical - 2-3 weeks):**
+5. 📋 Unit Tests (PosterRequest, Providers, Services - target 60%+ coverage)
+6. 📋 Widget Tests (all 7 screens, components, theme switching)
+7. 📋 Integration Tests (full BLE sync, offline scenarios, data integrity)
+
+**Phase 8 - Production Readiness (Important - 1 week):**
+8. 📋 App Store Preparation (icons, screenshots, metadata)
+9. 📋 Logging & Diagnostics (structured logging, error reporting)
+10. 📋 Documentation (user guide, troubleshooting, admin docs)
+
+**Phase 9 - Nice-to-Have Features (Optional - Post v1.0):**
+11. 📋 Role Persistence (save role selection across restarts)
+12. 📋 Request History/Audit Trail (searchable archive, CSV export)
+13. 📋 Multi-Device Support (multiple Front Desks → one Back Office)
+14. 📋 Advanced Sync Features (manual sync, conflict resolution UI, batch operations)
 
 ## Essential Commands
 
@@ -254,11 +270,13 @@ flutter build apk
 - ✅ **Status Updates** - Fulfilled requests automatically appear in Front Desk Delivered Audit
 - ✅ **Persistence Integration** - All BLE-synced data persists to Hive correctly
 
-**Known Limitations (To Be Addressed in Phase 6):**
-- 📋 **Role Persistence** - Role selection resets on app restart (needs Hive storage)
-- 📋 **Connection Status UI** - Bluetooth icons in screens need to show real connection state
-- 📋 **Offline Queue UI** - No visual indicator for unsynced requests awaiting transmission
-- 📋 **Comprehensive Test Coverage** - Only basic smoke test exists
+**Known Limitations (To Be Addressed in Phases 6-8):**
+- 📋 **Connection Status UI** - Bluetooth icons in screens need to show real connection state (Phase 6)
+- 📋 **Offline Queue UI** - No visual indicator for unsynced requests awaiting transmission (Phase 6)
+- 📋 **Front Desk Data Management** - No "Clear All Delivered" option in settings menu (Phase 6)
+- 📋 **Comprehensive Test Coverage** - Only basic smoke test exists (Phase 7)
+- 📋 **Production Polish** - Missing app store assets, structured logging, user documentation (Phase 8)
+- 📋 **Role Persistence** - Role selection resets on app restart (Phase 9 - optional)
 
 **Current Behavior:**
 - **Back Office:** Full offline functionality + BLE server receives requests and sends status updates (✅ 100% WORKING)
@@ -355,14 +373,27 @@ To continue implementation, the recommended order is:
    - ✅ Confirmed Front Desk → Back Office communication
    - ✅ Confirmed Back Office → Front Desk status updates
 
-7. **Future Enhancements** 📋 NEXT (Phase 6)
-   - Add role persistence to remember selection across app restarts
-   - Add connection status indicators in UI
-   - Add visual indicators for unsynced offline requests
-   - Implement comprehensive test coverage
-   - Add unit tests for providers and services
-   - Add widget tests for all screens
-   - Add integration tests for BLE sync scenarios
+7. **Essential UX Feedback** 📋 NEXT (Phase 6 - 1 week)
+   - **Connection Status Indicators:** Show real BLE connection state in UI (disconnected/scanning/connecting/connected), visual feedback during sync, error states, connection badge in app bar
+   - **Offline Queue Indicators:** Badge showing count of unsynced requests, visual indicator when offline, sync progress feedback, "Last synced" timestamp
+   - **Error Handling & User Feedback:** Better error messages for BLE failures, graceful edge case handling, user-friendly permission flows, toast/snackbar notifications
+   - **Settings Screen & Data Management:** About section (version, licenses), Bluetooth diagnostics page, add "Clear All Delivered" to Front Desk menu
+
+8. **Testing & Quality Assurance** 📋 (Phase 7 - 2-3 weeks)
+   - **Unit Tests:** PosterRequest serialization, Provider logic, PersistenceService, BLE services (mocked) - Target 60%+ coverage
+   - **Widget Tests:** All 7 screens render correctly, StatusBadge colors, search/filter, theme switching, form validation
+   - **Integration Tests:** Full BLE sync scenarios, offline→reconnect→sync flow, concurrent updates, data integrity across restarts, stress testing
+
+9. **Production Readiness** 📋 (Phase 8 - 1 week)
+   - **App Store Preparation:** App icons for all sizes, splash screens, store screenshots, descriptions and metadata, privacy policy
+   - **Logging & Diagnostics:** Structured logging for troubleshooting, BLE connection diagnostics, optional error reporting (Sentry/Crashlytics), performance monitoring
+   - **Documentation:** User guide/quick start, troubleshooting for BLE issues, admin setup documentation
+
+10. **Nice-to-Have Features** 📋 (Phase 9 - Post v1.0)
+   - **Role Persistence:** Save role to Hive, skip selection on subsequent launches, "Change Role" in settings
+   - **Request History/Audit Trail:** Full history archive, searchable, CSV/PDF export, analytics
+   - **Multi-Device Support:** Multiple Front Desks → one Back Office, device identification, device management UI
+   - **Advanced Sync Features:** Manual "Sync Now" button, conflict resolution UI, batch operations, sync statistics
 
 ## Architecture Overview
 

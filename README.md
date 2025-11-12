@@ -275,11 +275,29 @@ flutter build ios --release
 - Bidirectional sync with persistence integration ✅ WORKING
 - Offline-first with automatic reconnection sync ✅ WORKING
 
-### 📋 Future Enhancements (Phase 6)
-- Role persistence (currently role selection resets on app restart)
-- Connection status UI indicators showing real-time BLE state
+### 📋 Next Phases (Phases 6-9)
+
+**Phase 6 - Essential UX Feedback (1 week):**
+- Connection status indicators showing real-time BLE state
 - Visual indicators for unsynced offline requests
-- Comprehensive test coverage (unit, widget, integration tests)
+- Better error handling and user feedback for BLE operations
+- Settings screen improvements (About, diagnostics, "Clear All Delivered" for Front Desk)
+
+**Phase 7 - Testing & QA (2-3 weeks):**
+- Comprehensive unit tests (60%+ coverage target)
+- Widget tests for all screens and components
+- Integration tests for BLE sync scenarios
+
+**Phase 8 - Production Readiness (1 week):**
+- App store preparation (icons, screenshots, metadata)
+- Structured logging and diagnostics
+- User documentation and troubleshooting guides
+
+**Phase 9 - Post v1.0 Enhancements (Optional):**
+- Role persistence (save role selection across app restarts)
+- Request history/audit trail with export capabilities
+- Multi-device support (multiple Front Desks → one Back Office)
+- Advanced sync features (manual sync, conflict resolution)
 
 ### How to Setup and Test BLE Synchronization
 
@@ -609,18 +627,28 @@ To complete the application, the following components need to be implemented:
    - ✅ Tested offline mode and automatic reconnection sync
    - ✅ Confirmed persistence integration with BLE sync
 
-7. **Phase 7: Future Enhancements** 📋 NEXT
-   - Add role persistence to Hive (remember role across app restarts)
-   - Add connection status UI indicators (show real-time BLE state)
-   - Add visual indicators for unsynced offline requests
-   - Implement reconnection UI feedback (show sync progress)
+7. **Phase 7: Essential UX Feedback** 📋 NEXT (1 week)
+   - Connection status indicators (show real BLE state in UI)
+   - Offline queue indicators (badge for unsynced requests)
+   - Error handling & user feedback (better BLE error messages)
+   - Settings screen improvements (About, diagnostics, "Clear All Delivered" for Front Desk)
 
-8. **Phase 8: Testing & Polish**
-   - Unit tests for BLE services and sync logic
-   - Unit tests for serialization and persistence
-   - Widget tests for all screens
-   - Integration tests for sync scenarios
+8. **Phase 8: Testing & Quality Assurance** (2-3 weeks)
+   - Unit tests for BLE services, providers, and persistence (60%+ coverage)
+   - Widget tests for all 7 screens and components
+   - Integration tests for full BLE sync scenarios
    - Performance testing and optimization
+
+9. **Phase 9: Production Readiness** (1 week)
+   - App store preparation (icons, screenshots, metadata, privacy policy)
+   - Structured logging and diagnostics
+   - User documentation and troubleshooting guides
+
+10. **Phase 10: Post v1.0 Enhancements** (Optional)
+   - Role persistence (save role selection across app restarts)
+   - Request history/audit trail (searchable archive, CSV export, analytics)
+   - Multi-device support (multiple Front Desks → one Back Office)
+   - Advanced sync features (manual sync, conflict resolution UI, batch operations)
 
 See `CLAUDE.md` for detailed architecture and implementation guidance.
 
