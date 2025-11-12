@@ -11,13 +11,14 @@ import '../../widgets/poster_entry_keypad.dart';
 /// Purpose: Fast poster number entry and submission
 ///
 /// Key Features:
-/// - Large input field for poster number entry
-/// - Large, accessible submit button (56dp height)
+/// - Large input field for poster number entry (becomes read-only during submission)
+/// - Custom keypad with ENTER button for submission
+/// - Keyboard Enter key also triggers submission
 /// - Status feedback area showing last submission result
 /// - Auto-clear input on successful submission
 ///
 /// Phase 3 Status: IMPLEMENTED - Uses FrontDeskProvider for state management
-/// Phase 4 TODO: Connect to BLE service for transmission to Back Office
+/// Phase 5 Status: COMPLETE - Connected to BLE service for transmission to Back Office
 
 class RequestEntryScreen extends StatefulWidget {
   const RequestEntryScreen({super.key});
@@ -37,9 +38,14 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
 
   /// Handle keypad character press
   ///
-  /// Appends the character to the text field.
+  /// Appends the character to the text field if not currently submitting.
   void _handleCharacterPressed(String character) {
-    _posterNumberController.text += character;
+    final frontDeskProvider = Provider.of<FrontDeskProvider>(context, listen: false);
+
+    // Prevent input during submission
+    if (!frontDeskProvider.isSubmitting) {
+      _posterNumberController.text += character;
+    }
   }
 
   /// Handle submit button press
@@ -124,6 +130,7 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                           children: [
                             TextField(
                               controller: _posterNumberController,
+                              readOnly: frontDeskProvider.isSubmitting, // Prevent input during submission
                               textAlign: TextAlign.center,
                               style: textTheme.displaySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
@@ -152,27 +159,6 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                     PosterEntryKeypad(
                       onCharacterPressed: _handleCharacterPressed,
                       onEnterPressed: _handleSubmit,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Submit button
-                    ElevatedButton(
-                      onPressed: frontDeskProvider.isSubmitting ? null : _handleSubmit,
-                      child: frontDeskProvider.isSubmitting
-                          ? SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  colorScheme.onPrimary, // Use theme color (white in light, black in dark)
-                                ),
-                              ),
-                            )
-                          : Text(
-                              'SUBMIT',
-                              style: textTheme.labelLarge,
-                            ),
                     ),
                     const SizedBox(height: 32),
 

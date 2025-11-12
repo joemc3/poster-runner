@@ -15,9 +15,9 @@ This screen is optimized for quickly inputting and sending a poster number reque
 #### **Screen Description**
 
 - Dominated by a large input area for the poster number.
-    
-- The "Submit" button is large and easy to hit.
-    
+
+- Submission occurs via the custom keypad's ENTER button or the keyboard's Enter key.
+
 - A dedicated area shows the status of the _last_ submission.
     
 
@@ -65,8 +65,8 @@ Code snippet
 
 |**Element**|**Detail**|
 |---|---|
-|**Input Field**|Large, clear font. Displays entered characters. NO auto-focus (prevents mobile keyboard popup on load). Accepts keyboard input (physical keyboard or tap to show mobile keyboard). Pressing Enter on keyboard submits the request. Clears automatically upon successful submission.|
-|**Custom Keypad**|4x5 grid layout with buttons for A-D (row 1), 7-9 and dash (row 2), 4-6 and top of ENTER (row 3), 1-3 and middle of ENTER (row 4), 0 (wide) and bottom of ENTER (row 5). ENTER button spans 3 rows vertically. Each button appends its character to the input field. ENTER button triggers submission.|
+|**Input Field**|Large, clear font. Displays entered characters. NO auto-focus (prevents mobile keyboard popup on load). Accepts keyboard input (physical keyboard or tap to show mobile keyboard). Pressing Enter on keyboard submits the request. **Becomes read-only immediately when Enter is pressed** to prevent accidental entry during submission processing. Returns to editable state when submission completes and field is cleared.|
+|**Custom Keypad**|4x5 grid layout with buttons for A-D (row 1), 7-9 and dash (row 2), 4-6 and top of ENTER (row 3), 1-3 and middle of ENTER (row 4), 0 (wide) and bottom of ENTER (row 5). ENTER button spans 3 rows vertically. Each button appends its character to the input field when editable. ENTER button triggers submission.|
 |**Status Bar**|Shows instant feedback: `SENT` (green check) or `FAILED` (red X). Includes the timestamp for the last action.|
 |**Navigation**|Bottom navigation bar for switching to the Delivered Audit tab.|
 
