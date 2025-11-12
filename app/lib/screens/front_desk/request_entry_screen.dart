@@ -124,7 +124,6 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                           children: [
                             TextField(
                               controller: _posterNumberController,
-                              readOnly: true, // Prevent mobile keyboard from appearing
                               textAlign: TextAlign.center,
                               style: textTheme.displaySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
@@ -140,6 +139,8 @@ class _RequestEntryScreenState extends State<RequestEntryScreen> {
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                               ),
+                              textCapitalization: TextCapitalization.characters,
+                              onSubmitted: (_) => _handleSubmit(),
                             ),
                           ],
                         ),
