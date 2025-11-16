@@ -91,21 +91,21 @@ flutter build apk
 ## Current Implementation Status
 
 ### Codebase Statistics
-- **Total Dart Files:** 26 files (~6,700 lines of code)
+- **Total Dart Files:** 28 files (~7,500 lines of code)
 - **Screens:** 7 complete screens
-- **Reusable Widgets:** 5 components
+- **Reusable Widgets:** 6 components (including customize keypad dialog)
 - **Data Models:** 1 core model + 1 enum + generated Hive adapters + mock data generator
 - **Services:** 5 services (persistence, BLE client, BLE server, sync orchestration, BLE initializer)
-- **State Management:** 4 Provider models (Theme, BLE connection, Front Desk data, Back Office data)
+- **State Management:** 5 Provider models (Theme, Keypad Customization, BLE connection, Front Desk data, Back Office data)
 - **Test Coverage:** Minimal (1 smoke test)
 
 ### What's Complete ✅
 
 **Core Application (Phases 1-5):**
-- **UI Layer:** All 7 screens with WCAG AAA high-contrast theme (Light/Dark/System), settings menus, real-time BLE status icons, offline queue badges, 5 reusable widgets
+- **UI Layer:** All 7 screens with WCAG AAA high-contrast theme (Light/Dark/System), settings menus, real-time BLE status icons, offline queue badges, customizable keypad buttons (A, B, C, D), 6 reusable widgets
 - **Data Layer:** PosterRequest model with 6 fields, full JSON serialization, Hive type adapters, RequestStatus enum, mock data generator
-- **Persistence:** PersistenceService managing 3 Hive boxes (fulfilled_requests, submitted_requests, delivered_audit), write-immediately pattern, real-time listeners
-- **State Management:** 4 Provider models (ThemeProvider, BleConnectionProvider, FrontDeskProvider, BackOfficeProvider), all screens use Consumer pattern
+- **Persistence:** PersistenceService managing 3 Hive boxes (fulfilled_requests, submitted_requests, delivered_audit), write-immediately pattern, real-time listeners, app_preferences box for settings
+- **State Management:** 5 Provider models (ThemeProvider, KeypadCustomizationProvider, BleConnectionProvider, FrontDeskProvider, BackOfficeProvider), all screens use Consumer pattern
 - **BLE Services:** 5 service files (client, server, sync orchestration, initializer, permissions), 3 characteristics implemented (Request, Queue Status, Full Sync), retry logic, MTU negotiation
 - **Testing Status:** Full bidirectional BLE sync verified on real devices, Front Desk ↔ Back Office communication working
 
@@ -152,7 +152,7 @@ build_runner: ^2.4.13          # Code generation framework
 1. ✅ Connection Status Indicators - DONE
 2. ✅ Offline Queue Indicators - DONE
 3. 📋 Error Handling & User Feedback - Better BLE error messages, toast/snackbar notifications
-4. ⚡ Settings Screen & Data Management - PARTIAL ("Clear All Delivered" done, still need: About section, diagnostics)
+4. ✅ Settings Screen & Data Management - DONE ("Clear All Delivered", "Customize Letter Buttons", "Theme" menu items implemented; About section, diagnostics still TODO)
 
 **Phase 7 - Testing & QA (NEXT - 2-3 weeks):**
 - Unit Tests: PosterRequest, Providers, PersistenceService (target 60%+ coverage)
@@ -351,10 +351,12 @@ app/lib/
 │   ├── status_badge.dart              # Status indicator widget (✅ Complete)
 │   ├── request_list_item.dart         # List item widget (✅ Complete)
 │   ├── search_bar_widget.dart         # Search input widget (✅ Complete)
-│   ├── poster_entry_keypad.dart       # Custom keypad for poster number entry (✅ Complete)
-│   └── sync_badge.dart                # Offline queue badge indicator (✅ Complete)
+│   ├── poster_entry_keypad.dart       # Custom keypad for poster number entry (✅ Complete with customization)
+│   ├── sync_badge.dart                # Offline queue badge indicator (✅ Complete)
+│   └── customize_keypad_dialog.dart   # Dialog for customizing A, B, C, D button labels (✅ Complete)
 ├── providers/
 │   ├── theme_provider.dart            # Theme management (✅ Phase 3)
+│   ├── keypad_customization_provider.dart # A, B, C, D button customization (✅ Phase 6)
 │   ├── ble_connection_provider.dart   # BLE connection state (✅ Phase 4 - integrated with BLE)
 │   ├── front_desk_provider.dart       # Front Desk data & ops (✅ Phase 4 - BLE integrated)
 │   └── back_office_provider.dart      # Back Office data & ops (✅ Phase 4 - BLE integrated)
@@ -469,6 +471,8 @@ This project has specialized agents configured in `.claude/agents/` to help with
 
 **State Management Layer:** ✅ FULLY IMPLEMENTED (Phase 3)
 - ✅ Provider package integrated
+- ✅ ThemeProvider for theme management
+- ✅ KeypadCustomizationProvider for A, B, C, D button customization
 - ✅ BleConnectionProvider for connection state
 - ✅ FrontDeskProvider for Front Desk operations
 - ✅ BackOfficeProvider for Back Office operations

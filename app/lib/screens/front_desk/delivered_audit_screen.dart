@@ -5,7 +5,6 @@ import '../../models/poster_request.dart';
 import '../../widgets/search_bar_widget.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/front_desk_provider.dart';
-import '../../providers/theme_provider.dart';
 
 /// Front Desk - Delivered Audit Screen (Tab 2)
 ///
@@ -61,213 +60,33 @@ class _DeliveredAuditScreenState extends State<DeliveredAuditScreen> {
     });
   }
 
-  /// Show confirmation dialog before clearing all delivered audit entries
-  void _showClearAllConfirmation(FrontDeskProvider provider) {
-    final count = provider.getDeliveredAuditCount();
-
-    if (count == 0) {
-      // No entries to clear
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No delivered posters to clear'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Clear All Delivered Posters?'),
-          content: Text(
-            'This will permanently delete all $count delivered poster(s) from the audit log.\n\nThis action cannot be undone.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close dialog
-                await _clearAllDeliveredAudit(provider);
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
-              child: const Text('Clear All'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// Clear all delivered audit entries using provider
-  Future<void> _clearAllDeliveredAudit(FrontDeskProvider provider) async {
-    final success = await provider.clearAllDeliveredAudit();
-
-    if (!mounted) return;
-
-    if (success) {
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('All delivered posters cleared successfully'),
-          backgroundColor: Theme.of(context).colorScheme.success,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } else {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Error clearing delivered posters'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
-  /// Show theme selection dialog
-  void _showThemeDialog(ThemeProvider themeProvider) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Choose Theme'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildThemeOption(
-                context,
-                themeProvider,
-                ThemeMode.light,
-                Icons.light_mode,
-              ),
-              _buildThemeOption(
-                context,
-                themeProvider,
-                ThemeMode.dark,
-                Icons.dark_mode,
-              ),
-              _buildThemeOption(
-                context,
-                themeProvider,
-                ThemeMode.system,
-                Icons.settings_suggest,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// Build individual theme option radio button
-  Widget _buildThemeOption(
-    BuildContext context,
-    ThemeProvider themeProvider,
-    ThemeMode mode,
-    IconData icon,
-  ) {
-    final isSelected = themeProvider.isThemeModeActive(mode);
-    final displayName = themeProvider.getThemeDisplayName(mode);
-
-    return RadioListTile<ThemeMode>(
-      title: Row(
-        children: [
-          Icon(icon, size: 20),
-          const SizedBox(width: 8),
-          Text(displayName),
-        ],
-      ),
-      value: mode,
-      groupValue: themeProvider.themeMode,
-      onChanged: (ThemeMode? value) {
-        if (value != null) {
-          themeProvider.setThemeMode(value);
-          Navigator.of(context).pop();
-        }
-      },
-      selected: isSelected,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Consumer2<FrontDeskProvider, ThemeProvider>(
-      builder: (context, frontDeskProvider, themeProvider, child) {
+    return Consumer<FrontDeskProvider>(
+      builder: (context, frontDeskProvider, child) {
         // Get all delivered audit entries from provider
         final allRequests = frontDeskProvider.getDeliveredAudit();
 
         // Filter and sort based on search query
         final filteredRequests = _filterAndSortRequests(allRequests);
 
-        return Scaffold(
-          backgroundColor: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
-          appBar: AppBar(
-            backgroundColor: colorScheme.surface,
-            elevation: 0,
-            title: Text(
-              'DELIVERED POSTERS',
-              style: textTheme.headlineSmall,
-            ),
-            actions: [
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.settings),
-                onSelected: (value) {
-                  if (value == 'clear_all') {
-                    _showClearAllConfirmation(frontDeskProvider);
-                  } else if (value == 'theme') {
-                    _showThemeDialog(themeProvider);
-                  }
-                },
-                itemBuilder: (BuildContext context) => [
-                  const PopupMenuItem<String>(
-                    value: 'clear_all',
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete_sweep, size: 20),
-                        SizedBox(width: 8),
-                        Text('Clear All Delivered'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'theme',
-                    child: Row(
-                      children: [
-                        Icon(Icons.palette, size: 20),
-                        SizedBox(width: 8),
-                        Text('Theme'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          body: SafeArea(
+        return Container(
+          color: colorScheme.surface, // Pure white (light) / Near black (dark) - per spec
+          child: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'DELIVERED POSTERS',
+                    style: textTheme.headlineSmall,
+                  ),
+                ),
 
                 // Search bar
                 SearchBarWidget(

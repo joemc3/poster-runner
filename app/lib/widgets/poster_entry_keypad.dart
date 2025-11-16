@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/keypad_customization_provider.dart';
 
 /// Custom keypad widget for poster number entry
 ///
 /// Layout:
 /// +---+---+---+---+
-/// | A | B | C | D |
+/// | A | B | C | D |  <- Customizable letter buttons (0-3 chars, case preserved)
 /// +---+---+---+---+
 /// | 7 | 8 | 9 | - |
 /// +---+---+---+---+
@@ -17,7 +19,9 @@ import 'package:flutter/material.dart';
 ///
 /// Features:
 /// - Large touch targets (56dp minimum per project-theme.md)
-/// - Letter buttons (A-D) for alphanumeric poster numbers
+/// - Customizable letter buttons (A-D) with 0-3 character labels, case preserved
+/// - Empty custom values fallback to default letters (A, B, C, D)
+/// - Text auto-sizes to fit button (using FittedBox)
 /// - Numeric buttons (0-9) for poster numbers
 /// - Dash button (-) for poster numbers with separators
 /// - ENTER button spans 3 rows, triggers submission
@@ -40,23 +44,32 @@ class PosterEntryKeypad extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Row 1: A B C D
-          Row(
+    return Consumer<KeypadCustomizationProvider>(
+      builder: (context, customization, child) {
+        // Use custom values or fallback to defaults if empty
+        final buttonAValue = customization.buttonA.isEmpty ? 'A' : customization.buttonA;
+        final buttonBValue = customization.buttonB.isEmpty ? 'B' : customization.buttonB;
+        final buttonCValue = customization.buttonC.isEmpty ? 'C' : customization.buttonC;
+        final buttonDValue = customization.buttonD.isEmpty ? 'D' : customization.buttonD;
+        final separator = customization.getSeparatorCharacter();
+
+        return Container(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _buildKeypadButton(context, 'A', colorScheme, textTheme),
-              const SizedBox(width: 8),
-              _buildKeypadButton(context, 'B', colorScheme, textTheme),
-              const SizedBox(width: 8),
-              _buildKeypadButton(context, 'C', colorScheme, textTheme),
-              const SizedBox(width: 8),
-              _buildKeypadButton(context, 'D', colorScheme, textTheme),
-            ],
-          ),
+              // Row 1: A B C D (customizable with separator)
+              Row(
+                children: [
+                  _buildLetterButton(context, buttonAValue, separator, colorScheme, textTheme),
+                  const SizedBox(width: 8),
+                  _buildLetterButton(context, buttonBValue, separator, colorScheme, textTheme),
+                  const SizedBox(width: 8),
+                  _buildLetterButton(context, buttonCValue, separator, colorScheme, textTheme),
+                  const SizedBox(width: 8),
+                  _buildLetterButton(context, buttonDValue, separator, colorScheme, textTheme),
+                ],
+              ),
           const SizedBox(height: 8),
 
           // Row 2: 7 8 9 -
@@ -125,6 +138,43 @@ class PosterEntryKeypad extends StatelessWidget {
         ],
       ),
     );
+      },
+    );
+  }
+
+  /// Build a letter button (A, B, C, D) with separator appended
+  Widget _buildLetterButton(
+    BuildContext context,
+    String character,
+    String separator,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
+    return Expanded(
+      child: SizedBox(
+        height: 56, // Minimum touch target per project-theme.md
+        child: ElevatedButton(
+          onPressed: () => onCharacterPressed(character + separator),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.surfaceContainerHigh,
+            foregroundColor: colorScheme.onSurface,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8), // 8dp border radius per project-theme.md
+            ),
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              character,
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// Build a standard keypad button
@@ -142,15 +192,18 @@ class PosterEntryKeypad extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.surfaceContainerHigh,
             foregroundColor: colorScheme.onSurface,
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8), // 8dp border radius per project-theme.md
             ),
           ),
-          child: Text(
-            character,
-            style: textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              character,
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),

@@ -31,6 +31,7 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 
 **Request Entry**
 - Custom entry keypad with A-D, 0-9, dash, and ENTER button for rapid input
+- Customizable letter buttons (A, B, C, D) with up to 3 characters each for event-specific shortcuts (e.g., MON/TUE/WED or VIP/GEN/STF)
 - Single-field input accepts keypad or keyboard entry (no auto-focus to prevent unwanted keyboard popup)
 - Input becomes read-only during submission to prevent accidental entry
 - Instant transmission confirmation via BLE
@@ -43,7 +44,7 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 - Persistent record of all completed pulls
 - Real-time BLE connection status indicator (color-coded icon)
 - Offline queue badge showing count of unsynced requests
-- Settings menu with "Clear All Delivered" and theme selection (Light/Dark/System)
+- Settings menu with "Customize Letter Buttons", "Clear All Delivered", and theme selection (Light/Dark/System)
 
 ### For Back Office Staff
 
@@ -252,6 +253,7 @@ flutter build ios --release
 - **Data Management**: Settings menu with clear all functionality and theme selection
 - **State Management**: Complete Provider architecture
   - ThemeProvider for light/dark/system theme selection
+  - KeypadCustomizationProvider for A, B, C, D button customization (Phase 6)
   - BleConnectionProvider for connection state
   - FrontDeskProvider for Front Desk data and operations
   - BackOfficeProvider for Back Office data and operations
@@ -290,7 +292,7 @@ flutter build ios --release
 - ✅ Connection status indicators showing real-time BLE state (DONE - color-coded icons in app headers)
 - 📋 Visual indicators for unsynced offline requests (TODO - badge showing count)
 - 📋 Better error handling and user feedback for BLE operations (TODO - improved error messages)
-- ⚡ Settings screen improvements (PARTIAL - "Clear All Delivered" for Front Desk DONE, About/diagnostics TODO)
+- ✅ Settings screen improvements (DONE - "Customize Letter Buttons", "Clear All Delivered", "Theme" menu items implemented; About/diagnostics still TODO)
 
 **Phase 7 - Testing & QA (2-3 weeks):**
 - Comprehensive unit tests (60%+ coverage target)
@@ -541,6 +543,7 @@ app/lib/
 │   └── mock_data.dart                 # Mock data generator (✅ Complete)
 ├── providers/
 │   ├── theme_provider.dart            # Theme management (✅ Complete)
+│   ├── keypad_customization_provider.dart # A, B, C, D button customization (✅ Phase 6)
 │   ├── ble_connection_provider.dart   # BLE connection state (✅ Phase 4 - integrated)
 │   ├── front_desk_provider.dart       # Front Desk data & ops (✅ Phase 4 - BLE integrated)
 │   └── back_office_provider.dart      # Back Office data & ops (✅ Phase 4 - BLE integrated)
@@ -550,7 +553,9 @@ app/lib/
 │   ├── status_badge.dart              # Status indicator widget (✅ Complete)
 │   ├── request_list_item.dart         # List item widget (✅ Complete)
 │   ├── search_bar_widget.dart         # Search input widget (✅ Complete)
-│   └── poster_entry_keypad.dart       # Custom keypad for poster number entry (✅ Complete)
+│   ├── poster_entry_keypad.dart       # Custom keypad for poster number entry (✅ Complete with customization)
+│   ├── sync_badge.dart                # Offline queue badge indicator (✅ Complete)
+│   └── customize_keypad_dialog.dart   # Dialog for customizing A, B, C, D button labels (✅ Phase 6)
 ├── screens/
 │   ├── role_selection_screen.dart     # Role selection (✅ Complete)
 │   ├── front_desk/
@@ -640,7 +645,7 @@ To complete the application, the following components need to be implemented:
    - ✅ Connection status indicators (DONE - Real-time BLE status icons with color coding)
    - 📋 Offline queue indicators (TODO - Badge showing count of unsynced requests)
    - 📋 Error handling & user feedback (TODO - Better BLE error messages)
-   - ⚡ Settings screen improvements (PARTIAL - "Clear All Delivered" for Front Desk DONE, About/diagnostics TODO)
+   - ✅ Settings screen improvements (DONE - "Customize Letter Buttons", "Clear All Delivered", "Theme" menu items implemented; About/diagnostics still TODO)
 
 8. **Phase 8: Testing & Quality Assurance** (2-3 weeks)
    - Unit tests for BLE services, providers, and persistence (60%+ coverage)

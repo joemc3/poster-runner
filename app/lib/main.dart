@@ -8,6 +8,7 @@ import 'providers/ble_connection_provider.dart';
 import 'providers/front_desk_provider.dart';
 import 'providers/back_office_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/keypad_customization_provider.dart';
 
 /// Global instance of the persistence service
 ///
@@ -66,6 +67,11 @@ class PosterRunnerApp extends StatelessWidget {
         // Theme Provider - Manages light/dark/system theme preference
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(),
+        ),
+
+        // Keypad Customization Provider - Manages A, B, C, D button customization
+        ChangeNotifierProvider(
+          create: (_) => KeypadCustomizationProvider(),
         ),
 
         // BLE Connection State - Shared across both roles
