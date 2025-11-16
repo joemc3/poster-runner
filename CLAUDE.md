@@ -8,61 +8,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Quick Start for New Developers
 
-**Current State (TL;DR):**
-- ✅ **UI is 100% complete** - All 7 screens working
-- ✅ **Data models are 100% complete** - PosterRequest with full serialization
-- ✅ **Hive adapters generated** - Type adapters ready in poster_request.g.dart
-- ✅ **Back office persistence working** - Fulfilled requests persist across app restarts
-- ✅ **Front desk persistence working** - Submitted requests and delivered audit persist to Hive
-- ✅ **BLE packages installed** - flutter_reactive_ble ^5.3.1 + ble_peripheral ^2.4.0 + permission_handler ^11.3.1
-- ✅ **State management implemented** - Provider ^6.1.2 integrated across all screens
-- ✅ **Provider architecture complete** - 4 providers managing theme, connection state, and data
-- ✅ **Theme selection implemented** - Light/Dark/System modes with persistence to Hive
-- ✅ **BLE service layer complete** - GATT Client (Front Desk) + GATT Server (Back Office) implemented
-- ✅ **Sync orchestration complete** - Three-step reconnection handshake with retry logic
-- ✅ **Providers wired to BLE** - FrontDeskProvider and BackOfficeProvider integrated with SyncService
-- ✅ **BLE initialization working** - Role selection screen initializes BLE services with permission handling
-- ✅ **CCCD descriptor fixed** - Notifications/indications working correctly
-- ✅ **MTU negotiation added** - Supports larger payloads (up to 512 bytes)
-- ✅ **Service discovery timing fixed** - Proper wait for service discovery before subscribing
-- ✅ **Mock data removed** - App starts with clean slate, only real BLE data
-- ✅ **Full BLE communication working** - Bidirectional communication tested and confirmed on real devices
-- ✅ **Phase 5 complete** - All BLE features implemented and tested successfully
-- ✅ **BLE status icons added** - Real-time connection status displayed in Front Desk and Back Office headers
-- ✅ **Clear All Delivered added** - Front Desk can now clear delivered audit history via settings menu
-- ✅ **Offline queue badges added** - Visual indicators show count of unsynced items in Front Desk and Back Office
-- ⚡ **Phase 6 in progress** - Essential UX feedback, comprehensive test coverage, and production readiness
+**Current State:**
+- ✅ **Phases 1-5 Complete** - Full working app with BLE sync tested on real devices
+- ✅ **All 7 screens operational** - Front Desk (role selection, request entry, delivered audit) + Back Office (live queue, fulfilled log)
+- ✅ **Complete data layer** - PosterRequest model, Hive persistence, full serialization
+- ✅ **BLE communication working** - Bidirectional sync between Front Desk (client) and Back Office (server)
+- ✅ **Offline-first architecture** - All data persists locally, syncs when connected
+- ✅ **UX polish started** - Connection status icons, offline queue badges, theme selection, data management
+- ⚡ **Phase 6 in progress** - Completing UX feedback, then moving to testing (Phase 7) and production readiness (Phase 8)
 
 **What You Can Do Right Now:**
 ```bash
 cd app
 flutter pub get
-flutter run  # Run on two devices to see BLE communication in action!
-# Front Desk (Device 1): Submit poster requests - they send via BLE to Back Office!
-# Front Desk: Watch the BLE status icon in header change color (green=connected, amber=scanning, gray=disconnected)
-# Front Desk: Delivered Audit automatically updates when Back Office marks requests as fulfilled
-# Front Desk: Use the settings menu (gear icon) to clear all delivered posters or change theme (Light/Dark/System)
-# Back Office (Device 2): Receives requests in real-time via BLE
-# Back Office: Watch the BLE status icon show connection state in real-time
-# Back Office: Pull a poster - status updates automatically sent to Front Desk via BLE!
-# Back Office: Use the settings menu (gear icon) to clear all fulfilled requests or change theme
-# All screens use Provider for centralized state management
-# Theme preference and all data persist across app restarts
-# Full bidirectional BLE sync working between devices!
+flutter run  # Run on two devices to test full BLE sync!
 ```
+Test the app by running Front Desk on one device and Back Office on another. Submit requests on Front Desk, they sync via BLE to Back Office. Mark requests as fulfilled on Back Office, status updates sync back to Front Desk automatically. Watch connection status icons, offline queue badges, and use settings menus to manage data and themes.
 
-**Phase 5 Complete - BLE Testing & Integration:**
-1. ✅ ~~Add BLE packages~~ (DONE - flutter_reactive_ble + ble_peripheral + permission_handler)
-2. ✅ ~~Add state management package~~ (DONE - provider ^6.1.2 installed)
-3. ✅ ~~Implement state management with Provider~~ (DONE - Phase 3 complete)
-4. ✅ ~~Build BLE service and sync orchestration~~ (DONE - Phase 4 complete)
-5. ✅ ~~Connect Front Desk and Back Office via BLE~~ (DONE - Phase 4 complete)
-6. ✅ ~~Initialize BLE on role selection~~ (DONE - BleInitializer with permission handling)
-7. ✅ ~~Fix CCCD descriptor for notifications~~ (DONE - ble_peripheral adds it automatically)
-8. ✅ ~~Add MTU negotiation~~ (DONE - requests 512 bytes, prevents payload truncation)
-9. ✅ ~~Fix service discovery timing~~ (DONE - waits 2s before subscribing)
-10. ✅ ~~Remove mock data~~ (DONE - app starts with clean state)
-11. ✅ ~~Debug and test BLE communication~~ (DONE - Full bidirectional sync working on real devices)
+**Completed Development (Phases 1-5):**
+- ✅ Phase 1-2: UI, data models, persistence, BLE packages, platform permissions
+- ✅ Phase 3: State management with Provider (4 providers: Theme, BLE Connection, Front Desk, Back Office)
+- ✅ Phase 4: BLE services (client, server, sync orchestration, initialization)
+- ✅ Phase 5: BLE testing and integration - full bidirectional sync working on real devices
 
 **Phase 6 - Essential UX Feedback (IN PROGRESS - High Priority - 1 week):**
 1. ✅ Connection Status Indicators (DONE - Real-time BLE status icons in Front Desk and Back Office home screens)
@@ -134,170 +101,19 @@ flutter build apk
 
 ### What's Complete ✅
 
-**UI Layer (100% Complete)**
-- All screens implemented with real persistence
-- Role selection screen
-- Front Desk: Request Entry (saves to Hive) + Delivered Audit (reads from Hive with theme settings)
-- Back Office: Live Queue + Fulfilled Log (both read/write to Hive with theme settings)
-- Complete high-contrast theme system (light/dark mode)
-  - Pure white backgrounds (#FFFFFF) for maximum contrast
-  - True black text (#000000) with 21:1 contrast ratio
-  - WCAG AAA compliant colors (7:1+ contrast) throughout
-  - All UI components derive styling from theme (zero hardcoded values)
-  - User-selectable theme modes: Light, Dark, System (follows device settings)
-  - Theme preference persists to Hive and restores on app startup
-- Settings menus with data management and theme selection
-  - Front Desk Delivered Audit: Gear icon menu with "Clear All Delivered" and theme selection
-  - Back Office Fulfilled Log: Gear icon menu with "Clear All Fulfilled" and theme selection
-- Real-time BLE connection status icons
-  - Color-coded Bluetooth icons in Front Desk and Back Office home screen headers
-  - Shows connection state: Connected (green), Scanning/Connecting (amber), Disconnected (gray), Error (red)
-  - Tooltip displays current status text on hover/tap
-- Offline queue badge indicators
-  - Front Desk Request Entry: Badge showing count of unsynced submitted requests ("pending")
-  - Back Office Live Queue: Badge showing count of unsynced fulfilled requests ("unsynced")
-  - Amber/warning styling with sync icon for visibility
-  - Auto-hides when count is 0 (all items synced)
-  - Provides instant feedback during offline operation
-- Reusable widgets (StatusBadge, RequestListItem, SearchBarWidget, PosterEntryKeypad, SyncBadge)
-- All UX specifications from design documents implemented
-- Zero linting issues
-- Zero hardcoded colors, fonts, or theme values in implementation files
+**Core Application (Phases 1-5):**
+- **UI Layer:** All 7 screens with WCAG AAA high-contrast theme (Light/Dark/System), settings menus, real-time BLE status icons, offline queue badges, 5 reusable widgets
+- **Data Layer:** PosterRequest model with 6 fields, full JSON serialization, Hive type adapters, RequestStatus enum, mock data generator
+- **Persistence:** PersistenceService managing 3 Hive boxes (fulfilled_requests, submitted_requests, delivered_audit), write-immediately pattern, real-time listeners
+- **State Management:** 4 Provider models (ThemeProvider, BleConnectionProvider, FrontDeskProvider, BackOfficeProvider), all screens use Consumer pattern
+- **BLE Services:** 5 service files (client, server, sync orchestration, initializer, permissions), 3 characteristics implemented (Request, Queue Status, Full Sync), retry logic, MTU negotiation
+- **Testing Status:** Full bidirectional BLE sync verified on real devices, Front Desk ↔ Back Office communication working
 
-**Data Models (100% Complete)**
-- `PosterRequest` class (`lib/models/poster_request.dart`)
-  - All 6 fields implemented including `isSynced` for BLE sync tracking
-  - Full JSON serialization (toJson/fromJson) for BLE transmission
-  - Hive type adapter annotations (typeId: 0)
-  - Specialized serialization methods for BLE characteristics
-  - Utility methods: copyWith, equality operators, status getters
-- `RequestStatus` enum (sent, pending, fulfilled)
-  - Extension methods for display labels and icons
-  - Hive type adapter annotations (typeId: 1)
-  - JSON serialization methods
-- Hive type adapters (`lib/models/poster_request.g.dart`)
-  - Generated PosterRequestAdapter (typeId: 0)
-  - Generated RequestStatusAdapter (typeId: 1)
-  - Binary serialization for efficient storage
-- Mock data generator (`lib/models/mock_data.dart`)
-  - 15 realistic sample requests (3 sent, 5 pending, 7 fulfilled)
-  - Pre-sorted views for each screen type (liveQueue, deliveredAudit, fulfilledLog)
-  - Filter methods and batch generation utilities
-  - Offline scenario data for testing sync logic
-
-**Persistence Layer (100% Complete)**
-- `PersistenceService` class (`lib/services/persistence_service.dart`)
-  - Manages 3 Hive boxes: fulfilled_requests, submitted_requests, delivered_audit
-  - Write-immediately pattern for data safety
-  - Back Office methods: save/retrieve/delete fulfilled requests + getUnsyncedFulfilledRequests()
-  - Front Desk methods: save/retrieve/delete submitted requests and delivered audit
-  - Special methods: getUnsyncedSubmittedRequests() and getUnsyncedFulfilledRequests() for BLE sync
-  - Real-time data change listeners via Hive streams
-  - Initialized in main.dart on app startup
-- `ThemeProvider` manages additional Hive box: app_preferences
-  - Stores theme mode preference (light/dark/system)
-  - Automatically loads saved preference on app startup
-- Back Office Live Queue screen
-  - "PULL" button saves to Hive with timestampPulled
-  - Error handling for save failures
-  - Confirmation messages on success
-- Back Office Fulfilled Log screen
-  - Reads directly from Hive database (fulfilled_requests box)
-  - ValueListenableBuilder for real-time UI updates
-  - Automatically refreshes when new requests are pulled
-  - Data persists across app restarts
-  - Settings menu (gear icon) with "Clear All Fulfilled" and theme selection options
-  - Confirmation dialog before clearing all data
-  - Clears both screen and persistent storage
-  - Theme selection (Light/Dark/System) with persistence
-- Front Desk Request Entry screen
-  - Custom entry keypad with A-D, 0-9, dash, and ENTER button
-  - Input field accepts keyboard input but does not auto-focus (no unwanted keyboard popup)
-  - Generates UUID for each new request
-  - Saves to Hive database (submitted_requests box) with isSynced: false
-  - Error handling for persistence failures
-  - Success confirmation messages
-  - Data persists across app restarts
-- Front Desk Delivered Audit screen
-  - Reads directly from Hive database (delivered_audit box)
-  - ValueListenableBuilder for real-time UI updates
-  - Automatically refreshes when BLE sync adds fulfilled requests
-  - Live search/filter by poster number
-  - Sorted alphabetically (A-Z) by poster number
-  - Data persists across app restarts
-  - Settings menu (gear icon) with theme selection (Light/Dark/System)
-
-**State Management Layer (100% Complete - Phase 3)**
-- `ThemeProvider` class (`lib/providers/theme_provider.dart`)
-  - Manages application theme mode (Light, Dark, System)
-  - Persists theme preference to Hive (app_preferences box)
-  - Automatically loads saved theme on app startup
-  - Provides theme selection UI methods and display names
-  - Notifies listeners on theme changes for reactive UI updates
-- `BleConnectionProvider` class (`lib/providers/ble_connection_provider.dart`)
-  - Manages BLE connection state (disconnected, scanning, connecting, connected, error)
-  - Tracks device info, signal strength (RSSI), and last sync time
-  - Provides connection management methods (placeholder for Phase 4)
-  - Convenience getters for connection status
-- `FrontDeskProvider` class (`lib/providers/front_desk_provider.dart`)
-  - Manages all Front Desk data and operations
-  - Handles request submission with validation and error handling
-  - Provides last submission feedback for UI display
-  - Listens to Hive changes for real-time updates
-  - Prepared for BLE sync (getUnsyncedRequests, handleStatusUpdate, etc.)
-- `BackOfficeProvider` class (`lib/providers/back_office_provider.dart`)
-  - Manages active queue state and fulfilled log data
-  - Handles request fulfillment and persistence
-  - Provides methods for clearing fulfilled requests
-  - Ready for BLE incoming request handling
-- All screens integrated with Provider using Consumer pattern
-- Clean architecture: UI ← Providers ← PersistenceService ← Hive
-- MultiProvider setup in main.dart with 4 providers
-
-### What's Complete (Phase 5 - COMPLETE) ✅
-
-**BLE Service Layer (100% COMPLETE):**
-- ✅ **BLE Client Service** (`ble_service.dart`) - Front Desk GATT Client using flutter_reactive_ble
-- ✅ **BLE Server Service** (`ble_server_service.dart`) - Back Office GATT Server using ble_peripheral
-- ✅ **Sync Orchestration** (`sync_service.dart`) - Three-step reconnection handshake with retry logic
-- ✅ **BLE Initializer** (`ble_initializer.dart`) - Lazy initialization with permission handling
-- ✅ **Permission Service** (`permission_service.dart`) - Runtime Bluetooth permissions for Android 12+/iOS
-- ✅ **Provider Integration** - FrontDeskProvider and BackOfficeProvider wired to BLE services
-- ✅ **All 3 Characteristics** - Request (A), Queue Status (B), Full Queue Sync (C) implemented
-- ✅ **Retry Logic** - 3 attempts with 2-second delay for failed BLE operations
-- ✅ **Offline-First** - Works without BLE, queues unsynced data for later transmission
-- ✅ **MTU Negotiation** - Requests 512 byte MTU to support larger JSON payloads
-- ✅ **Service Discovery** - Proper timing with 2-second wait before subscribing to characteristics
-- ✅ **CCCD Descriptor** - Notifications working correctly (auto-added by ble_peripheral)
-- ✅ **Mock Data Removed** - App starts with empty queue, only shows real BLE data
-- ✅ **Full BLE Sync** - Bidirectional communication tested and working on real devices
-
-**Tested and Working on Real Devices:**
-- ✅ **Front Desk → Back Office** - Successfully sends poster requests via BLE
-- ✅ **Back Office → Front Desk** - Successfully sends status updates via BLE notifications
-- ✅ **BLE Connection** - Front Desk connects to Back Office automatically
-- ✅ **Service Discovery** - All characteristics discovered correctly
-- ✅ **Notification Subscription** - Front Desk subscribes to Queue Status updates
-- ✅ **Bidirectional Communication** - Full request/response cycle working
-- ✅ **Payload Transmission** - Full JSON payloads transmitted (MTU negotiation working)
-- ✅ **Request Parsing** - Both devices correctly receive and parse JSON data
-- ✅ **Queue Display** - Received requests show in Back Office Live Queue in real-time
-- ✅ **Status Updates** - Fulfilled requests automatically appear in Front Desk Delivered Audit
-- ✅ **Persistence Integration** - All BLE-synced data persists to Hive correctly
-
-**Known Limitations (To Be Addressed in Phases 6-8):**
-- ✅ ~~**Connection Status UI**~~ - DONE (Real-time BLE status icons showing connection state)
-- ✅ ~~**Offline Queue UI**~~ - DONE (Badge indicators showing unsynced request counts)
-- ✅ ~~**Front Desk Data Management**~~ - DONE ("Clear All Delivered" option in settings menu)
-- 📋 **Comprehensive Test Coverage** - Only basic smoke test exists (Phase 7)
-- 📋 **Production Polish** - Missing app store assets, structured logging, user documentation (Phase 8)
-- 📋 **Role Persistence & Single-Device Mode** - Role selection resets on app restart, no local data transfer when switching roles (Phase 9 - optional)
-
-**Current Behavior:**
-- **Back Office:** Full offline functionality + BLE server receives requests and sends status updates (✅ 100% WORKING)
-- **Front Desk:** Full offline functionality + BLE client sends requests and receives status updates (✅ 100% WORKING)
-- **State Management:** All screens use Provider for reactive UI updates and centralized state
-- **BLE Communication:** Full bidirectional sync working (FD ↔ BO)
+**Known Gaps:**
+- 📋 **Test Coverage** - Only basic smoke test exists (minimal ~5% coverage)
+- 📋 **Production Assets** - Missing app icons, splash screens, store metadata
+- 📋 **Documentation** - No user guide or troubleshooting docs yet
+- 📋 **Role Persistence** - Role selection resets on app restart (Phase 9 - optional feature)
 
 ### Installed Dependencies
 
@@ -324,91 +140,35 @@ hive_generator: ^2.0.1         # Code generation for Hive type adapters
 build_runner: ^2.4.13          # Code generation framework
 ```
 
-**Platform Permissions (Configured in Phase 2):**
-- **Android:** Bluetooth permissions for API 31+ and legacy versions (AndroidManifest.xml)
-- **macOS:** NSBluetoothAlwaysUsageDescription in Info.plist + bluetooth entitlements
-
-**BLE Service Files (Phase 5 - COMPLETE & TESTED):**
-- ✅ `lib/services/ble_service.dart` - GATT Client for Front Desk (~420 lines) - Fully tested
-- ✅ `lib/services/ble_server_service.dart` - GATT Server for Back Office (~350 lines) - Fully tested
-- ✅ `lib/services/sync_service.dart` - Sync orchestration (~400 lines) - Fully tested
-- ✅ `lib/services/ble_initializer.dart` - Role-based initialization (~150 lines) - Fully tested
-- ✅ `lib/services/permission_service.dart` - Bluetooth permission handler (~135 lines) - Fully tested
+**Platform Configuration:**
+- Android: Bluetooth permissions for API 31+ and legacy (AndroidManifest.xml)
+- macOS: NSBluetoothAlwaysUsageDescription + bluetooth entitlements
 
 ### Next Development Steps
 
-To continue implementation, the recommended order is:
+**Phases 1-5: ✅ COMPLETE** - UI, data models, persistence, state management, BLE services all implemented and tested
 
-1. **Add Front Desk Persistence** ✅ COMPLETED (Phase 1)
-   - ✅ Created front desk boxes in PersistenceService (submitted_requests, delivered_audit)
-   - ✅ Added methods for submitted requests and delivered audit
-   - ✅ Wired up Front Desk Request Entry screen to save to Hive
-   - ✅ Wired up Front Desk Delivered Audit screen to read from Hive with real-time updates
+**Phase 6 - Essential UX Feedback (IN PROGRESS - 1 week):**
+1. ✅ Connection Status Indicators - DONE
+2. ✅ Offline Queue Indicators - DONE
+3. 📋 Error Handling & User Feedback - Better BLE error messages, toast/snackbar notifications
+4. ⚡ Settings Screen & Data Management - PARTIAL ("Clear All Delivered" done, still need: About section, diagnostics)
 
-2. **Add BLE Package & Platform Configuration** ✅ COMPLETED (Phase 2)
-   - ✅ Added flutter_reactive_ble ^5.3.1 to pubspec.yaml
-   - ✅ Added provider ^6.1.2 to pubspec.yaml
-   - ✅ Configured Android Bluetooth permissions (API 31+ and legacy support)
-   - ✅ Configured macOS Bluetooth permissions (Info.plist)
-   - ✅ Configured macOS entitlements (Debug and Release profiles)
-   - ✅ Verified app builds successfully on macOS
+**Phase 7 - Testing & QA (NEXT - 2-3 weeks):**
+- Unit Tests: PosterRequest, Providers, PersistenceService (target 60%+ coverage)
+- Widget Tests: All 7 screens, components, theme switching
+- Integration Tests: BLE sync scenarios, offline→reconnect flows, data integrity
 
-3. **Implement State Management** ✅ COMPLETED (Phase 3)
-   - ✅ Created BleConnectionProvider for BLE connection state
-   - ✅ Created FrontDeskProvider for Front Desk data management
-   - ✅ Created BackOfficeProvider for Back Office data management
-   - ✅ Replaced local state with Provider-managed state in all screens
-   - ✅ Wrapped app in MultiProvider in main.dart
-   - ✅ Integrated all screens with Consumer pattern
-   - ✅ Clean architecture: UI ← Providers ← PersistenceService ← Hive
+**Phase 8 - Production Readiness (1 week):**
+- App Store: Icons, splash screens, screenshots, metadata
+- Logging & Diagnostics: Structured logging, BLE diagnostics, error reporting
+- Documentation: User guide, troubleshooting, admin docs
 
-4. **Implement BLE Service Layer** ✅ COMPLETED (Phase 4)
-   - ✅ Built BLE client service using flutter_reactive_ble (ble_service.dart)
-   - ✅ Built BLE server service using ble_peripheral (ble_server_service.dart)
-   - ✅ Built sync orchestration service (sync_service.dart)
-   - ✅ Connected Back Office as GATT server
-   - ✅ Connected Front Desk as GATT client
-   - ✅ Wired providers to BLE characteristics (A, B, C)
-
-5. **Integrate Providers with BLE Services** ✅ COMPLETED (Phase 4)
-   - ✅ Connected FrontDeskProvider to BLE Request Characteristic (A)
-   - ✅ Connected BackOfficeProvider to BLE Queue Status Characteristic (B)
-   - ✅ Implemented Full Queue Sync Characteristic (C) for reconciliation
-   - ✅ Updated BleConnectionProvider with real BLE operations
-   - ✅ Implemented three-step reconnection handshake
-   - ✅ Created BleInitializer for role-based lazy initialization
-
-6. **BLE Testing and Debugging** ✅ COMPLETED (Phase 5)
-   - ✅ Updated RoleSelectionScreen to call BleInitializer when role selected
-   - ✅ Fixed CCCD descriptor issues for notifications
-   - ✅ Added MTU negotiation for larger payloads
-   - ✅ Fixed service discovery timing
-   - ✅ Tested bidirectional BLE communication on real devices
-   - ✅ Verified persistence integration with BLE sync
-   - ✅ Confirmed Front Desk → Back Office communication
-   - ✅ Confirmed Back Office → Front Desk status updates
-
-7. **Essential UX Feedback** 📋 NEXT (Phase 6 - 1 week)
-   - **Connection Status Indicators:** Show real BLE connection state in UI (disconnected/scanning/connecting/connected), visual feedback during sync, error states, connection badge in app bar
-   - **Offline Queue Indicators:** Badge showing count of unsynced requests, visual indicator when offline, sync progress feedback, "Last synced" timestamp
-   - **Error Handling & User Feedback:** Better error messages for BLE failures, graceful edge case handling, user-friendly permission flows, toast/snackbar notifications
-   - **Settings Screen & Data Management:** About section (version, licenses), Bluetooth diagnostics page, add "Clear All Delivered" to Front Desk menu
-
-8. **Testing & Quality Assurance** 📋 (Phase 7 - 2-3 weeks)
-   - **Unit Tests:** PosterRequest serialization, Provider logic, PersistenceService, BLE services (mocked) - Target 60%+ coverage
-   - **Widget Tests:** All 7 screens render correctly, StatusBadge colors, search/filter, theme switching, form validation
-   - **Integration Tests:** Full BLE sync scenarios, offline→reconnect→sync flow, concurrent updates, data integrity across restarts, stress testing
-
-9. **Production Readiness** 📋 (Phase 8 - 1 week)
-   - **App Store Preparation:** App icons for all sizes, splash screens, store screenshots, descriptions and metadata, privacy policy
-   - **Logging & Diagnostics:** Structured logging for troubleshooting, BLE connection diagnostics, optional error reporting (Sentry/Crashlytics), performance monitoring
-   - **Documentation:** User guide/quick start, troubleshooting for BLE issues, admin setup documentation
-
-10. **Nice-to-Have Features** 📋 (Phase 9 - Post v1.0)
-   - **Role Persistence & Switching:** Save role to Hive, skip selection on subsequent launches, "Change Role" in settings, single-device mode (transfer unsynced Front Desk requests to Back Office queue when switching roles, transfer unsynced Back Office fulfilled to Front Desk audit)
-   - **Request History/Audit Trail:** Full history archive, searchable, CSV/PDF export, analytics
-   - **Multi-Device Support:** Multiple Front Desks → one Back Office, device identification, device management UI
-   - **Advanced Sync Features:** Manual "Sync Now" button, conflict resolution UI, batch operations, sync statistics
+**Phase 9 - Nice-to-Have Features (Post v1.0 - Optional):**
+- Role persistence & switching, single-device mode
+- Request history/audit trail with CSV export
+- Multi-device support (multiple Front Desks → one Back Office)
+- Advanced sync features (manual sync, conflict resolution UI)
 
 ## Architecture Overview
 
@@ -473,31 +233,17 @@ The entire application revolves around a single data structure: `PosterRequest` 
 
 **Technology:** Hive (local NoSQL database)
 
-**Current Implementation:**
+**Hive Boxes:**
+- `fulfilled_requests` - Back Office fulfilled requests
+- `submitted_requests` - Front Desk submitted requests
+- `delivered_audit` - Front Desk delivered audit (synced from Back Office)
+- `app_preferences` - Theme and app settings
 
-**Box Name (Back Office):** `fulfilled_requests`
-- Stores all fulfilled poster requests
-- Key: PosterRequest.uniqueId (String)
-- Value: PosterRequest object
-- Managed by global `persistenceService` instance
-
-**Planned Boxes (Front Desk):**
-- `submitted_requests` - Stores requests created by front desk
-- `delivered_audit` - Stores fulfilled requests synced from back office
-
-**Key Principle:** Write-immediately pattern - all state changes are persisted to Hive BEFORE confirming to user, ensuring no data loss during disconnections.
-
-**Implementation Details:**
-- Hive initialized in main.dart with `Hive.initFlutter()`
-- Type adapters registered on startup
-- Global `persistenceService` instance accessible throughout app
-- Back Office uses `ValueListenableBuilder` for real-time UI updates
-- All fulfilled requests persist across app restarts
-
-**Sync Flag (`isSynced`):**
-- Set to `false` when state changes occur offline
-- Set to `true` after successful BLE transmission
-- Drives re-sync logic when connection is restored
+**Key Principles:**
+- Write-immediately pattern - all state changes persisted BEFORE confirming to user
+- `isSynced` flag tracks sync state (false = needs BLE transmission, true = synced)
+- Type adapters generated with `flutter pub run build_runner build`
+- ValueListenableBuilder for real-time UI updates
 
 ### Connection Loss & Re-sync Protocol
 
@@ -577,50 +323,18 @@ All UI components MUST reference `project_standards/project-theme.md` for:
 - **Queue Screen:** Sort by `timestampSent` (chronological, oldest first)
 - **Delivered Audit Screen:** Sort by `posterNumber` (alphanumeric ascending)
 
-## BLE Communication (Phase 5 - COMPLETE & TESTED)
+## BLE Communication (Phase 5 - COMPLETE)
 
-### How BLE Services Work
+BLE services are initialized via `BleInitializer` when user selects their role:
+- `BleInitializer.initializeForFrontDesk(context)` - Creates GATT Client, connects to Back Office
+- `BleInitializer.initializeForBackOffice(context)` - Creates GATT Server, starts advertising
 
-BLE services are initialized lazily when the user selects their role via `BleInitializer`:
-
-```dart
-import 'package:poster_runner/services/ble_initializer.dart';
-
-// When Front Desk button is pressed:
-await BleInitializer.initializeForFrontDesk(context);
-
-// When Back Office button is pressed:
-await BleInitializer.initializeForBackOffice(context);
-```
-
-### What BleInitializer Does
-
-**For Front Desk:**
-1. Creates `BleService` (GATT Client) with `DeviceRole.frontDesk`
-2. Creates `SyncService` with `FrontDeskProvider`
-3. Sets up BLE callbacks for incoming status updates
-4. Injects `SyncService` into `BleConnectionProvider` and `FrontDeskProvider`
-5. Automatically discovers and connects to Back Office device
-
-**For Back Office:**
-1. Creates `BleServerService` (GATT Server)
-2. Initializes the server and defines characteristics (A, B, C)
-3. Creates `SyncService` with `BackOfficeProvider`
-4. Sets up BLE callbacks for incoming requests
-5. Connects full queue provider for Characteristic C
-6. Starts advertising as "Poster Runner - Back Office"
-7. Injects `SyncService` into `BleConnectionProvider` and `BackOfficeProvider`
-
-### Verified Functionality
-
-**Phase 5 is 100% complete and tested on real devices:**
-- ✅ Front Desk → Back Office: Request submission via BLE Request Characteristic
-- ✅ Back Office → Front Desk: Status updates via BLE Queue Status Characteristic
-- ✅ Automatic connection establishment and service discovery
-- ✅ MTU negotiation for larger JSON payloads (512 bytes)
-- ✅ Proper CCCD descriptor handling for notifications
-- ✅ Bidirectional sync with persistence integration
-- ✅ Offline-first with automatic sync when reconnected
+**Verified Functionality (tested on real devices):**
+- Front Desk → Back Office: Request submission via BLE
+- Back Office → Front Desk: Status updates via BLE notifications
+- Automatic connection, service discovery, MTU negotiation (512 bytes)
+- Three-step reconnection handshake with retry logic
+- Full bidirectional sync with persistence integration
 
 ## Current Project Structure
 
