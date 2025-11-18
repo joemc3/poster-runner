@@ -376,6 +376,178 @@ This project has specialized agents configured in `.claude/agents/` to help with
 
 **Note:** The theme has already been created in `docs/specs/project-theme.md` and implemented in `app/lib/theme/app_theme.dart`.
 
+### flutter-ble-engineer
+**Purpose:** Implement, modify, or debug BLE GATT communication for Flutter applications.
+
+**When to use:**
+- Implementing GATT Client/Server services
+- Managing BLE connection state and reconnection
+- Implementing sync protocols for bidirectional data exchange
+- Handling MTU negotiation and payload chunking
+- Debugging BLE communication issues
+
+**What it does:**
+- Creates BLE client services (flutter_reactive_ble)
+- Creates BLE server services (ble_peripheral)
+- Implements characteristic operations (read, write, indicate)
+- Handles retry logic and error recovery
+- Manages connection state and reconnection
+
+**What it does NOT do:**
+- UI components or widgets
+- Data model creation
+- Persistence logic
+- State management unrelated to BLE
+
+**Example usage:**
+```
+"Use flutter-ble-engineer to implement the status indication characteristic"
+"Fix the reconnection handshake after connection loss"
+```
+
+### flutter-test-engineer
+**Purpose:** Write, fix, or improve tests for Flutter applications.
+
+**When to use:**
+- Writing unit tests for models, services, providers
+- Creating widget tests for UI components
+- Implementing integration tests for end-to-end flows
+- Fixing broken or flaky tests
+- Setting up test fixtures and mocks
+
+**What it does:**
+- Creates comprehensive test suites
+- Sets up proper mocking (Hive, BLE, platform channels)
+- Implements test fixtures and helpers
+- Follows arrange-act-assert pattern
+- Tests edge cases and error conditions
+
+**What it does NOT do:**
+- Production code implementation
+- UI design or UX decisions
+- Architecture decisions
+
+**Example usage:**
+```
+"Use flutter-test-engineer to create unit tests for PosterRequest serialization"
+"Fix the widget_test.dart LateInitializationError"
+```
+
+### flutter-state-engineer
+**Purpose:** Design and implement state management using Provider and ChangeNotifier patterns.
+
+**When to use:**
+- Creating ChangeNotifier classes for reactive state
+- Orchestrating state between multiple providers
+- Optimizing rebuilds with Selector and Consumer
+- Connecting providers to services
+- Handling complex state transitions
+
+**What it does:**
+- Designs provider architecture
+- Implements proper notifyListeners patterns
+- Creates ProxyProvider dependencies
+- Optimizes rebuild performance
+- Handles dispose and cleanup
+
+**What it does NOT do:**
+- UI components or widgets
+- Data model creation
+- Persistence implementation
+- BLE communication
+
+**Example usage:**
+```
+"Use flutter-state-engineer to create a SettingsProvider"
+"Optimize the FrontDeskProvider to reduce rebuilds"
+```
+
+### flutter-persistence-architect
+**Purpose:** Design and implement local data persistence using Hive.
+
+**When to use:**
+- Designing Hive box schemas
+- Creating type adapters for custom objects
+- Implementing write-immediately patterns
+- Handling data migration between versions
+- Optimizing storage queries
+
+**What it does:**
+- Designs box organization and schemas
+- Implements PersistenceService methods
+- Creates backup/restore mechanisms
+- Handles data integrity patterns
+- Optimizes query performance
+
+**What it does NOT do:**
+- Data model creation (use flutter-data-architect)
+- UI components
+- State management
+- Network operations
+
+**Example usage:**
+```
+"Use flutter-persistence-architect to add a new preferences box"
+"Implement data migration for the new field"
+```
+
+### technical-writer
+**Purpose:** Create user-facing documentation, guides, and troubleshooting content.
+
+**When to use:**
+- Writing user guides and tutorials
+- Creating troubleshooting documentation
+- Maintaining README files
+- Writing release notes
+- Creating in-app help content
+
+**What it does:**
+- Writes clear, user-friendly documentation
+- Creates step-by-step guides
+- Documents common issues and solutions
+- Maintains consistent terminology
+- Includes screenshot placeholders
+
+**What it does NOT do:**
+- Code implementation
+- API or technical specifications
+- Architecture decisions
+- Internal developer documentation
+
+**Example usage:**
+```
+"Use technical-writer to create a Front Desk user guide"
+"Create troubleshooting docs for BLE connection issues"
+```
+
+### platform-researcher
+**Purpose:** Research platform compatibility, limitations, and implementation strategies.
+
+**When to use:**
+- Researching platform-specific capabilities
+- Analyzing Flutter package support
+- Documenting permission requirements
+- Creating feasibility reports
+- Identifying platform workarounds
+
+**What it does:**
+- Researches official platform documentation
+- Analyzes package compatibility
+- Documents platform-specific requirements
+- Creates feasibility reports
+- Identifies risks and mitigations
+
+**What it does NOT do:**
+- Implement platform-specific code
+- Make final architectural decisions
+- Write production code
+
+**Example usage:**
+```
+"Use platform-researcher to analyze Windows BLE support"
+"Research macOS permission requirements for Bluetooth"
+```
+
 ## Code Organization Principles
 
 ### Separation of Concerns
