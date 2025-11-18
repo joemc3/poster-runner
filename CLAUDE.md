@@ -6,44 +6,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Poster Runner** is a cross-platform Flutter application designed for offline communication between Front Desk and Back Office staff at temporary event locations. The app uses Bluetooth Low Energy (BLE) to sync poster pull requests in environments with unreliable or no internet connectivity.
 
-### Quick Start for New Developers
+### Quick Start
 
-**Current State:**
-- ✅ **Phases 1-5 Complete** - Full working app with BLE sync tested on real devices
-- ✅ **All 7 screens operational** - Front Desk (role selection, request entry, delivered audit) + Back Office (live queue, fulfilled log)
-- ✅ **Complete data layer** - PosterRequest model, Hive persistence, full serialization
-- ✅ **BLE communication working** - Bidirectional sync between Front Desk (client) and Back Office (server)
-- ✅ **Offline-first architecture** - All data persists locally, syncs when connected
-- ✅ **UX polish started** - Connection status icons, offline queue badges, theme selection, data management
-- ⚡ **Active development** - See GitHub Issues for current work (Epic #19 in progress)
-
-**What You Can Do Right Now:**
+**Run the app:**
 ```bash
 cd app
 flutter pub get
-flutter run  # Run on two devices to test full BLE sync!
+flutter run  # Run on two devices to test BLE sync
 ```
-Test the app by running Front Desk on one device and Back Office on another. Submit requests on Front Desk, they sync via BLE to Back Office. Mark requests as fulfilled on Back Office, status updates sync back to Front Desk automatically. Watch connection status icons, offline queue badges, and use settings menus to manage data and themes.
 
-**Completed Development (Phases 1-5):**
-- ✅ Phase 1-2: UI, data models, persistence, BLE packages, platform permissions
-- ✅ Phase 3: State management with Provider (4 providers: Theme, BLE Connection, Front Desk, Back Office)
-- ✅ Phase 4: BLE services (client, server, sync orchestration, initialization)
-- ✅ Phase 5: BLE testing and integration - full bidirectional sync working on real devices
-
-**Current and Planned Work:**
-
-All active and planned work is tracked in GitHub Issues. See:
-- [Epic #19: Phase 6 - Essential UX Feedback](https://github.com/joemc3/poster-runner/issues/19) - **IN PROGRESS** (P0)
-- [Epic #20: Phase 7 - Testing & QA](https://github.com/joemc3/poster-runner/issues/20) - Next (P1)
-- [Epic #21: Phase 8 - Production Readiness](https://github.com/joemc3/poster-runner/issues/21) - Important (P2)
-- [Epic #22: Phase 9 - Nice-to-Have Features](https://github.com/joemc3/poster-runner/issues/22) - Optional (P3)
-
-Use BEADS commands to view ready tasks:
+**View current work:**
 ```bash
-bd ready --limit 5  # Show top 5 ready tasks
-bd stats            # View project statistics
+# Session start protocol
+export PATH="$PATH:/Users/joemc3/.local/bin"
+bd sync
+bd ready --limit 5
+
+# View all issues
+gh issue list --label epic
+gh issue list --label task
 ```
+
+**Work tracking:** All development is tracked in [GitHub Issues](https://github.com/joemc3/poster-runner/issues). See [Epic #35](https://github.com/joemc3/poster-runner/issues/35) for completed foundation work.
 
 ## Essential Commands
 
@@ -80,34 +64,7 @@ flutter build ios
 flutter build apk
 ```
 
-## Current Implementation Status
-
-### Codebase Statistics
-- **Total Dart Files:** 28 files (~7,500 lines of code)
-- **Screens:** 7 complete screens
-- **Reusable Widgets:** 6 components (including customize keypad dialog)
-- **Data Models:** 1 core model + 1 enum + generated Hive adapters + mock data generator
-- **Services:** 5 services (persistence, BLE client, BLE server, sync orchestration, BLE initializer)
-- **State Management:** 5 Provider models (Theme, Keypad Customization, BLE connection, Front Desk data, Back Office data)
-- **Test Coverage:** Minimal (1 smoke test)
-
-### What's Complete ✅
-
-**Core Application (Phases 1-5):**
-- **UI Layer:** All 7 screens with WCAG AAA high-contrast theme (Light/Dark/System), settings menus, real-time BLE status icons, offline queue badges, customizable keypad buttons (A, B, C, D), 6 reusable widgets
-- **Data Layer:** PosterRequest model with 6 fields, full JSON serialization, Hive type adapters, RequestStatus enum, mock data generator
-- **Persistence:** PersistenceService managing 3 Hive boxes (fulfilled_requests, submitted_requests, delivered_audit), write-immediately pattern, real-time listeners, app_preferences box for settings
-- **State Management:** 5 Provider models (ThemeProvider, KeypadCustomizationProvider, BleConnectionProvider, FrontDeskProvider, BackOfficeProvider), all screens use Consumer pattern
-- **BLE Services:** 5 service files (client, server, sync orchestration, initializer, permissions), 3 characteristics implemented (Request, Queue Status, Full Sync), retry logic, MTU negotiation
-- **Testing Status:** Full bidirectional BLE sync verified on real devices, Front Desk ↔ Back Office communication working
-
-**Known Gaps:**
-- 📋 **Test Coverage** - Only basic smoke test exists (minimal ~5% coverage)
-- 📋 **Production Assets** - Missing app icons, splash screens, store metadata
-- 📋 **Documentation** - No user guide or troubleshooting docs yet
-- 📋 **Role Persistence** - Role selection resets on app restart (Epic #22 - optional post-v1.0 feature)
-
-### Installed Dependencies
+## Installed Dependencies
 
 **Runtime Packages:**
 ```yaml
@@ -135,30 +92,6 @@ build_runner: ^2.4.13          # Code generation framework
 **Platform Configuration:**
 - Android: Bluetooth permissions for API 31+ and legacy (AndroidManifest.xml)
 - macOS: NSBluetoothAlwaysUsageDescription + bluetooth entitlements
-
-### Development Roadmap
-
-**Phases 1-5: ✅ COMPLETE** - UI, data models, persistence, state management, BLE services all implemented and tested
-
-**Current and Upcoming Work:**
-
-All work is tracked in GitHub Issues and BEADS. For current tasks and priorities:
-
-```bash
-# View ready tasks
-bd ready --limit 5
-
-# View project stats
-bd stats
-
-# View specific epic
-gh issue view 19  # Phase 6 - Essential UX Feedback (IN PROGRESS)
-gh issue view 20  # Phase 7 - Testing & QA
-gh issue view 21  # Phase 8 - Production Readiness
-gh issue view 22  # Phase 9 - Nice-to-Have Features
-```
-
-See the "Current and Planned Work" section above for GitHub issue links.
 
 ## Architecture Overview
 
