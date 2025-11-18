@@ -77,7 +77,8 @@ git checkout -b feature/issue-description
 # After completing work:
 git add <files>
 git commit -m "feat/fix/chore: description"
-# Then create PR
+git push -u origin <branch-name>  # Always push immediately after commit
+# Then create PR when ready
 ```
 
 **Rules:**
@@ -86,6 +87,7 @@ git commit -m "feat/fix/chore: description"
 - Branch naming: `feature/`, `fix/`, `chore/` prefixes
 - One branch per issue/task
 - Commit messages should reference issue numbers where applicable
+- ALWAYS push immediately after committing (protects work from local machine failure)
 
 **Workflow for starting a new task:**
 1. Confirm current branch (`git branch --show-current`)
