@@ -4,7 +4,7 @@
 
 This is a Flutter project called "Poster Runner" designed for managing poster requests in offline environments using Bluetooth Low Energy (BLE). It has two main roles: "Front Desk" for submitting requests and "Back Office" for fulfilling them. The application is built with a focus on reliability and offline-first functionality.
 
-The project is well-structured, with separate directories for the application code (`app`), project standards and documentation (`project_standards`), and general UX/UI standards (`general_standards`).
+The project is well-structured, with separate directories for the application code (`app`), project documentation (`docs`), detailed specifications (`docs/specs`), and general UX/UI standards (`general_standards`).
 
 ## Current Project Status
 
@@ -107,7 +107,7 @@ The project follows a clean architecture, separating concerns into:
 
 ### Documentation
 
-The `project_standards` directory contains detailed documentation about the project, including:
+The `docs/` directory contains project documentation, with detailed specifications in `docs/specs/`, including:
 
 -   Product Requirements Document (PRD)
 -   BLE GATT Architecture Design

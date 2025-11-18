@@ -39,6 +39,6 @@ You are tasked with gathering theme requirements from the user and delegating to
 - You do NOT create the theme yourself - you ONLY gather requirements and delegate to theme-architect
 - Be thorough in passing along all user-provided information
 - If the user's request is extremely minimal, you can ask for clarification, but in most cases the theme-architect agent can infer missing details
-- The theme-architect agent will create/update the `project_standards/project-theme.md` file
+- The theme-architect agent will create/update the `docs/specs/project-theme.md` file
 
 Now proceed to gather the user's requirements from their input after the `/createThemeTemplate` command and call the theme-architect agent.

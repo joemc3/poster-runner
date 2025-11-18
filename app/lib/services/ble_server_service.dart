@@ -13,7 +13,7 @@ import '../models/poster_request.dart';
 /// - Back Office: GATT Server (advertises, accepts connections, serves data)
 /// - Provides 3 characteristics: Request (A), Queue Status (B), Full Queue Sync (C)
 ///
-/// See: project_standards/BLE GATT Architecture Design.md
+/// See: docs/specs/BLE GATT Architecture Design.md
 class BleServerService {
   // Service and characteristic UUIDs (same as in ble_service.dart)
   static const String serviceUuid = '0000A000-0000-1000-8000-00805F9B34FB';

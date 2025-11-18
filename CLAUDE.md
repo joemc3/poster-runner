@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **BLE communication working** - Bidirectional sync between Front Desk (client) and Back Office (server)
 - ✅ **Offline-first architecture** - All data persists locally, syncs when connected
 - ✅ **UX polish started** - Connection status icons, offline queue badges, theme selection, data management
-- ⚡ **Phase 6 in progress** - Completing UX feedback, then moving to testing (Phase 7) and production readiness (Phase 8)
+- ⚡ **Active development** - See GitHub Issues for current work (Epic #19 in progress)
 
 **What You Can Do Right Now:**
 ```bash
@@ -31,27 +31,19 @@ Test the app by running Front Desk on one device and Back Office on another. Sub
 - ✅ Phase 4: BLE services (client, server, sync orchestration, initialization)
 - ✅ Phase 5: BLE testing and integration - full bidirectional sync working on real devices
 
-**Phase 6 - Essential UX Feedback (IN PROGRESS - High Priority - 1 week):**
-1. ✅ Connection Status Indicators (DONE - Real-time BLE status icons in Front Desk and Back Office home screens)
-2. ✅ Offline Queue Indicators (DONE - Badge showing count of unsynced requests in both roles)
-3. 📋 Error Handling & User Feedback (better BLE error messages)
-4. ⚡ Settings Screen & Data Management (PARTIAL - "Clear All Delivered" for Front Desk DONE, About section and diagnostics TODO)
+**Current and Planned Work:**
 
-**Phase 7 - Testing & QA (Critical - 2-3 weeks):**
-5. 📋 Unit Tests (PosterRequest, Providers, Services - target 60%+ coverage)
-6. 📋 Widget Tests (all 7 screens, components, theme switching)
-7. 📋 Integration Tests (full BLE sync, offline scenarios, data integrity)
+All active and planned work is tracked in GitHub Issues. See:
+- [Epic #19: Phase 6 - Essential UX Feedback](https://github.com/joemc3/poster-runner/issues/19) - **IN PROGRESS** (P0)
+- [Epic #20: Phase 7 - Testing & QA](https://github.com/joemc3/poster-runner/issues/20) - Next (P1)
+- [Epic #21: Phase 8 - Production Readiness](https://github.com/joemc3/poster-runner/issues/21) - Important (P2)
+- [Epic #22: Phase 9 - Nice-to-Have Features](https://github.com/joemc3/poster-runner/issues/22) - Optional (P3)
 
-**Phase 8 - Production Readiness (Important - 1 week):**
-8. 📋 App Store Preparation (icons, screenshots, metadata)
-9. 📋 Logging & Diagnostics (structured logging, error reporting)
-10. 📋 Documentation (user guide, troubleshooting, admin docs)
-
-**Phase 9 - Nice-to-Have Features (Optional - Post v1.0):**
-11. 📋 Role Persistence & Switching (save role selection across restarts, "Change Role" in settings, single-device mode with local data transfer: Front Desk unsynced requests → Back Office queue, Back Office unsynced fulfilled → Front Desk audit)
-12. 📋 Request History/Audit Trail (searchable archive, CSV export)
-13. 📋 Multi-Device Support (multiple Front Desks → one Back Office)
-14. 📋 Advanced Sync Features (manual sync, conflict resolution UI, batch operations)
+Use BEADS commands to view ready tasks:
+```bash
+bd ready --limit 5  # Show top 5 ready tasks
+bd stats            # View project statistics
+```
 
 ## Essential Commands
 
@@ -113,7 +105,7 @@ flutter build apk
 - 📋 **Test Coverage** - Only basic smoke test exists (minimal ~5% coverage)
 - 📋 **Production Assets** - Missing app icons, splash screens, store metadata
 - 📋 **Documentation** - No user guide or troubleshooting docs yet
-- 📋 **Role Persistence** - Role selection resets on app restart (Phase 9 - optional feature)
+- 📋 **Role Persistence** - Role selection resets on app restart (Epic #22 - optional post-v1.0 feature)
 
 ### Installed Dependencies
 
@@ -144,31 +136,29 @@ build_runner: ^2.4.13          # Code generation framework
 - Android: Bluetooth permissions for API 31+ and legacy (AndroidManifest.xml)
 - macOS: NSBluetoothAlwaysUsageDescription + bluetooth entitlements
 
-### Next Development Steps
+### Development Roadmap
 
 **Phases 1-5: ✅ COMPLETE** - UI, data models, persistence, state management, BLE services all implemented and tested
 
-**Phase 6 - Essential UX Feedback (IN PROGRESS - 1 week):**
-1. ✅ Connection Status Indicators - DONE
-2. ✅ Offline Queue Indicators - DONE
-3. 📋 Error Handling & User Feedback - Better BLE error messages, toast/snackbar notifications
-4. ✅ Settings Screen & Data Management - DONE ("Clear All Delivered", "Customize Letter Buttons", "Theme" menu items implemented; About section, diagnostics still TODO)
+**Current and Upcoming Work:**
 
-**Phase 7 - Testing & QA (NEXT - 2-3 weeks):**
-- Unit Tests: PosterRequest, Providers, PersistenceService (target 60%+ coverage)
-- Widget Tests: All 7 screens, components, theme switching
-- Integration Tests: BLE sync scenarios, offline→reconnect flows, data integrity
+All work is tracked in GitHub Issues and BEADS. For current tasks and priorities:
 
-**Phase 8 - Production Readiness (1 week):**
-- App Store: Icons, splash screens, screenshots, metadata
-- Logging & Diagnostics: Structured logging, BLE diagnostics, error reporting
-- Documentation: User guide, troubleshooting, admin docs
+```bash
+# View ready tasks
+bd ready --limit 5
 
-**Phase 9 - Nice-to-Have Features (Post v1.0 - Optional):**
-- Role persistence & switching, single-device mode
-- Request history/audit trail with CSV export
-- Multi-device support (multiple Front Desks → one Back Office)
-- Advanced sync features (manual sync, conflict resolution UI)
+# View project stats
+bd stats
+
+# View specific epic
+gh issue view 19  # Phase 6 - Essential UX Feedback (IN PROGRESS)
+gh issue view 20  # Phase 7 - Testing & QA
+gh issue view 21  # Phase 8 - Production Readiness
+gh issue view 22  # Phase 9 - Nice-to-Have Features
+```
+
+See the "Current and Planned Work" section above for GitHub issue links.
 
 ## Architecture Overview
 
@@ -282,9 +272,13 @@ The PosterRequest model uses field names that align with the Data Structure Spec
 - Includes offline scenario data for testing sync logic
 - Can generate batches for stress testing
 
-## Project Standards Location
+## Project Documentation
 
-Critical design specifications are in `project_standards/`:
+Product and technical documentation is in `docs/`:
+- **docs/PRD.md**: Product requirements overview
+- **docs/TAD.md**: Technical architecture overview
+
+Critical design specifications are in `docs/specs/`:
 
 - **Product Requirements Document (PRD) - Poster Runner.md**: Feature requirements and user roles
 - **BLE GATT Architecture Design.md**: BLE protocol specification
@@ -299,7 +293,7 @@ Critical design specifications are in `project_standards/`:
 
 ### Theme Implementation
 
-All UI components MUST reference `project_standards/project-theme.md` for:
+All UI components MUST reference `docs/specs/project-theme.md` for:
 - Color palette (light/dark themes)
 - Typography (Inter font family)
 - Spacing (8dp grid system)
@@ -447,7 +441,7 @@ This project has specialized agents configured in `.claude/agents/` to help with
 - Only invoked via `/createThemeTemplate` slash command
 - Do NOT invoke directly
 
-**Note:** The theme has already been created in `project_standards/project-theme.md` and implemented in `app/lib/theme/app_theme.dart`.
+**Note:** The theme has already been created in `docs/specs/project-theme.md` and implemented in `app/lib/theme/app_theme.dart`.
 
 ## Code Organization Principles
 

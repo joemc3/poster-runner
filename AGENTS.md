@@ -99,7 +99,7 @@ app/lib/
 - **Write-immediately pattern:** Always persist to Hive BEFORE confirming UI actions
 - **Sorting logic:** Queue by timestamp (chronological), Audit by posterNumber (A-Z)
 - **isSynced flag:** Track offline state changes, set to true after BLE transmission
-- **Theme compliance:** All UI must use values from `project_standards/project-theme.md`
+- **Theme compliance:** All UI must use values from `docs/specs/project-theme.md`
 - **No hardcoded values:** Colors, fonts, spacing must come from theme system
 - **BLE service types:** Use `BleService` for Front Desk, `BleServerService` for Back Office
 

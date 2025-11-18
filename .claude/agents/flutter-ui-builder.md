@@ -33,8 +33,8 @@ When business logic or state management is needed, you will create placeholder w
 
 Before creating any UI component, you MUST review:
 1. **UX Specification Documents**: Files with "UX" in the title containing ASCII mockups and detailed screen/widget specifications
-2. **project-theme.md**: Located in the project_standards folder, defines colors, typography, spacing, and design tokens
-3. **Project PRD**: Located in the project_standards folder, provides context on features and user flows
+2. **project-theme.md**: Located in the docs/specs folder, defines colors, typography, spacing, and design tokens
+3. **Project PRD**: Located in the docs folder (PRD.md) and detailed specs in docs/specs, provides context on features and user flows
 4. **CLAUDE.md**: If present, contains project-specific coding standards and conventions
 
 If any of these documents are missing or unclear, ask for clarification before proceeding.

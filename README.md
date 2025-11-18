@@ -113,15 +113,18 @@ poster-runner/
 ├── app/                          # Flutter application
 │   ├── lib/                      # Application source code
 │   └── test/                     # Test files
-├── project_standards/            # Design specifications
-│   ├── Product Requirements Document (PRD) - Poster Runner.md
-│   ├── BLE GATT Architecture Design.md
-│   ├── Data Structure Specification.md
-│   ├── Local Persistence Specification.md
-│   ├── Synchronization Protocol and Error Handling.md
-│   ├── project-theme.md
-│   ├── Front Desk UX Design Document.md
-│   └── Back Office UX Design Document.md
+├── docs/                         # Project documentation
+│   ├── PRD.md                    # Product requirements overview
+│   ├── TAD.md                    # Technical architecture overview
+│   └── specs/                    # Detailed design specifications
+│       ├── Product Requirements Document (PRD) - Poster Runner.md
+│       ├── BLE GATT Architecture Design.md
+│       ├── Data Structure Specification.md
+│       ├── Local Persistence Specification.md
+│       ├── Synchronization Protocol and Error Handling.md
+│       ├── project-theme.md
+│       ├── Front Desk UX Design Document.md
+│       └── Back Office UX Design Document.md
 └── CLAUDE.md                     # Developer guidance for Claude Code
 ```
 
@@ -286,29 +289,26 @@ flutter build ios --release
 - Bidirectional sync with persistence integration ✅ WORKING
 - Offline-first with automatic reconnection sync ✅ WORKING
 
-### 📋 Next Phases (Phases 6-9)
+### 📋 Development Roadmap
 
-**Phase 6 - Essential UX Feedback (IN PROGRESS - 1 week):**
-- ✅ Connection status indicators showing real-time BLE state (DONE - color-coded icons in app headers)
-- 📋 Visual indicators for unsynced offline requests (TODO - badge showing count)
-- 📋 Better error handling and user feedback for BLE operations (TODO - improved error messages)
-- ✅ Settings screen improvements (DONE - "Customize Letter Buttons", "Clear All Delivered", "Theme" menu items implemented; About/diagnostics still TODO)
+All planned work is tracked in GitHub Issues and BEADS. Current epics:
 
-**Phase 7 - Testing & QA (2-3 weeks):**
-- Comprehensive unit tests (60%+ coverage target)
-- Widget tests for all screens and components
-- Integration tests for BLE sync scenarios
+- [Epic #19: Phase 6 - Essential UX Feedback](https://github.com/joemc3/poster-runner/issues/19) - **IN PROGRESS** (P0)
+- [Epic #20: Phase 7 - Testing & QA](https://github.com/joemc3/poster-runner/issues/20) - Next (P1)
+- [Epic #21: Phase 8 - Production Readiness](https://github.com/joemc3/poster-runner/issues/21) - Important (P2)
+- [Epic #22: Phase 9 - Nice-to-Have Features](https://github.com/joemc3/poster-runner/issues/22) - Optional (P3)
 
-**Phase 8 - Production Readiness (1 week):**
-- App store preparation (icons, screenshots, metadata)
-- Structured logging and diagnostics
-- User documentation and troubleshooting guides
+View current work:
+```bash
+# See ready tasks
+bd ready --limit 5
 
-**Phase 9 - Post v1.0 Enhancements (Optional):**
-- Role persistence and switching (save role selection across app restarts, single-device mode with local data transfer when changing roles)
-- Request history/audit trail with export capabilities
-- Multi-device support (multiple Front Desks → one Back Office)
-- Advanced sync features (manual sync, conflict resolution)
+# View project stats
+bd stats
+
+# List all issues
+gh issue list
+```
 
 ### How to Setup and Test BLE Synchronization
 
@@ -641,28 +641,14 @@ To complete the application, the following components need to be implemented:
    - ✅ Tested offline mode and automatic reconnection sync
    - ✅ Confirmed persistence integration with BLE sync
 
-7. **Phase 6: Essential UX Feedback** ⚡ IN PROGRESS (1 week)
-   - ✅ Connection status indicators (DONE - Real-time BLE status icons with color coding)
-   - 📋 Offline queue indicators (TODO - Badge showing count of unsynced requests)
-   - 📋 Error handling & user feedback (TODO - Better BLE error messages)
-   - ✅ Settings screen improvements (DONE - "Customize Letter Buttons", "Clear All Delivered", "Theme" menu items implemented; About/diagnostics still TODO)
+7. **Phase 6: Essential UX Feedback** ⚡ IN PROGRESS
+   - See [Epic #19](https://github.com/joemc3/poster-runner/issues/19) for current tasks
 
-8. **Phase 8: Testing & Quality Assurance** (2-3 weeks)
-   - Unit tests for BLE services, providers, and persistence (60%+ coverage)
-   - Widget tests for all 7 screens and components
-   - Integration tests for full BLE sync scenarios
-   - Performance testing and optimization
-
-9. **Phase 9: Production Readiness** (1 week)
-   - App store preparation (icons, screenshots, metadata, privacy policy)
-   - Structured logging and diagnostics
-   - User documentation and troubleshooting guides
-
-10. **Phase 10: Post v1.0 Enhancements** (Optional)
-   - Role persistence and switching (save role selection across app restarts, single-device mode with local data transfer when changing roles)
-   - Request history/audit trail (searchable archive, CSV export, analytics)
-   - Multi-device support (multiple Front Desks → one Back Office)
-   - Advanced sync features (manual sync, conflict resolution UI, batch operations)
+8. **Phase 7-9: Future Work**
+   - All planned work tracked in GitHub Issues
+   - [Epic #20: Testing & QA](https://github.com/joemc3/poster-runner/issues/20)
+   - [Epic #21: Production Readiness](https://github.com/joemc3/poster-runner/issues/21)
+   - [Epic #22: Nice-to-Have Features](https://github.com/joemc3/poster-runner/issues/22)
 
 See `CLAUDE.md` for detailed architecture and implementation guidance.
 
