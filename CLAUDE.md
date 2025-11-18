@@ -64,6 +64,34 @@ flutter build ios
 flutter build apk
 ```
 
+### Git Workflow
+
+**IMPORTANT:** Always use feature branches for development work.
+
+```bash
+# Before starting work on an issue/task:
+git checkout main
+git pull
+git checkout -b feature/issue-description
+
+# After completing work:
+git add <files>
+git commit -m "feat/fix/chore: description"
+# Then create PR
+```
+
+**Rules:**
+- NEVER make changes directly on `main` branch
+- Create a feature branch before any file modifications
+- Branch naming: `feature/`, `fix/`, `chore/` prefixes
+- One branch per issue/task
+- Commit messages should reference issue numbers where applicable
+
+**Workflow for starting a new task:**
+1. Confirm current branch (`git branch --show-current`)
+2. If on main, create feature branch
+3. Then start making changes
+
 ## Installed Dependencies
 
 **Runtime Packages:**
