@@ -6,52 +6,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Poster Runner** is a cross-platform Flutter application designed for offline communication between Front Desk and Back Office staff at temporary event locations. The app uses Bluetooth Low Energy (BLE) to sync poster pull requests in environments with unreliable or no internet connectivity.
 
-### Quick Start for New Developers
+### Quick Start
 
-**Current State:**
-- ✅ **Phases 1-5 Complete** - Full working app with BLE sync tested on real devices
-- ✅ **All 7 screens operational** - Front Desk (role selection, request entry, delivered audit) + Back Office (live queue, fulfilled log)
-- ✅ **Complete data layer** - PosterRequest model, Hive persistence, full serialization
-- ✅ **BLE communication working** - Bidirectional sync between Front Desk (client) and Back Office (server)
-- ✅ **Offline-first architecture** - All data persists locally, syncs when connected
-- ✅ **UX polish started** - Connection status icons, offline queue badges, theme selection, data management
-- ⚡ **Phase 6 in progress** - Completing UX feedback, then moving to testing (Phase 7) and production readiness (Phase 8)
-
-**What You Can Do Right Now:**
+**Run the app:**
 ```bash
 cd app
 flutter pub get
-flutter run  # Run on two devices to test full BLE sync!
+flutter run  # Run on two devices to test BLE sync
 ```
-Test the app by running Front Desk on one device and Back Office on another. Submit requests on Front Desk, they sync via BLE to Back Office. Mark requests as fulfilled on Back Office, status updates sync back to Front Desk automatically. Watch connection status icons, offline queue badges, and use settings menus to manage data and themes.
 
-**Completed Development (Phases 1-5):**
-- ✅ Phase 1-2: UI, data models, persistence, BLE packages, platform permissions
-- ✅ Phase 3: State management with Provider (4 providers: Theme, BLE Connection, Front Desk, Back Office)
-- ✅ Phase 4: BLE services (client, server, sync orchestration, initialization)
-- ✅ Phase 5: BLE testing and integration - full bidirectional sync working on real devices
+**View current work:**
+```bash
+# Session start protocol
+export PATH="$PATH:/Users/joemc3/.local/bin"
+bd sync
+bd ready --limit 5
 
-**Phase 6 - Essential UX Feedback (IN PROGRESS - High Priority - 1 week):**
-1. ✅ Connection Status Indicators (DONE - Real-time BLE status icons in Front Desk and Back Office home screens)
-2. ✅ Offline Queue Indicators (DONE - Badge showing count of unsynced requests in both roles)
-3. 📋 Error Handling & User Feedback (better BLE error messages)
-4. ⚡ Settings Screen & Data Management (PARTIAL - "Clear All Delivered" for Front Desk DONE, About section and diagnostics TODO)
+# View all issues
+gh issue list --label epic
+gh issue list --label task
+```
 
-**Phase 7 - Testing & QA (Critical - 2-3 weeks):**
-5. 📋 Unit Tests (PosterRequest, Providers, Services - target 60%+ coverage)
-6. 📋 Widget Tests (all 7 screens, components, theme switching)
-7. 📋 Integration Tests (full BLE sync, offline scenarios, data integrity)
-
-**Phase 8 - Production Readiness (Important - 1 week):**
-8. 📋 App Store Preparation (icons, screenshots, metadata)
-9. 📋 Logging & Diagnostics (structured logging, error reporting)
-10. 📋 Documentation (user guide, troubleshooting, admin docs)
-
-**Phase 9 - Nice-to-Have Features (Optional - Post v1.0):**
-11. 📋 Role Persistence & Switching (save role selection across restarts, "Change Role" in settings, single-device mode with local data transfer: Front Desk unsynced requests → Back Office queue, Back Office unsynced fulfilled → Front Desk audit)
-12. 📋 Request History/Audit Trail (searchable archive, CSV export)
-13. 📋 Multi-Device Support (multiple Front Desks → one Back Office)
-14. 📋 Advanced Sync Features (manual sync, conflict resolution UI, batch operations)
+**Work tracking:** All development is tracked in [GitHub Issues](https://github.com/joemc3/poster-runner/issues). See [Epic #35](https://github.com/joemc3/poster-runner/issues/35) for completed foundation work.
 
 ## Essential Commands
 
@@ -88,34 +64,7 @@ flutter build ios
 flutter build apk
 ```
 
-## Current Implementation Status
-
-### Codebase Statistics
-- **Total Dart Files:** 28 files (~7,500 lines of code)
-- **Screens:** 7 complete screens
-- **Reusable Widgets:** 6 components (including customize keypad dialog)
-- **Data Models:** 1 core model + 1 enum + generated Hive adapters + mock data generator
-- **Services:** 5 services (persistence, BLE client, BLE server, sync orchestration, BLE initializer)
-- **State Management:** 5 Provider models (Theme, Keypad Customization, BLE connection, Front Desk data, Back Office data)
-- **Test Coverage:** Minimal (1 smoke test)
-
-### What's Complete ✅
-
-**Core Application (Phases 1-5):**
-- **UI Layer:** All 7 screens with WCAG AAA high-contrast theme (Light/Dark/System), settings menus, real-time BLE status icons, offline queue badges, customizable keypad buttons (A, B, C, D), 6 reusable widgets
-- **Data Layer:** PosterRequest model with 6 fields, full JSON serialization, Hive type adapters, RequestStatus enum, mock data generator
-- **Persistence:** PersistenceService managing 3 Hive boxes (fulfilled_requests, submitted_requests, delivered_audit), write-immediately pattern, real-time listeners, app_preferences box for settings
-- **State Management:** 5 Provider models (ThemeProvider, KeypadCustomizationProvider, BleConnectionProvider, FrontDeskProvider, BackOfficeProvider), all screens use Consumer pattern
-- **BLE Services:** 5 service files (client, server, sync orchestration, initializer, permissions), 3 characteristics implemented (Request, Queue Status, Full Sync), retry logic, MTU negotiation
-- **Testing Status:** Full bidirectional BLE sync verified on real devices, Front Desk ↔ Back Office communication working
-
-**Known Gaps:**
-- 📋 **Test Coverage** - Only basic smoke test exists (minimal ~5% coverage)
-- 📋 **Production Assets** - Missing app icons, splash screens, store metadata
-- 📋 **Documentation** - No user guide or troubleshooting docs yet
-- 📋 **Role Persistence** - Role selection resets on app restart (Phase 9 - optional feature)
-
-### Installed Dependencies
+## Installed Dependencies
 
 **Runtime Packages:**
 ```yaml
@@ -143,32 +92,6 @@ build_runner: ^2.4.13          # Code generation framework
 **Platform Configuration:**
 - Android: Bluetooth permissions for API 31+ and legacy (AndroidManifest.xml)
 - macOS: NSBluetoothAlwaysUsageDescription + bluetooth entitlements
-
-### Next Development Steps
-
-**Phases 1-5: ✅ COMPLETE** - UI, data models, persistence, state management, BLE services all implemented and tested
-
-**Phase 6 - Essential UX Feedback (IN PROGRESS - 1 week):**
-1. ✅ Connection Status Indicators - DONE
-2. ✅ Offline Queue Indicators - DONE
-3. 📋 Error Handling & User Feedback - Better BLE error messages, toast/snackbar notifications
-4. ✅ Settings Screen & Data Management - DONE ("Clear All Delivered", "Customize Letter Buttons", "Theme" menu items implemented; About section, diagnostics still TODO)
-
-**Phase 7 - Testing & QA (NEXT - 2-3 weeks):**
-- Unit Tests: PosterRequest, Providers, PersistenceService (target 60%+ coverage)
-- Widget Tests: All 7 screens, components, theme switching
-- Integration Tests: BLE sync scenarios, offline→reconnect flows, data integrity
-
-**Phase 8 - Production Readiness (1 week):**
-- App Store: Icons, splash screens, screenshots, metadata
-- Logging & Diagnostics: Structured logging, BLE diagnostics, error reporting
-- Documentation: User guide, troubleshooting, admin docs
-
-**Phase 9 - Nice-to-Have Features (Post v1.0 - Optional):**
-- Role persistence & switching, single-device mode
-- Request history/audit trail with CSV export
-- Multi-device support (multiple Front Desks → one Back Office)
-- Advanced sync features (manual sync, conflict resolution UI)
 
 ## Architecture Overview
 
@@ -282,9 +205,13 @@ The PosterRequest model uses field names that align with the Data Structure Spec
 - Includes offline scenario data for testing sync logic
 - Can generate batches for stress testing
 
-## Project Standards Location
+## Project Documentation
 
-Critical design specifications are in `project_standards/`:
+Product and technical documentation is in `docs/`:
+- **docs/PRD.md**: Product requirements overview
+- **docs/TAD.md**: Technical architecture overview
+
+Critical design specifications are in `docs/specs/`:
 
 - **Product Requirements Document (PRD) - Poster Runner.md**: Feature requirements and user roles
 - **BLE GATT Architecture Design.md**: BLE protocol specification
@@ -299,7 +226,7 @@ Critical design specifications are in `project_standards/`:
 
 ### Theme Implementation
 
-All UI components MUST reference `project_standards/project-theme.md` for:
+All UI components MUST reference `docs/specs/project-theme.md` for:
 - Color palette (light/dark themes)
 - Typography (Inter font family)
 - Spacing (8dp grid system)
@@ -447,7 +374,7 @@ This project has specialized agents configured in `.claude/agents/` to help with
 - Only invoked via `/createThemeTemplate` slash command
 - Do NOT invoke directly
 
-**Note:** The theme has already been created in `project_standards/project-theme.md` and implemented in `app/lib/theme/app_theme.dart`.
+**Note:** The theme has already been created in `docs/specs/project-theme.md` and implemented in `app/lib/theme/app_theme.dart`.
 
 ## Code Organization Principles
 

@@ -50,7 +50,7 @@ enum DeviceRole {
 /// - Queue Status Characteristic (B): Back Office indicates status updates to Front Desk
 /// - Full Queue Sync Characteristic (C): Front Desk reads full queue from Back Office
 ///
-/// See: project_standards/BLE GATT Architecture Design.md
+/// See: docs/specs/BLE GATT Architecture Design.md
 class BleService {
   final FlutterReactiveBle _ble;
   final DeviceRole _role;

@@ -19,7 +19,7 @@ import 'persistence_service.dart';
 /// 2. Back Office pushes all unsynced status updates (Server → Client)
 /// 3. Front Desk reads full queue state for reconciliation (Client reads from Server)
 ///
-/// See: project_standards/Synchronization Protocol and Error Handling.md
+/// See: docs/specs/Synchronization Protocol and Error Handling.md
 class SyncService {
   final BleService? _bleService;
   final BleServerService? _bleServerService;
