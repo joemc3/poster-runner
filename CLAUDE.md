@@ -17,10 +17,13 @@ flutter run  # Run on two devices to test BLE sync
 
 **View current work:**
 ```bash
-# Session start protocol
+# Session start protocol (AUTOMATIC)
 export PATH="$PATH:/Users/joemc3/.local/bin"
+git pull --rebase
 bd sync
 bd ready --limit 5
+bd blocked
+/context-prime  # Load project context
 
 # View all issues
 gh issue list --label epic
@@ -93,6 +96,64 @@ git push -u origin <branch-name>  # Always push immediately after commit
 1. Confirm current branch (`git branch --show-current`)
 2. If on main, create feature branch
 3. Then start making changes
+
+## CCPM Integration
+
+This project uses GitHub issues as the source of truth with BEADS for local tracking.
+
+### Breaking Down Epics (Automated)
+
+Use `/pm-epic-breakdown` to automatically:
+- Read PRD/TAD/specs
+- Identify major features
+- Create GitHub issues for epics and tasks (with appropriate labels)
+- Establish BEADS entries
+- Set up dependencies
+- Commit everything to git
+
+### Starting Work on a GitHub Issue
+
+Use `/pm-issue-start <number>` to:
+- Create a feature branch
+- Establish a git worktree in a separate directory
+- Change to that directory
+- Update BEADS status to in_progress
+- Load issue context
+
+Work must occur in the worktree, not on the main branch.
+
+### During Development
+
+ALWAYS work in the feature branch/worktree created by `/pm-issue-start`.
+
+- Sync progress via `/pm-issue-sync <number>`
+- Update BEADS locally with `bd update`
+- Create newly-discovered tasks with `/pm-task-create`
+- Track dependencies with `bd dep`
+- Check other agents' work to avoid conflicts
+
+### Checking Status
+
+- `/pm-dashboard` - Full project overview
+- `/pm-status` - Summary view
+- Next priority tasks via `bd ready`
+
+### Why This Workflow
+
+- Feature branches prevent conflicts - Multiple agents can work simultaneously
+- Worktrees isolate work - No branch switching needed
+- GitHub issues provide visibility - Team knows what's being worked on
+
+## Session End Protocol (AUTOMATIC)
+
+Runs only when user explicitly says "done," "end session," or "stop":
+
+1. Ask about completed work and update both BEADS and GitHub issues with closure details
+2. Ask about in-progress work and update both systems with progress notes
+3. Sync BEADS to git with descriptive commit message listing completed and in-progress issues
+4. Ask about Pull Request creation
+5. Show next available work via `bd ready --limit 3`
+6. Display session summary showing completed issues, in-progress items, PRs created, next work, epic progress, and branch status
 
 ## Installed Dependencies
 
@@ -694,3 +755,54 @@ Poster Runner prioritizes **operational efficiency over aesthetic decoration**:
 - Reliability and data integrity above all
 - After making any code or specification changes, ALWAYS check to see if the README.md and CLAUDE.md files need to be updates and make those updates.
 - I do not like emojis. Do not use emojis unless specifically asked to do so for that specific purpose
+
+## Quick Command Reference
+
+### Project Management (CCPM)
+
+**Epic & Task Management:**
+```bash
+/pm-epic-breakdown          # Break down PRD into epics and tasks
+/pm-task-create "..."       # Create new task with parent and priority
+/pm-issue-start <number>    # Start work (creates feature branch/worktree)
+/pm-issue-sync <number>     # Sync progress to GitHub
+```
+
+**Status & Dashboard:**
+```bash
+/pm-dashboard               # Full project dashboard
+/pm-status                  # Project status summary
+/context-prime              # Load project context
+```
+
+**BEADS Commands:**
+```bash
+bd ready --limit 5          # Show available work
+bd blocked                  # Show blocked items
+bd create                   # Create new BEADS entry
+bd update <id>              # Update entry status/notes
+bd close <id>               # Close completed entry
+bd show <id>                # Show entry details
+bd dep <id> <dep-id>        # Add dependency
+bd stats                    # Show statistics
+bd list                     # List all entries
+bd sync                     # Sync with git
+```
+
+### Flutter Development
+```bash
+flutter pub get             # Get dependencies
+flutter run                 # Run on device
+flutter test                # Run tests
+flutter analyze             # Analyze code
+flutter pub run build_runner build  # Generate Hive adapters
+```
+
+### Git Operations
+```bash
+git checkout -b feature/... # Create feature branch
+git add && git commit       # Stage and commit
+git push -u origin <branch> # Push to remote
+gh pr create                # Create pull request
+gh issue list               # List issues
+```
