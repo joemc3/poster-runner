@@ -183,12 +183,31 @@ class BleService {
     }
 
     debugPrint('[BLE Service] Starting scan for Poster Runner Service');
+    debugPrint('[BLE Service] DIAGNOSTIC MODE: Scanning for ALL devices (no filter)');
 
-    // Scan for devices advertising our service UUID
+    // TEMPORARY DIAGNOSTIC: Scan for ALL devices (no filter) to see what's discoverable
     return _ble.scanForDevices(
-      withServices: [BleUuids.serviceUuid],
+      withServices: [], // DIAGNOSTIC: Empty list = no filter
       scanMode: ScanMode.lowLatency,
-    );
+    ).map((device) {
+      // Log every discovered device for diagnostics
+      debugPrint('');
+      debugPrint('🔍 [BLE Service] Discovered device:');
+      debugPrint('   ID: ${device.id}');
+      debugPrint('   Name: "${device.name}"');
+      debugPrint('   RSSI: ${device.rssi} dBm');
+      debugPrint('   Service UUIDs: ${device.serviceUuids}');
+      debugPrint('   Manufacturer Data: ${device.manufacturerData}');
+
+      if (device.name.toLowerCase().contains('poster') || device.name.toLowerCase().contains('runner')) {
+        debugPrint('   ⚠️  POSSIBLE MATCH - Name contains "poster" or "runner"');
+      }
+      if (device.serviceUuids.contains(BleUuids.serviceUuid)) {
+        debugPrint('   ✅ HAS OUR SERVICE UUID!');
+      }
+
+      return device;
+    });
   }
 
   /// Stop scanning for devices
