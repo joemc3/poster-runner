@@ -222,15 +222,23 @@ class BleServerService {
 
   /// Handle client connection status changes
   void _handleConnectionStateChange(String deviceId, bool connected) {
-    debugPrint('[BLE Server] Connection state changed: deviceId=$deviceId, connected=$connected');
+    debugPrint('');
+    debugPrint('═══════════════════════════════════════════════════════════');
+    debugPrint('[BLE Server] 🔔 CONNECTION STATE CHANGE');
+    debugPrint('[BLE Server] Device ID: $deviceId');
+    debugPrint('[BLE Server] Connected: $connected');
+    debugPrint('[BLE Server] Time: ${DateTime.now()}');
+    debugPrint('═══════════════════════════════════════════════════════════');
+    debugPrint('');
 
     _isClientConnected = connected;
     onClientConnectionChanged?.call(connected);
 
     if (connected) {
-      debugPrint('[BLE Server] Client connected: $deviceId');
+      debugPrint('[BLE Server] ✅ Client successfully connected!');
+      debugPrint('[BLE Server] Ready to receive requests from Front Desk');
     } else {
-      debugPrint('[BLE Server] Client disconnected: $deviceId');
+      debugPrint('[BLE Server] ❌ Client disconnected');
     }
   }
 
