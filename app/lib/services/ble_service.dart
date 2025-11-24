@@ -73,7 +73,15 @@ class BleService {
 
   BleService({required DeviceRole role})
       : _ble = FlutterReactiveBle(),
-        _role = role;
+        _role = role {
+    // Log Bluetooth status on initialization
+    _ble.statusStream.listen((status) {
+      debugPrint('[BLE Service] Bluetooth status changed: $status');
+      if (status != BleStatus.ready) {
+        debugPrint('[BLE Service] ⚠️  Bluetooth NOT ready! Status: $status');
+      }
+    });
+  }
 
   /// Current connected device ID
   String? get connectedDeviceId => _connectedDeviceId;
@@ -177,19 +185,41 @@ class BleService {
   /// Start scanning for Back Office devices
   ///
   /// Front Desk scans for devices advertising the Poster Runner Service
-  Stream<DiscoveredDevice> startScanning() {
+  Stream<DiscoveredDevice> startScanning() async* {
     if (_role != DeviceRole.frontDesk) {
       throw StateError('Only Front Desk can scan for devices');
     }
 
+    // Check Bluetooth status first
+    debugPrint('[BLE Service] Checking Bluetooth status before scanning...');
+    final status = await _ble.statusStream.first;
+    debugPrint('[BLE Service] Current Bluetooth status: $status');
+
+    if (status != BleStatus.ready) {
+      debugPrint('[BLE Service] ❌ Bluetooth NOT ready! Cannot scan. Status: $status');
+      debugPrint('[BLE Service] 💡 Troubleshooting:');
+      if (status == BleStatus.unauthorized) {
+        debugPrint('[BLE Service]    - Bluetooth permission not granted');
+        debugPrint('[BLE Service]    - Go to: System Settings → Privacy & Security → Bluetooth');
+        debugPrint('[BLE Service]    - Enable Bluetooth access for this app');
+      } else if (status == BleStatus.poweredOff) {
+        debugPrint('[BLE Service]    - Bluetooth is turned off');
+        debugPrint('[BLE Service]    - Go to: System Settings → Bluetooth → Turn On');
+      } else if (status == BleStatus.unsupported) {
+        debugPrint('[BLE Service]    - Bluetooth Low Energy not supported on this device');
+      }
+      throw StateError('Bluetooth not ready: $status');
+    }
+
+    debugPrint('[BLE Service] ✅ Bluetooth is ready - starting scan');
     debugPrint('[BLE Service] Starting scan for Poster Runner Service');
     debugPrint('[BLE Service] DIAGNOSTIC MODE: Scanning for ALL devices (no filter)');
 
     // TEMPORARY DIAGNOSTIC: Scan for ALL devices (no filter) to see what's discoverable
-    return _ble.scanForDevices(
+    await for (final device in _ble.scanForDevices(
       withServices: [], // DIAGNOSTIC: Empty list = no filter
       scanMode: ScanMode.lowLatency,
-    ).map((device) {
+    )) {
       // Log every discovered device for diagnostics
       debugPrint('');
       debugPrint('🔍 [BLE Service] Discovered device:');
@@ -206,8 +236,8 @@ class BleService {
         debugPrint('   ✅ HAS OUR SERVICE UUID!');
       }
 
-      return device;
-    });
+      yield device;
+    }
   }
 
   /// Stop scanning for devices
