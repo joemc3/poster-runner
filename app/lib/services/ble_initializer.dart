@@ -79,6 +79,11 @@ class BleInitializer {
       bleConnectionProvider.setSyncService(syncService);
       frontDeskProvider.setSyncService(syncService);
 
+      // Wait for Bluetooth to be ready before scanning (critical for macOS)
+      debugPrint('[BLE Initializer] Waiting for Bluetooth to be ready...');
+      await bleService.waitForBluetoothReady();
+      debugPrint('[BLE Initializer] Bluetooth is ready!');
+
       // Start scanning for Back Office
       debugPrint('[BLE Initializer] Starting BLE scan for Back Office...');
       syncService.startScan();

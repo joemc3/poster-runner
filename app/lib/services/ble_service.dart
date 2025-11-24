@@ -92,6 +92,35 @@ class BleService {
   /// Device role (determines GATT behavior)
   DeviceRole get role => _role;
 
+  /// Wait for Bluetooth to be ready
+  ///
+  /// Critical for macOS - Bluetooth stack takes time to initialize.
+  /// This method waits for BleStatus.ready before returning.
+  ///
+  /// Returns immediately if already ready.
+  /// Throws if Bluetooth fails to become ready within timeout.
+  Future<void> waitForBluetoothReady({Duration timeout = const Duration(seconds: 10)}) async {
+    debugPrint('[BLE Service] Waiting for Bluetooth to be ready (timeout: ${timeout.inSeconds}s)...');
+
+    try {
+      final status = await _ble.statusStream
+          .firstWhere((status) => status == BleStatus.ready)
+          .timeout(
+            timeout,
+            onTimeout: () {
+              throw TimeoutException(
+                'Bluetooth did not become ready within ${timeout.inSeconds} seconds'
+              );
+            },
+          );
+
+      debugPrint('[BLE Service] ✅ Bluetooth is ready: $status');
+    } catch (e) {
+      debugPrint('[BLE Service] ❌ Failed waiting for Bluetooth: $e');
+      rethrow;
+    }
+  }
+
   // ============================================================================
   // BACK OFFICE (GATT SERVER) METHODS
   // ============================================================================
