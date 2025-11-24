@@ -49,7 +49,7 @@ dependencies:
   uuid: ^4.5.1
 
   # BLE communication
-  flutter_reactive_ble: ^5.3.1  # Front Desk (GATT Client)
+  flutter_reactive_ble: ^5.4.0  # Front Desk (GATT Client) - macOS support added in v5.4.0
   ble_peripheral: ^2.4.0         # Back Office (GATT Server)
 
   # State management
