@@ -135,6 +135,13 @@ class BleInitializer {
 
       // Set up BLE server callbacks
       bleServerService.onRequestReceived = syncService.handleIncomingRequest;
+      bleServerService.onClientConnectionChanged = (connected) {
+        debugPrint('[BLE Initializer] Client connection changed: $connected');
+        if (connected) {
+          bleConnectionProvider.setConnectedStatus();
+        }
+        // Note: Don't set disconnected for server - it stays advertising
+      };
       backOfficeProvider.onQueueChanged = (queue) {
         bleServerService.fullQueueProvider = queue;
       };

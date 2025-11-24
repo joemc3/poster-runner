@@ -290,6 +290,14 @@ class BleServerService {
       return WriteRequestResult(status: 1); // Error
     }
 
+    // WORKAROUND: macOS ble_peripheral doesn't trigger connection callback
+    // If we're receiving writes, a client must be connected
+    if (!_isClientConnected) {
+      debugPrint('[BLE Server] 🔔 Client connected (detected via write request)');
+      _isClientConnected = true;
+      onClientConnectionChanged?.call(true);
+    }
+
     debugPrint('[BLE Server] Write request from $deviceId: char=$characteristicId, offset=$offset, ${value.length} bytes');
 
     // Only handle writes for Request Characteristic (A)
