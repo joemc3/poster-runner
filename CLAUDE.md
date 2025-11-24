@@ -180,8 +180,16 @@ hive_generator: ^2.0.1         # Code generation for Hive type adapters
 build_runner: ^2.4.13          # Code generation framework
 ```
 
+**Platform Support:**
+- iOS: ✅ Fully supported (both Front Desk and Back Office roles)
+- Android: ✅ Fully supported (both roles)
+- macOS: ✅ Fully supported (both roles)
+  - Note: macOS advertises with system device name, not custom name
+  - Device matching uses service UUID instead of device name
+
 **Platform Configuration:**
 - Android: Bluetooth permissions for API 31+ and legacy (AndroidManifest.xml)
+- iOS: NSBluetoothAlwaysUsageDescription in Info.plist
 - macOS: NSBluetoothAlwaysUsageDescription + bluetooth entitlements
 
 ## Architecture Overview
@@ -729,6 +737,15 @@ This project has specialized agents configured in `.claude/agents/` to help with
 15. **Concurrent Updates:** Test race conditions during sync
 
 ## Platform Notes
+
+**Supported Platforms:**
+- iOS 13.0+ (iPhone, iPad)
+- Android 5.0+ (API 21+, with full BLE support on API 31+)
+- macOS 10.15+ (Catalina or later)
+
+**Platform-Specific Behavior:**
+- **macOS:** Cannot change advertised BLE device name programmatically. Always advertises with system device name (e.g., "Alice's MacBook Pro"). Device discovery uses service UUID matching instead of name matching for cross-platform compatibility.
+- **Android/iOS:** Can set custom advertised name ("PosterRunner-BO"), but UUID matching is used for consistency.
 
 **Minimum Dart SDK:** 3.9.2
 **Flutter Version:** 3.35.5 (Stable channel)

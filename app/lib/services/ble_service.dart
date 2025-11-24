@@ -73,7 +73,15 @@ class BleService {
 
   BleService({required DeviceRole role})
       : _ble = FlutterReactiveBle(),
-        _role = role;
+        _role = role {
+    // Log Bluetooth status on initialization
+    _ble.statusStream.listen((status) {
+      debugPrint('[BLE Service] Bluetooth status changed: $status');
+      if (status != BleStatus.ready) {
+        debugPrint('[BLE Service] ⚠️  Bluetooth NOT ready! Status: $status');
+      }
+    });
+  }
 
   /// Current connected device ID
   String? get connectedDeviceId => _connectedDeviceId;
@@ -83,6 +91,35 @@ class BleService {
 
   /// Device role (determines GATT behavior)
   DeviceRole get role => _role;
+
+  /// Wait for Bluetooth to be ready
+  ///
+  /// Critical for macOS - Bluetooth stack takes time to initialize.
+  /// This method waits for BleStatus.ready before returning.
+  ///
+  /// Returns immediately if already ready.
+  /// Throws if Bluetooth fails to become ready within timeout.
+  Future<void> waitForBluetoothReady({Duration timeout = const Duration(seconds: 10)}) async {
+    debugPrint('[BLE Service] Waiting for Bluetooth to be ready (timeout: ${timeout.inSeconds}s)...');
+
+    try {
+      final status = await _ble.statusStream
+          .firstWhere((status) => status == BleStatus.ready)
+          .timeout(
+            timeout,
+            onTimeout: () {
+              throw TimeoutException(
+                'Bluetooth did not become ready within ${timeout.inSeconds} seconds'
+              );
+            },
+          );
+
+      debugPrint('[BLE Service] ✅ Bluetooth is ready: $status');
+    } catch (e) {
+      debugPrint('[BLE Service] ❌ Failed waiting for Bluetooth: $e');
+      rethrow;
+    }
+  }
 
   // ============================================================================
   // BACK OFFICE (GATT SERVER) METHODS
@@ -177,18 +214,59 @@ class BleService {
   /// Start scanning for Back Office devices
   ///
   /// Front Desk scans for devices advertising the Poster Runner Service
-  Stream<DiscoveredDevice> startScanning() {
+  Stream<DiscoveredDevice> startScanning() async* {
     if (_role != DeviceRole.frontDesk) {
       throw StateError('Only Front Desk can scan for devices');
     }
 
-    debugPrint('[BLE Service] Starting scan for Poster Runner Service');
+    // Check Bluetooth status first
+    debugPrint('[BLE Service] Checking Bluetooth status before scanning...');
+    final status = await _ble.statusStream.first;
+    debugPrint('[BLE Service] Current Bluetooth status: $status');
 
-    // Scan for devices advertising our service UUID
-    return _ble.scanForDevices(
-      withServices: [BleUuids.serviceUuid],
+    if (status != BleStatus.ready) {
+      debugPrint('[BLE Service] ❌ Bluetooth NOT ready! Cannot scan. Status: $status');
+      debugPrint('[BLE Service] 💡 Troubleshooting:');
+      if (status == BleStatus.unauthorized) {
+        debugPrint('[BLE Service]    - Bluetooth permission not granted');
+        debugPrint('[BLE Service]    - Go to: System Settings → Privacy & Security → Bluetooth');
+        debugPrint('[BLE Service]    - Enable Bluetooth access for this app');
+      } else if (status == BleStatus.poweredOff) {
+        debugPrint('[BLE Service]    - Bluetooth is turned off');
+        debugPrint('[BLE Service]    - Go to: System Settings → Bluetooth → Turn On');
+      } else if (status == BleStatus.unsupported) {
+        debugPrint('[BLE Service]    - Bluetooth Low Energy not supported on this device');
+      }
+      throw StateError('Bluetooth not ready: $status');
+    }
+
+    debugPrint('[BLE Service] ✅ Bluetooth is ready - starting scan');
+    debugPrint('[BLE Service] Starting scan for Poster Runner Service');
+    debugPrint('[BLE Service] DIAGNOSTIC MODE: Scanning for ALL devices (no filter)');
+
+    // TEMPORARY DIAGNOSTIC: Scan for ALL devices (no filter) to see what's discoverable
+    await for (final device in _ble.scanForDevices(
+      withServices: [], // DIAGNOSTIC: Empty list = no filter
       scanMode: ScanMode.lowLatency,
-    );
+    )) {
+      // Log every discovered device for diagnostics
+      debugPrint('');
+      debugPrint('🔍 [BLE Service] Discovered device:');
+      debugPrint('   ID: ${device.id}');
+      debugPrint('   Name: "${device.name}"');
+      debugPrint('   RSSI: ${device.rssi} dBm');
+      debugPrint('   Service UUIDs: ${device.serviceUuids}');
+      debugPrint('   Manufacturer Data: ${device.manufacturerData}');
+
+      if (device.name.toLowerCase().contains('poster') || device.name.toLowerCase().contains('runner')) {
+        debugPrint('   ⚠️  POSSIBLE MATCH - Name contains "poster" or "runner"');
+      }
+      if (device.serviceUuids.contains(BleUuids.serviceUuid)) {
+        debugPrint('   ✅ HAS OUR SERVICE UUID!');
+      }
+
+      yield device;
+    }
   }
 
   /// Stop scanning for devices
