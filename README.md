@@ -82,10 +82,13 @@ Poster Runner uses device-to-device Bluetooth Low Energy communication to:
 ### Cross-Platform Support
 
 Built with Flutter for:
-- **iOS** (iPhone and iPad)
-- **Android** (phones and tablets)
+- **iOS** (iPhone and iPad) - iOS 13.0+
+- **Android** (phones and tablets) - Android 5.0+ (API 21+)
+- **macOS** (MacBook, iMac, Mac mini) - macOS 10.15+ (Catalina or later)
 
 Native-quality UI with platform-specific optimizations.
+
+**Note:** Device matching uses BLE service UUID for cross-platform compatibility. macOS devices advertise with their system device name (e.g., "Alice's MacBook Pro") rather than a custom name.
 
 ## Design Philosophy
 
