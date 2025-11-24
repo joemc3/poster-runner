@@ -63,16 +63,21 @@ class SyncService {
     if (_bleService == null) return; // Only Front Desk scans
 
     debugPrint('[Sync Service] Starting BLE scan...');
-    debugPrint('[Sync Service] Looking for device named: "PosterRunner-BO"');
+    debugPrint('[Sync Service] Looking for device with service UUID: 0000A000-...');
     _scanSubscription?.cancel();
     _scanSubscription = _bleService.startScanning().listen(
       (device) {
         debugPrint('[Sync Service] Checking device: "${device.name}" (ID: ${device.id})');
 
-        if (device.name == 'PosterRunner-BO') {
+        // Match by service UUID instead of name (macOS ignores localName parameter)
+        final hasOurService = device.serviceUuids.any((uuid) =>
+            uuid.toString().toLowerCase() == '0000a000-0000-1000-8000-00805f9b34fb');
+
+        if (hasOurService) {
           debugPrint('');
           debugPrint('═══════════════════════════════════════════════════════════');
           debugPrint('[Sync Service] ✅ FOUND MATCH! Device: "${device.name}"');
+          debugPrint('[Sync Service] Matched by service UUID (macOS compatibility)');
           debugPrint('[Sync Service] Device ID: ${device.id}');
           debugPrint('[Sync Service] Stopping scan and connecting...');
           debugPrint('═══════════════════════════════════════════════════════════');
@@ -81,7 +86,7 @@ class SyncService {
           _scanSubscription?.cancel();
           connectToDevice(device.id);
         } else {
-          debugPrint('[Sync Service] ❌ Not a match - looking for "PosterRunner-BO"');
+          debugPrint('[Sync Service] ❌ Not a match - missing Poster Runner service UUID');
         }
       },
       onError: (error) {
